@@ -17,6 +17,11 @@
             margin: 0;
             text-align: center;
             color: #333;
+            /* ป้องกันการคลุมดำเลือกข้อความ */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
         .maintenance-box {
             background-color: #ffffff;
@@ -26,10 +31,6 @@
             max-width: 500px;
             width: 90%;
             border-top: 5px solid #ffc107;
-        }
-        .icon {
-            font-size: 60px;
-            margin-bottom: 15px;
         }
         h1 {
             font-size: 24px;
@@ -47,17 +48,62 @@
             font-weight: bold;
             color: #0d6efd;
             margin-top: 20px;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #e9f2ff;
+            border-radius: 8px;
         }
     </style>
 </head>
-<body>
+<!-- oncontextmenu="return false;" ช่วยป้องกันการคลิกขวาเพิ่มเติม -->
+<body oncontextmenu="return false;">
     <div class="maintenance-box">
-        <h1>ระบบปิดชั่วคราว</h1>
-        <p>ระบบบริหารงาน กยศ. มหาวิทยาลัยอุบลราชธานี</p>
-        <p>ขออภัยในความไม่สะดวก</p>
+        <h1>ระบบปิดปรับปรุงชั่วคราว</h1>
+        <p>เนื่องจากระบบปิดปรับปรุงและเพิ่มฟังก์ชันการขอยื่นกู้ยืมที่กำลังจะเปิดให้ดำเนินการ</p>
+        
         <div class="date-highlight">
-            ให้รอติดตามกำหนดการใหม่อีกครั้งที่หน้าเพจ เนื่องจากมีการปรับเปลี่ยนกระบวนการดำเนินการ
+            ระบบจะเปิดให้เข้าใช้งานอีกครั้ง<br>ในวันที่ 27 พ.ค. 2569
         </div>
+
+        <p style="color: #dc3545; font-weight: bold;">ขออภัยในความไม่สะดวก</p>
     </div>
+
+    <!-- สคริปต์ป้องกันการดูซอร์สโค้ด (คลิกขวา และ คีย์ลัดต่างๆ) -->
+    <script>
+        // ป้องกันคลิกขวา
+        document.addEventListener('contextmenu', event => event.preventDefault());
+
+        // ป้องกันคีย์ลัด
+        document.onkeydown = function(e) {
+            // ป้องกัน F12 (Developer Tools)
+            if(e.keyCode == 123) {
+                return false;
+            }
+            // ป้องกัน Ctrl+Shift+I (Inspect)
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) {
+                return false;
+            }
+            // ป้องกัน Ctrl+Shift+J (Console)
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) {
+                return false;
+            }
+            // ป้องกัน Ctrl+Shift+C (Inspect Element)
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) {
+                return false;
+            }
+            // ป้องกัน Ctrl+U (View Source)
+            if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
+                return false;
+            }
+            // ป้องกัน Ctrl+S (Save Page)
+            if(e.ctrlKey && e.keyCode == 'S'.charCodeAt(0)) {
+                return false;
+            }
+            // ป้องกัน Ctrl+P (Print Page)
+            if(e.ctrlKey && e.keyCode == 'P'.charCodeAt(0)) {
+                return false;
+            }
+        }
+    </script>
 </body>
 </html>
