@@ -6,17 +6,14 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบบริหารงาน กยศ. มหาวิทยาลัยอุบลราชธานี</title>
-    
-    <!-- นำเข้าฟอนต์ Sarabun จาก Google Fonts เพื่อความสวยงามและอ่านง่าย -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
     <style>
         :root {
-            --primary-color: #004085; /* สีน้ำเงิน (อ้างอิงโทนสี ม.อุบลฯ) */
-            --secondary-color: #ffc107; /* สีเหลืองทอง */
-            --alert-color: #e63946; /* สีแดงแจ้งเตือน */
+            --primary-color: #004085;
+            --secondary-color: #ffc107;
+            --alert-color: #e63946;
             --bg-gradient-1: #f0f4f8;
             --bg-gradient-2: #d9e2ec;
         }
@@ -30,7 +27,6 @@
             min-height: 100vh;
             margin: 0;
             color: #334155;
-            /* ป้องกันการคลุมดำเลือกข้อความ */
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
@@ -49,7 +45,6 @@
             overflow: hidden;
         }
 
-        /* แถบสีไล่ระดับด้านบนของกล่อง */
         .maintenance-card::before {
             content: "";
             position: absolute;
@@ -132,9 +127,8 @@
         }
     </style>
 </head>
-<body oncontextmenu="return false;">
+<body>
     <div class="maintenance-card">
-        <!-- ไอคอนฟันเฟืองแบบเวกเตอร์ (SVG) ดูคมชัดทุกหน้าจอ -->
         <div class="icon-wrapper">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
@@ -151,7 +145,6 @@
             <strong>วันที่ 27 พฤษภาคม 2569</strong>
         </div>
 
-        <!-- ไอคอนแจ้งเตือนขนาดเล็ก -->
         <div class="apology">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"></circle>
@@ -162,21 +155,25 @@
         </div>
     </div>
 
-    <!-- สคริปต์ป้องกันการดูซอร์สโค้ด -->
     <script>
-        // ป้องกันคลิกขวา
-        document.addEventListener('contextmenu', event => event.preventDefault());
-
-        // ป้องกันคีย์ลัด
         document.onkeydown = function(e) {
-            if(e.keyCode == 123) return false; // F12
-            if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false; // Ctrl+Shift+I
-            if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false; // Ctrl+Shift+J
-            if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) return false; // Ctrl+Shift+C
-            if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false; // Ctrl+U
-            if(e.ctrlKey && e.keyCode == 'S'.charCodeAt(0)) return false; // Ctrl+S
-            if(e.ctrlKey && e.keyCode == 'P'.charCodeAt(0)) return false; // Ctrl+P
+            if(e.keyCode == 123) return false;
+            if(e.ctrlKey && e.shiftKey && (e.keyCode == 'I'.charCodeAt(0) || e.keyCode == 'J'.charCodeAt(0) || e.keyCode == 'C'.charCodeAt(0))) return false;
+            if(e.ctrlKey && (e.keyCode == 'U'.charCodeAt(0) || e.keyCode == 'S'.charCodeAt(0) || e.keyCode == 'P'.charCodeAt(0))) return false;
         }
+
+        setInterval(function() {
+            var before = new Date().getTime();
+            debugger;
+            var after = new Date().getTime();
+            if (after - before > 100) {
+                document.body.innerHTML = "<h1 style='text-align:center; margin-top:20vh; color:red;'>ไม่อนุญาตให้เข้าถึงซอร์สโค้ด</h1>";
+            }
+        }, 100);
+
+        setInterval(function() {
+            console.clear();
+        }, 50);
     </script>
 </body>
 </html>
