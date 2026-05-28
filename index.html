@@ -204,6 +204,11 @@
     </div>
 
 <script>
+    // ตั้งค่า SweetAlert
+    window.Swal = Swal.mixin({
+        confirmButtonText: 'ตกลง',
+        cancelButtonText: 'ยกเลิก'
+    });
 
     function escapeHTML(str) {
         if(typeof str !== 'string') return str;
@@ -268,7 +273,6 @@
     document.getElementById('showResetPassword').onclick = (e) => {
         e.preventDefault();
         document.getElementById('resetPasswordForm').reset();
-        
         document.getElementById('resetStep2Area').style.display = 'none';
         document.getElementById('btnVerifyIdentity').style.display = 'block';
         document.getElementById('resetStudentId').readOnly = false;
@@ -277,7 +281,6 @@
         document.getElementById('resetStudentId').parentElement.style.opacity = '1';
         document.getElementById('resetPhone').parentElement.style.opacity = '1';
         document.getElementById('resetIdCard').parentElement.style.opacity = '1'; 
-
         showSection('resetPasswordSection');
     };
 
@@ -296,7 +299,6 @@
     document.getElementById('toggleLoginPassBtn').addEventListener('click', function() {
         const loginPassInput = document.getElementById('loginPassword');
         const loginEyeIcon = document.getElementById('loginEyeIcon');
-        
         if (loginPassInput.type === 'password') {
             loginPassInput.type = 'text'; 
             loginEyeIcon.textContent = 'visibility'; 
@@ -306,18 +308,28 @@
         }
     });
 
+    // ==========================================
+    // ส่วนเชื่อมต่อ API (แทนที่ google.script.run)
+    // ==========================================
+
+    // ฟังก์ชันเข้าสู่ระบบ
     document.getElementById('loginForm').onsubmit = async (e) => {
         e.preventDefault();
         const btnSubmit = document.getElementById('btnLoginSubmit');
         btnSubmit.disabled = true;
-
         showLoading('กำลังตรวจสอบข้อมูลเข้าสู่ระบบ');
         
         const id = document.getElementById('loginStudentId').value.trim();
         const pass = document.getElementById('loginPassword').value;
         const clientIp = await getClientIp(); 
 
-        google.script.run.withSuccessHandler(res => {
+        try {
+            const res = await callApi("login", { 
+                studentId: id, 
+                password: pass, 
+                ipAddress: clientIp 
+            });
+
             hideLoading();
             btnSubmit.disabled = false;
 
@@ -337,8 +349,8 @@
                     allowOutsideClick: false
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        const redirectUrl = WEB_APP_URL + "?page=" + res.user.role;
-                        window.top.location.href = redirectUrl;
+                        // แยกหน้าเว็บ
+                        window.location.href = res.user.role === 'admin' ? 'View_Admin.html' : 'View_User.html';
                     }
                 });
             } else {
@@ -348,34 +360,15 @@
                         icon: 'error',
                         title: 'บัญชีถูกระงับการใช้งาน',
                         html: `<p style="color:red; font-weight:bold;">${safeMessage}</p>
-                               <p style="font-size:14px; margin-top:10px;">กรุณาติดต่อเจ้าหน้าที่ กยศ. มหาวิทยาลัยอุบลราชธานี</p>`,
+                               <p style="font-size:14px; margin-top:10px;">กรุณาติดต่อเจ้าหน้าที่ กยศ.</p>`,
                         confirmButtonText: 'รับทราบ',
                         confirmButtonColor: '#dc3545'
                     });
                 } else if (res.isUnauthorizedAdmin) {
                     Swal.fire({
                         icon: 'warning',
-                        title: 'ปฏิเสธการเข้าถึง (Access Denied)',
-                        html: `
-                            <div style="text-align: left; font-size: 14px; line-height: 1.6; background: #fff5f5; padding: 15px; border-radius: 8px; border: 1px solid #ffcdd2;">
-                                <p style="color: #c62828; font-weight: bold; text-align: center; font-size: 16px; margin-top: 0;">
-                                    อีเมลของท่านไม่ได้รับอนุญาตให้ใช้สิทธิ์เจ้าหน้าที่สถานศึกษา
-                                </p>
-                                <hr style="border: 0; border-top: 1px dashed #ef9a9a; margin: 15px 0;">
-                                <p style="font-weight: bold; color: #333; margin-bottom: 5px;">แนวทางปฏิบัติ:</p>
-                                <ol style="color: #555; padding-left: 20px; margin-top: 0; margin-bottom: 0;">
-                                    <li style="margin-bottom: 8px;">
-                                        <b>หากเข้าระบบไม่ได้:</b> ต้องล็อกอินด้วยบัญชีที่ผูกกับอีเมลที่ลงทะเบียนสิทธิ์แอดมินไว้เท่านั้น
-                                    </li>
-                                    <li style="margin-bottom: 8px;">
-                                        <b>หากท่านเป็นเจ้าหน้าที่:</b> กรุณาตรวจสอบว่าท่านใช้อีเมล <i>(@ubu.ac.th)</i> ตรงกับที่ลงทะเบียนไว้หรือไม่
-                                    </li>
-                                    <li>
-                                        <b>การขอเพิ่มสิทธิ์:</b> โปรดติดต่อฝ่ายพัฒนาระบบเพื่อเพิ่มอีเมลของท่านเข้าสู่รายชื่อ Admin
-                                    </li>
-                                </ol>
-                            </div>
-                        `,
+                        title: 'ปฏิเสธการเข้าถึง',
+                        text: 'อีเมลของท่านไม่ได้รับอนุญาตให้ใช้สิทธิ์เจ้าหน้าที่สถานศึกษา',
                         confirmButtonText: 'ปิดหน้าต่าง',
                         confirmButtonColor: '#6c757d'
                     });
@@ -383,14 +376,15 @@
                     showAlert(res.message, 'error');
                 }
             }
-        }).withFailureHandler(err => {
+        } catch (err) {
             hideLoading();
             btnSubmit.disabled = false;
             showAlert(err.message, 'error');
-        }).login(id, pass, clientIp); 
+        }
     };
 
-    document.getElementById('signupForm').onsubmit = (e) => {
+    // ฟังก์ชันลงทะเบียน
+    document.getElementById('signupForm').onsubmit = async (e) => {
         e.preventDefault();
         const btnSubmit = document.getElementById('btnSignupSubmit');
         btnSubmit.disabled = true;
@@ -407,7 +401,8 @@
             phone: document.getElementById('signupPhone').value.trim()
         };
 
-        google.script.run.withSuccessHandler(res => {
+        try {
+            const res = await callApi("signUp", { userData: data });
             hideLoading();
             btnSubmit.disabled = false;
             
@@ -425,14 +420,15 @@
             } else {
                 showAlert(res.message, 'error');
             }
-        }).withFailureHandler(err => { 
+        } catch (err) {
             hideLoading(); 
             btnSubmit.disabled = false;
             showAlert(err.message, 'error'); 
-        }).signUp(data);
+        }
     };
 
-    document.getElementById('btnVerifyIdentity').onclick = () => {
+    // ฟังก์ชันตรวจสอบยืนยันตัวตนก่อนเปลี่ยนรหัสผ่าน
+    document.getElementById('btnVerifyIdentity').onclick = async () => {
         const studentId = document.getElementById('resetStudentId').value.trim();
         const phone = document.getElementById('resetPhone').value.trim();
         const idCard = document.getElementById('resetIdCard').value.trim();
@@ -442,26 +438,22 @@
             return;
         }
 
-        if (!/^\d{13}$/.test(idCard)) {
-            showAlert('เลขประจำตัวประชาชนต้องเป็นตัวเลข 13 หลัก', 'warning');
-            return;
-        }
-        if (!/^\d{10}$/.test(phone)) {
-            showAlert('หมายเลขโทรศัพท์ต้องเป็นตัวเลข 10 หลัก', 'warning');
-            return;
-        }
-
         const btnVerify = document.getElementById('btnVerifyIdentity');
         btnVerify.disabled = true;
         showLoading('ระบบกำลังตรวจสอบข้อมูลยืนยันตัวตน');
 
-        google.script.run.withSuccessHandler(res => {
+        try {
+            const res = await callApi("verifyUserForReset", { 
+                studentId: studentId, 
+                phone: phone, 
+                idCard: idCard 
+            });
+
             hideLoading();
             btnVerify.disabled = false;
 
             if (res.success) {
                 showAlert('ข้อมูลถูกต้อง กรุณาตั้งรหัสผ่านใหม่', 'success');
-                
                 document.getElementById('resetStudentId').readOnly = true;
                 document.getElementById('resetPhone').readOnly = true;
                 document.getElementById('resetIdCard').readOnly = true;
@@ -472,18 +464,18 @@
                 document.getElementById('resetStep2Area').style.display = 'block';
                 document.getElementById('resetNewPassword').required = true;
                 document.getElementById('resetConfirmPassword').required = true;
-
             } else {
                 showAlert(res.message, 'error');
             }
-        }).withFailureHandler(err => {
+        } catch (err) {
             hideLoading();
             btnVerify.disabled = false;
             showAlert(err.message, 'error');
-        }).verifyUserForReset(studentId, phone, idCard); 
+        }
     };
 
-    document.getElementById('resetPasswordForm').onsubmit = (e) => {
+    // ฟังก์ชันยืนยันเปลี่ยนรหัสผ่านใหม่
+    document.getElementById('resetPasswordForm').onsubmit = async (e) => {
         e.preventDefault();
         
         if (document.getElementById('resetStep2Area').style.display === 'none') {
@@ -511,14 +503,14 @@
         btnReset.disabled = true;
         showLoading('กำลังเปลี่ยนรหัสผ่าน');
 
-        const data = {
-            studentId: studentId,
-            phone: phone,
-            idCard: idCard, 
-            newPassword: newPass
-        };
+        try {
+            const res = await callApi("resetPassword", {
+                studentId: studentId,
+                phone: phone,
+                idCard: idCard, 
+                newPassword: newPass
+            });
 
-        google.script.run.withSuccessHandler(res => {
             hideLoading();
             btnReset.disabled = false;
 
@@ -536,11 +528,11 @@
             } else {
                 showAlert(res.message, 'error');
             }
-        }).withFailureHandler(err => {
+        } catch (err) {
             hideLoading();
             btnReset.disabled = false;
             showAlert(err.message, 'error');
-        }).resetPassword(data);
+        }
     };
 </script>
 </body>
