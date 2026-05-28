@@ -4,15 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ระบบบริหารงานกองทุนเงินให้กู้ยืมเพื่อการศึกษา มหาวิทยาลัยอุบลราชธานี</title>
-  
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  
   <link rel="stylesheet" href="style.css">
   <script src="api.js"></script>
-   <?!= include('Style_CSS'); ?>
 </head>
 <body>
 
@@ -1879,7 +1875,6 @@
         });
     }
 
-    const WEB_APP_URL = "<?= ScriptApp.getService().getUrl() ?>";
     const userDataString = sessionStorage.getItem('ubu_user_data');
     const userToken = sessionStorage.getItem('ubu_token');
     
@@ -1889,7 +1884,7 @@
     } catch(e) {}
     
     if (!currentUser || !userToken || currentUser.role !== 'admin') {
-        document.body.innerHTML = '<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:\'Sarabun\', sans-serif; background:#f4f6f9;"><i class="material-icons" style="font-size:64px; color:#d32f2f; margin-bottom:15px;">gpp_bad</i><h2 style="color:#d32f2f; margin-bottom:5px;">เซสชันหมดอายุ หรือไม่มีสิทธิ์เข้าถึง</h2><p style="color:#666; margin-bottom:20px;">กรุณาเข้าสู่ระบบใหม่อีกครั้งเพื่อความปลอดภัย</p><a href="' + WEB_APP_URL + '?page=login" target="_top" style="padding:12px 30px; background:#1976D2; color:#fff; text-decoration:none; border-radius:30px; font-size:16px; box-shadow:0 4px 10px rgba(25,118,210,0.3);">คลิกที่นี่เพื่อเข้าสู่ระบบ</a></div>';
+        document.body.innerHTML = '<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:\'Sarabun\', sans-serif; background:#f4f6f9;"><i class="material-icons" style="font-size:64px; color:#d32f2f; margin-bottom:15px;">gpp_bad</i><h2 style="color:#d32f2f; margin-bottom:5px;">เซสชันหมดอายุ หรือไม่มีสิทธิ์เข้าถึง</h2><p style="color:#666; margin-bottom:20px;">กรุณาเข้าสู่ระบบใหม่อีกครั้งเพื่อความปลอดภัย</p><button onclick="window.location.replace(\'index.html\')" style="padding:12px 30px; background:#1976D2; color:#fff; border:none; cursor:pointer; border-radius:30px; font-size:16px; box-shadow:0 4px 10px rgba(25,118,210,0.3);">คลิกที่นี่เพื่อเข้าสู่ระบบ</button></div>';
         throw new Error("Stop execution, waiting for user click");
     }
 
@@ -1955,7 +1950,7 @@
 
     if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebarOnMobile);
 
-    window.showPage = (id) => {
+    window.showPage = async (id) => {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         const target = document.getElementById(id);
         if(target) target.classList.add('active');
@@ -2086,11 +2081,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     sessionStorage.clear();
-                    const link = document.createElement('a');
-                    link.href = WEB_APP_URL + "?page=login";
-                    link.target = '_top';
-                    document.body.appendChild(link);
-                    link.click();
+                    window.location.replace("index.html");
                 }
             });
         };
@@ -2102,16 +2093,17 @@
             clearTimeout(timer);
             timer = setTimeout(() => {
                 sessionStorage.clear();
-                document.body.innerHTML = '<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:\'Sarabun\', sans-serif; background:#fff8e1;"><i class="material-icons" style="font-size:64px; color:#f57f17; margin-bottom:15px;">timer_off</i><h2 style="color:#f57f17; margin-bottom:5px;">หมดเวลาการเชื่อมต่อ</h2><p style="color:#666; margin-bottom:20px;">ระบบออกจากระบบอัตโนมัติเนื่องจากไม่มีการใช้งานเกิน 10 นาที</p><a href="' + WEB_APP_URL + '?page=login" target="_top" style="padding:12px 30px; background:#f57f17; color:#fff; text-decoration:none; border-radius:30px; font-size:16px;">กลับสู่หน้าเข้าสู่ระบบ</a></div>';
+                document.body.innerHTML = '<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:\'Sarabun\', sans-serif; background:#fff8e1;"><i class="material-icons" style="font-size:64px; color:#f57f17; margin-bottom:15px;">timer_off</i><h2 style="color:#f57f17; margin-bottom:5px;">หมดเวลาการเชื่อมต่อ</h2><p style="color:#666; margin-bottom:20px;">ระบบออกจากระบบอัตโนมัติเนื่องจากไม่มีการใช้งานเกิน 10 นาที</p><button onclick="window.location.replace(\'index.html\')" style="padding:12px 30px; background:#f57f17; color:#fff; border:none; cursor:pointer; border-radius:30px; font-size:16px;">กลับสู่หน้าเข้าสู่ระบบ</button></div>';
             }, 15 * 60 * 1000); 
         };
         window.onload=resetTimer; document.onmousemove=resetTimer; document.onkeypress=resetTimer; document.ontouchstart=resetTimer; document.onclick=resetTimer; document.onscroll=resetTimer;
     };
     autoLogout();
 
-    function loadAdminDashboardStats() {
+    async function loadAdminDashboardStats() {
         showLoading();
-        google.script.run.withSuccessHandler(res => {
+        try {
+            const res = await callApi("getDashboardStats", { adminId: adminId, token: userToken });
             hideLoading();
             if (res.success) {
                 const els = {
@@ -2125,175 +2117,189 @@
                 if(els.female) els.female.textContent = res.stats.female.toLocaleString(); 
                 if(els.reg) els.reg.textContent = res.stats.confirmedRegistrations.toLocaleString();
             }
-        }).getDashboardStats(adminId, userToken);
+        } catch(err) {
+            hideLoading();
+        }
     }
 
-  let allUsersCache = [];
+    let allUsersCache = [];
  
-  function loadUsersForAdmin(autoRender = false) {
-    const query = document.getElementById('userSearchInput').value.trim();
-    const tbody = document.querySelector('#usersTable tbody');
-    
-    if (query || autoRender) {
-      const searchBtn = document.getElementById('btnSearchUsers');
-      if (searchBtn) searchBtn.click();
-    } else if (tbody) {
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 40px; color:#666;"><i class="material-icons" style="font-size:48px; display:block; margin-bottom:10px; color:#ccc;">search</i>กรุณากรอกรหัสนักศึกษา หรือ ชื่อ-นามสกุล เพื่อค้นหาข้อมูลผู้ใช้งาน</td></tr>';
-    }
-  }
-
-  const btnSearchUsers = document.getElementById('btnSearchUsers');
-  if (btnSearchUsers) {
-    btnSearchUsers.onclick = () => {
-      const query = document.getElementById('userSearchInput').value.trim();
-      const tbody = document.querySelector('#usersTable tbody');
-      
-      if (!query && tbody) {
-         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 40px; color:#666;"><i class="material-icons" style="font-size:48px; display:block; margin-bottom:10px; color:#ccc;">search</i>กรุณากรอกข้อมูลค้นหา</td></tr>';
-        return;
-      }
-      
-      showLoading('กำลังตรวจสอบรายการในระบบ');
-      google.script.run.withSuccessHandler(users => {
-        hideLoading();
-        allUsersCache = users;
-        renderUserTable(users);
-      }).searchUsersBackend(query, adminId, userToken);
-    };
-  }
-
-  const userSearchInput = document.getElementById('userSearchInput');
-  if (userSearchInput) {
-    userSearchInput.addEventListener('keypress', function (e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        if (btnSearchUsers) btnSearchUsers.click();
-      }
-    });
-  }
-
-  function renderUserTable(usersToRender) {
-    const tbody = document.querySelector('#usersTable tbody');
-    if(!tbody) return;
-    tbody.innerHTML = '';
-    if (usersToRender.length === 0) { 
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#d32f2f;">ไม่พบข้อมูลผู้ใช้งานที่ตรงตามเงื่อนไข</td></tr>'; 
-      return; 
-    }
-    
-    usersToRender.forEach(u => {
-      const tr = tbody.insertRow();
-      const statusHtml = u.status === 'Suspended' 
-        ? '<br><span style="color:#e53e3e; font-weight:bold; font-size:12px;"><i class="material-icons" style="font-size:12px; vertical-align:middle;">block</i> ถูกระงับ</span>' 
-        : '<br><span style="color:#38a169; font-weight:bold; font-size:12px;"><i class="material-icons" style="font-size:12px; vertical-align:middle;">check_circle</i> ปกติ</span>';
-      
-      tr.innerHTML = `<td>${escapeHTML(u.studentId)}</td>
-                <td>${escapeHTML(u.firstName)} ${escapeHTML(u.lastName)}</td>
-                <td>${escapeHTML(maskString(u.gmail, 'email'))} ${statusHtml}</td>
-                <td>${escapeHTML(getRoleDisplay(u.role))}</td>
-                <td><button class="btn btn-info btn-sm" onclick="editUser('${escapeHTML(u.id)}')">จัดการ</button></td>`;
-    });
-  }
-
-  const addUserBtn = document.getElementById('addUserBtn');
-  if (addUserBtn) {
-    addUserBtn.onclick = () => { 
-      document.getElementById('userForm').reset(); 
-      document.getElementById('userId').value = ''; 
-      const statCont = document.getElementById('modalStatusContainer');
-      if (statCont) statCont.style.display = 'none';
-      document.getElementById('userModal').style.display = 'flex'; 
-    };
-  }
-
-  window.editUser = (id) => {
-    const u = allUsersCache.find(x => x.id === id);
-    if(!u) return;
-
-    document.getElementById('userId').value = u.id;
-    document.getElementById('modalUserGmail').value = u.gmail || '';
-    document.getElementById('modalUserStudentId').value = u.studentId || '';
-    document.getElementById('modalUserFirstName').value = u.firstName || '';
-    document.getElementById('modalUserLastName').value = u.lastName || '';
-    document.getElementById('modalUserPrefix').value = u.prefix || '';
-    document.getElementById('modalUserFaculty').value = u.faculty || '';
-    document.getElementById('modalUserPhone').value = u.phone || '';
-    document.getElementById('modalUserRole').value = u.role || 'user';
-    
-    const statusContainer = document.getElementById('modalStatusContainer');
-    const statusDisplay = document.getElementById('modalUserStatusDisplay');
-    const btnSuspend = document.getElementById('modalBtnSuspend');
-    
-    if (statusContainer && statusDisplay && btnSuspend) {
-      statusContainer.style.display = 'flex'; 
-      if (u.status === 'Suspended') {
-        statusDisplay.innerHTML = '<span style="color:#e53e3e;"><i class="material-icons" style="font-size:18px; vertical-align:text-bottom;">block</i> ถูกระงับการใช้งาน</span>';
-        if (u.suspendReason) {
-          statusDisplay.innerHTML += '<div style="font-size:12px; color:#e53e3e; font-weight:normal; margin-top:4px;">เหตุผล: ' + escapeHTML(u.suspendReason) + '</div>';
+    function loadUsersForAdmin(autoRender = false) {
+        const query = document.getElementById('userSearchInput').value.trim();
+        const tbody = document.querySelector('#usersTable tbody');
+        
+        if (query || autoRender) {
+            const searchBtn = document.getElementById('btnSearchUsers');
+            if (searchBtn) searchBtn.click();
+        } else if (tbody) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 40px; color:#666;"><i class="material-icons" style="font-size:48px; display:block; margin-bottom:10px; color:#ccc;">search</i>กรุณากรอกรหัสนักศึกษา หรือ ชื่อ-นามสกุล เพื่อค้นหาข้อมูลผู้ใช้งาน</td></tr>';
         }
-        btnSuspend.style.backgroundColor = '#edf2f7'; 
-        btnSuspend.style.color = '#4a5568'; 
-        btnSuspend.innerHTML = '<i class="material-icons" style="font-size:16px; margin-right:5px;">lock_open</i> ปลดระงับบัญชี';
-        btnSuspend.onclick = () => { document.getElementById('userModal').style.display = 'none'; actionSuspend(u.id, 'Active'); };
-      } else {
-        statusDisplay.innerHTML = '<span style="color:#38a169;"><i class="material-icons" style="font-size:18px; vertical-align:text-bottom;">check_circle</i> ปกติ (Active)</span>';
-        btnSuspend.style.backgroundColor = '#ffc107'; 
-        btnSuspend.style.color = '#000'; 
-        btnSuspend.innerHTML = '<i class="material-icons" style="font-size:16px; margin-right:5px;">block</i> ระงับบัญชี';
-        btnSuspend.onclick = () => { document.getElementById('userModal').style.display = 'none'; actionSuspend(u.id, 'Suspended'); };
-      }
     }
-    document.getElementById('userModal').style.display = 'flex';
-  };
 
-  const userFormEl = document.getElementById('userForm');
-  if (userFormEl) {
-    userFormEl.onsubmit = (e) => {
-      e.preventDefault(); 
-      showLoading();
-      
-      const id = document.getElementById('userId').value;
-      const data = {
-        gmail: document.getElementById('modalUserGmail').value, 
-        studentId: document.getElementById('modalUserStudentId').value,
-        firstName: document.getElementById('modalUserFirstName').value, 
-        lastName: document.getElementById('modalUserLastName').value,
-        prefix: document.getElementById('modalUserPrefix').value, 
-        faculty: document.getElementById('modalUserFaculty').value,
-        phone: document.getElementById('modalUserPhone').value, 
-        role: document.getElementById('modalUserRole').value,
-        password: document.getElementById('modalUserPassword').value
-      };
-      
-      const handler = (res) => { 
-        hideLoading(); 
-        if (res.success) { 
-          showAlert('บันทึกสำเร็จ'); 
-          document.getElementById('userModal').style.display = 'none'; 
-          loadUsersForAdmin(true); 
-        } else {
-          showAlert(res.message, 'error'); 
+    const btnSearchUsers = document.getElementById('btnSearchUsers');
+    if (btnSearchUsers) {
+        btnSearchUsers.onclick = async () => {
+            const query = document.getElementById('userSearchInput').value.trim();
+            const tbody = document.querySelector('#usersTable tbody');
+            
+            if (!query && tbody) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 40px; color:#666;"><i class="material-icons" style="font-size:48px; display:block; margin-bottom:10px; color:#ccc;">search</i>กรุณากรอกข้อมูลค้นหา</td></tr>';
+                return;
+            }
+            
+            showLoading('กำลังตรวจสอบรายการในระบบ');
+            try {
+                const users = await callApi("searchUsersBackend", { query: query, adminId: adminId, token: userToken });
+                hideLoading();
+                allUsersCache = users;
+                renderUserTable(users);
+            } catch(err) {
+                hideLoading();
+                showAlert(err.message, 'error');
+            }
+        };
+    }
+
+    const userSearchInput = document.getElementById('userSearchInput');
+    if (userSearchInput) {
+        userSearchInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (btnSearchUsers) btnSearchUsers.click();
+            }
+        });
+    }
+
+    function renderUserTable(usersToRender) {
+        const tbody = document.querySelector('#usersTable tbody');
+        if(!tbody) return;
+        tbody.innerHTML = '';
+        if (usersToRender.length === 0) { 
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#d32f2f;">ไม่พบข้อมูลผู้ใช้งานที่ตรงตามเงื่อนไข</td></tr>'; 
+            return; 
         }
-      };
-      
-      if (id) {
-        google.script.run.withSuccessHandler(handler).updateUser(id, data, adminId, userToken);
-      } else {
-        google.script.run.withSuccessHandler(handler).createUser(data, adminId, userToken);
-      }
+        
+        usersToRender.forEach(u => {
+            const tr = tbody.insertRow();
+            const statusHtml = u.status === 'Suspended' 
+                ? '<br><span style="color:#e53e3e; font-weight:bold; font-size:12px;"><i class="material-icons" style="font-size:12px; vertical-align:middle;">block</i> ถูกระงับ</span>' 
+                : '<br><span style="color:#38a169; font-weight:bold; font-size:12px;"><i class="material-icons" style="font-size:12px; vertical-align:middle;">check_circle</i> ปกติ</span>';
+            
+            tr.innerHTML = `<td>${escapeHTML(u.studentId)}</td>
+                        <td>${escapeHTML(u.firstName)} ${escapeHTML(u.lastName)}</td>
+                        <td>${escapeHTML(maskString(u.gmail, 'email'))} ${statusHtml}</td>
+                        <td>${escapeHTML(getRoleDisplay(u.role))}</td>
+                        <td><button class="btn btn-info btn-sm" onclick="editUser('${escapeHTML(u.id)}')">จัดการ</button></td>`;
+        });
+    }
+
+    const addUserBtn = document.getElementById('addUserBtn');
+    if (addUserBtn) {
+        addUserBtn.onclick = () => { 
+            document.getElementById('userForm').reset(); 
+            document.getElementById('userId').value = ''; 
+            const statCont = document.getElementById('modalStatusContainer');
+            if (statCont) statCont.style.display = 'none';
+            document.getElementById('userModal').style.display = 'flex'; 
+        };
+    }
+
+    window.editUser = (id) => {
+        const u = allUsersCache.find(x => x.id === id);
+        if(!u) return;
+
+        document.getElementById('userId').value = u.id;
+        document.getElementById('modalUserGmail').value = u.gmail || '';
+        document.getElementById('modalUserStudentId').value = u.studentId || '';
+        document.getElementById('modalUserFirstName').value = u.firstName || '';
+        document.getElementById('modalUserLastName').value = u.lastName || '';
+        document.getElementById('modalUserPrefix').value = u.prefix || '';
+        document.getElementById('modalUserFaculty').value = u.faculty || '';
+        document.getElementById('modalUserPhone').value = u.phone || '';
+        document.getElementById('modalUserRole').value = u.role || 'user';
+        
+        const statusContainer = document.getElementById('modalStatusContainer');
+        const statusDisplay = document.getElementById('modalUserStatusDisplay');
+        const btnSuspend = document.getElementById('modalBtnSuspend');
+        
+        if (statusContainer && statusDisplay && btnSuspend) {
+            statusContainer.style.display = 'flex'; 
+            if (u.status === 'Suspended') {
+                statusDisplay.innerHTML = '<span style="color:#e53e3e;"><i class="material-icons" style="font-size:18px; vertical-align:text-bottom;">block</i> ถูกระงับการใช้งาน</span>';
+                if (u.suspendReason) {
+                    statusDisplay.innerHTML += '<div style="font-size:12px; color:#e53e3e; font-weight:normal; margin-top:4px;">เหตุผล: ' + escapeHTML(u.suspendReason) + '</div>';
+                }
+                btnSuspend.style.backgroundColor = '#edf2f7'; 
+                btnSuspend.style.color = '#4a5568'; 
+                btnSuspend.innerHTML = '<i class="material-icons" style="font-size:16px; margin-right:5px;">lock_open</i> ปลดระงับบัญชี';
+                btnSuspend.onclick = () => { document.getElementById('userModal').style.display = 'none'; actionSuspend(u.id, 'Active'); };
+            } else {
+                statusDisplay.innerHTML = '<span style="color:#38a169;"><i class="material-icons" style="font-size:18px; vertical-align:text-bottom;">check_circle</i> ปกติ (Active)</span>';
+                btnSuspend.style.backgroundColor = '#ffc107'; 
+                btnSuspend.style.color = '#000'; 
+                btnSuspend.innerHTML = '<i class="material-icons" style="font-size:16px; margin-right:5px;">block</i> ระงับบัญชี';
+                btnSuspend.onclick = () => { document.getElementById('userModal').style.display = 'none'; actionSuspend(u.id, 'Suspended'); };
+            }
+        }
+        document.getElementById('userModal').style.display = 'flex';
     };
-  }
+
+    const userFormEl = document.getElementById('userForm');
+    if (userFormEl) {
+        userFormEl.onsubmit = async (e) => {
+            e.preventDefault(); 
+            showLoading();
+            
+            const id = document.getElementById('userId').value;
+            const data = {
+                gmail: document.getElementById('modalUserGmail').value, 
+                studentId: document.getElementById('modalUserStudentId').value,
+                firstName: document.getElementById('modalUserFirstName').value, 
+                lastName: document.getElementById('modalUserLastName').value,
+                prefix: document.getElementById('modalUserPrefix').value, 
+                faculty: document.getElementById('modalUserFaculty').value,
+                phone: document.getElementById('modalUserPhone').value, 
+                role: document.getElementById('modalUserRole').value,
+                password: document.getElementById('modalUserPassword').value
+            };
+            
+            try {
+                let res;
+                if (id) {
+                    res = await callApi("updateUser", { userId: id, ...data, adminId: adminId, token: userToken });
+                } else {
+                    res = await callApi("createUser", { userData: data, adminId: adminId, token: userToken });
+                }
+                
+                hideLoading(); 
+                if (res.success) { 
+                    showAlert('บันทึกสำเร็จ'); 
+                    document.getElementById('userModal').style.display = 'none'; 
+                    loadUsersForAdmin(true); 
+                } else {
+                    showAlert(res.message, 'error'); 
+                }
+            } catch(err) {
+                hideLoading();
+                showAlert(err.message, 'error');
+            }
+        };
+    }
 
     let cachedDuplicateGroups = [];
-    window.runDuplicateCheck = () => {
+    window.runDuplicateCheck = async () => {
         const resArea = document.getElementById('duplicateResultArea');
         if(resArea) resArea.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">กำลังตรวจสอบข้อมูลทั้งระบบ</div>';
         showLoading();
-        google.script.run.withSuccessHandler(groups => {
+        try {
+            const groups = await callApi("checkDuplicateAccounts", { adminId: adminId, token: userToken });
             hideLoading(); 
             cachedDuplicateGroups = groups; 
             displayDuplicateResults(groups);
-            }).checkDuplicateAccounts(adminId, userToken);
+        } catch(err) {
+            hideLoading();
+            showAlert(err.message, 'error');
+        }
     };
     
     function displayDuplicateResults(groups) {
@@ -2328,7 +2334,7 @@
         displayDuplicateResults(filtered);
     };
 
-    window.loadSuspendedUsers = () => {
+    window.loadSuspendedUsers = async () => {
         const tbody = document.querySelector('#suspendedUsersTable tbody');
         if(!tbody) return;
         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">กำลังโหลด</td></tr>';
@@ -2337,7 +2343,8 @@
         if(sa) sa.checked = false; 
         toggleDeleteButton(0); 
 
-        google.script.run.withSuccessHandler(users => {
+        try {
+            const users = await callApi("getSuspendedUsers", { adminId: adminId, token: userToken });
             tbody.innerHTML = '';
             if (!users || users.length === 0) { 
                 tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#999; padding:20px;">ไม่มีผู้ใช้งานที่ถูกระงับในขณะนี้</td></tr>'; 
@@ -2346,7 +2353,9 @@
             users.forEach(u => {
                 tbody.innerHTML += '<tr><td style="text-align:center;"><input type="checkbox" class="chk-suspended" value="' + escapeHTML(u.id) + '" onchange="checkSuspendedSelection()"></td><td>' + escapeHTML(u.studentId) + '</td><td>' + escapeHTML(u.firstName) + ' ' + escapeHTML(u.lastName) + '</td><td style="color:#dc3545">' + escapeHTML(u.suspendReason || '-') + '</td><td style="text-align:center;"><button class="btn btn-success btn-sm" style="padding:4px 8px;" onclick="actionSuspend(\'' + escapeHTML(u.id) + '\', \'Active\')"><i class="material-icons" style="font-size:14px;">lock_open</i> ปลด</button> <button class="btn btn-danger btn-sm" style="padding:4px 8px;" onclick="actionDelete(\'' + escapeHTML(u.id) + '\', \'' + escapeHTML(u.studentId) + '\')"><i class="material-icons" style="font-size:14px;">delete</i> ลบ</button></td></tr>';
             });
-        }).getSuspendedUsers(adminId, userToken);
+        } catch(err) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
+        }
     };
 
     window.toggleAllSuspended = (source) => {
@@ -2380,10 +2389,11 @@
             showCancelButton: true, 
             confirmButtonText: 'ตกลง', 
             confirmButtonColor: '#d33' 
-        }).then(r => {
+        }).then(async r => {
             if (r.isConfirmed) {
                 showLoading();
-                google.script.run.withSuccessHandler(res => {
+                try {
+                    const res = await callApi("deleteMultipleUsers", { userIds: ids, adminId: adminId, token: userToken });
                     hideLoading(); 
                     if (res.success) { 
                         Swal.fire('ลบสำเร็จ', '', 'success'); 
@@ -2391,7 +2401,10 @@
                     } else {
                         Swal.fire('ผิดพลาด', res.message, 'error');
                     }
-                }).deleteMultipleUsers(ids, adminId, userToken);
+                } catch(err) {
+                    hideLoading();
+                    Swal.fire('ผิดพลาด', err.message, 'error');
+                }
             }
         });
     };
@@ -2403,15 +2416,19 @@
             icon: 'warning', 
             showCancelButton: true, 
             confirmButtonColor: '#d33' 
-        }).then(r => {
+        }).then(async r => {
             if (r.isConfirmed) {
                 showLoading();
-                google.script.run.withSuccessHandler(res => {
+                try {
+                    const res = await callApi("deleteUser", { userId: userId, adminId: adminId, token: userToken });
                     hideLoading(); 
                     Swal.fire('ลบสำเร็จ', '', 'success');
                     if (document.getElementById('usersTable')) loadUsersForAdmin(true);
                     if (document.getElementById('suspendedUsersTable')) loadSuspendedUsers();
-                }).deleteUser(userId, adminId, userToken);
+                } catch(err) {
+                    hideLoading();
+                    Swal.fire('ผิดพลาด', err.message, 'error');
+                }
             }
         });
     };
@@ -2438,9 +2455,10 @@
         }
     };
 
-    function executeStatusUpdate(userId, status, reason) {
+    async function executeStatusUpdate(userId, status, reason) {
         showLoading();
-        google.script.run.withSuccessHandler(res => {
+        try {
+            const res = await callApi("updateUser", { userId: userId, status: status, suspendReason: reason, adminId: adminId, token: userToken });
             hideLoading();
             if (res.success) { 
                 Swal.fire('สำเร็จ', res.message, 'success'); 
@@ -2449,7 +2467,10 @@
             } else {
                 Swal.fire('ผิดพลาด', res.message, 'error');
             }
-        }).updateUser(userId, {status: status, suspendReason: reason}, adminId, userToken);
+        } catch(err) {
+            hideLoading();
+            Swal.fire('ผิดพลาด', err.message, 'error');
+        }
     }
 
     let allProfilesData = [];
@@ -2457,9 +2478,10 @@
     let currentPage = 1;
     let rowsPerPage = 10;
 
-    window.loadProfilesForAdmin = () => {
+    window.loadProfilesForAdmin = async () => {
         showLoading();
-        google.script.run.withSuccessHandler(profiles => {
+        try {
+            const profiles = await callApi("getProfileSummaries", { adminId: adminId, token: userToken });
             hideLoading(); 
             allProfilesData = profiles; 
             currentFilteredData = profiles;
@@ -2478,7 +2500,10 @@
             
             currentPage = 1; 
             renderPagination(); 
-        }).getProfileSummaries(adminId, userToken);
+        } catch(err) {
+            hideLoading();
+            console.error(err);
+        }
     };
 
     function renderPagination() {
@@ -2552,7 +2577,7 @@
         });
     }
 
-    window.openAdminEditProfile = (studentId) => {
+    window.openAdminEditProfile = async (studentId) => {
         showLoading(); 
         const form = document.getElementById('adminProfileForm');
         if(form) form.reset();
@@ -2562,7 +2587,8 @@
         if(targetIdEl) targetIdEl.value = studentId; 
         if(showIdEl) showIdEl.value = studentId;
         
-        google.script.run.withSuccessHandler(p => {
+        try {
+            const p = await callApi("getProfile", { studentId: studentId, token: userToken });
             hideLoading();
             if (p) {
                 ['idCard','nickname','dob','gpa','phone','disease','fatherName','fatherJob','fatherPhone','motherName','motherJob','motherPhone','parentsStatus','familyMembers','householdIncome','debt','addrNo','subDistrict','district','province','zipcode','mapLink'].forEach(k => {
@@ -2574,12 +2600,15 @@
             }
             const modal = document.getElementById('adminProfileModal');
             if(modal) modal.style.display = 'flex';
-       }).getProfile(studentId, adminId, userToken);
+        } catch(err) {
+            hideLoading();
+            console.error(err);
+        }
     };
 
     const adminProfileFormEl = document.getElementById('adminProfileForm');
     if (adminProfileFormEl) {
-        adminProfileFormEl.onsubmit = (e) => {
+        adminProfileFormEl.onsubmit = async (e) => {
             e.preventDefault(); 
             showLoading();
             
@@ -2591,7 +2620,8 @@
                 pd[k] = el ? el.value : ''; 
             });
             
-            google.script.run.withSuccessHandler(res => {
+            try {
+                const res = await callApi("saveProfile", { profileData: pd, token: userToken });
                 hideLoading(); 
                 if (res.success) { 
                     showAlert('แก้ไขข้อมูลสำเร็จ'); 
@@ -2600,7 +2630,10 @@
                 } else {
                     showAlert(res.message,'error');
                 }
-           }).saveProfile(pd, adminId, userToken);
+            } catch(err) {
+                hideLoading();
+                showAlert(err.message,'error');
+            }
         };
     }
 
@@ -2609,13 +2642,17 @@
     let imgCurrentPage = 1;
     let imgRowsPerPage = 20;
 
-    window.loadAdminImageReport = () => {
+    window.loadAdminImageReport = async () => {
         showLoading();
-        google.script.run.withSuccessHandler(data => { 
+        try {
+            const data = await callApi("getStudentImageReport", { adminId: adminId, token: userToken });
             hideLoading(); 
             cachedImageReportData = data; 
             filterImageReport(); 
-        }).getStudentImageReport(adminId, userToken);
+        } catch(err) {
+            hideLoading();
+            console.error(err);
+        }
     };
 
     window.searchImageReport = () => { filterImageReport(); };
@@ -2657,11 +2694,7 @@
         
         currentFilteredImageReportData.slice(start, start + limit).forEach((i, idx) => {
             const img = i.profileImage || 'https://placehold.co/150x150?text=NO+IMAGE';
-            
-            // ✅ แก้บั๊กคลิกรูปไม่ได้: เก็บ URL ไว้ใน data-img แทนการส่งผ่านฟังก์ชันตรงๆ
             const imgTag = '<img src="' + escapeHTML(img) + '" data-img="' + escapeHTML(img) + '" style="width:50px;height:60px;object-fit:cover;cursor:pointer;border-radius:4px;" onclick="openLightbox(this.getAttribute(\'data-img\'))">';
-            
-            // ✅ แก้บั๊กคลิกประวัติไม่ได้: ส่งแค่ รหัสนักศึกษา (id) ไปก็พอ แล้วค่อยไปหาชื่อจาก Cache ในฟังก์ชันเอา
             const btnHistory = i.profileImage ? '<button class="btn btn-info btn-sm" onclick="viewImageHistory(\'' + escapeHTML(i.studentId) + '\')">ประวัติ</button>' : '<span style="color:#999;font-size:12px;">ไม่มีรูป</span>';
 
             tb.innerHTML += '<tr><td style="text-align:center;">' + (start + idx + 1) + '</td><td style="text-align:center;">' + imgTag + '</td><td style="font-weight:bold; color:var(--secondary-color);">' + escapeHTML(i.studentId) + '</td><td>' + escapeHTML(i.name) + '</td><td>' + escapeHTML(i.idCard || '-') + '</td><td>' + escapeHTML(i.faculty || '-') + '</td><td style="text-align:center;">' + btnHistory + '</td></tr>';
@@ -2693,7 +2726,7 @@
         } 
     };
 
-    window.viewImageHistory = (id) => {
+    window.viewImageHistory = async (id) => {
         const student = cachedImageReportData.find(x => x.studentId === id);
         const name = student ? student.name : '-';
 
@@ -2708,12 +2741,15 @@
         const c = document.getElementById('imageHistoryContainer'); 
         if(c) c.innerHTML = '<div style="grid-column: 1/-1; text-align: center;">กำลังโหลดประวัติ...</div>';
         
-        google.script.run.withSuccessHandler(h => {
+        try {
+            const h = await callApi("getProfileImageHistory", { studentId: id, adminId: adminId, token: userToken });
             if(!c) return;
             c.innerHTML = h.length === 0 
                 ? '<div style="grid-column: 1/-1; text-align: center; color: #999;">ไม่พบประวัติ</div>' 
                 : h.map(x => '<div style="text-align:center; border:1px solid #eee; padding:10px; border-radius:8px;"><img src="' + escapeHTML(x.imageUrl) + '" data-img="' + escapeHTML(x.imageUrl) + '" style="width:100%;height:150px;object-fit:cover;cursor:pointer;border-radius:4px;" onclick="openLightbox(this.getAttribute(\'data-img\'))"><br><small style="color:#666;">' + escapeHTML(formatDate(x.timestamp)) + '</small></div>').join('');
-        }).getProfileImageHistory(id, adminId, userToken);
+        } catch(err) {
+            if(c) c.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: red;">เกิดข้อผิดพลาด</div>';
+        }
     };
 
     window.openLightbox = (url) => { 
@@ -2725,13 +2761,17 @@
     let adminActivitiesCache = [];
     let currentAdminTab = 'current';
 
-    window.loadActivitiesForAdmin = () => { 
+    window.loadActivitiesForAdmin = async () => { 
         showLoading(); 
-        google.script.run.withSuccessHandler(a => { 
+        try {
+            const a = await callApi("getActivities", { mode: 'admin', studentId: adminId, token: userToken });
             hideLoading(); 
             adminActivitiesCache = a; 
             renderAdminTable(currentAdminTab); 
-        }).getActivities('admin', adminId, userToken);
+        } catch(err) {
+            hideLoading();
+            console.error(err);
+        }
     };
 
     window.switchAdminTab = (tab) => { 
@@ -2828,7 +2868,7 @@
 
     const addActivityFormEl = document.getElementById('addActivityForm');
     if (addActivityFormEl) {
-        addActivityFormEl.onsubmit = (e) => {
+        addActivityFormEl.onsubmit = async (e) => {
             e.preventDefault(); 
             const p = []; 
             ['Morning', 'Afternoon', 'Evening'].forEach(x => { 
@@ -2842,7 +2882,15 @@
             if (p.length === 0) return Swal.fire('เตือน', 'เลือกเวลาอย่างน้อย 1 ช่วง', 'warning');
             
             showLoading();
-            google.script.run.withSuccessHandler(r => { 
+            try {
+                const r = await callApi("createActivity", {
+                    name: document.getElementById('actName').value, 
+                    date: document.getElementById('actDate').value, 
+                    location: document.getElementById('actLocation').value, 
+                    periods: p,
+                    adminId: adminId, 
+                    token: userToken
+                });
                 hideLoading(); 
                 if (r.success) { 
                     Swal.fire('สำเร็จ', '', 'success'); 
@@ -2852,12 +2900,10 @@
                 } else {
                     Swal.fire('ผิดพลาด', r.message, 'error');
                 }
-            }).createActivity({
-                name: document.getElementById('actName').value, 
-                date: document.getElementById('actDate').value, 
-                location: document.getElementById('actLocation').value, 
-                periods: p
-            }, adminId, userToken);
+            } catch(err) {
+                hideLoading();
+                Swal.fire('ผิดพลาด', err.message, 'error');
+            }
         };
     }
 
@@ -2876,10 +2922,20 @@
 
     const editActivityFormEl = document.getElementById('editActivityForm');
     if (editActivityFormEl) {
-        editActivityFormEl.onsubmit = (e) => {
+        editActivityFormEl.onsubmit = async (e) => {
             e.preventDefault(); 
             showLoading();
-            google.script.run.withSuccessHandler(r => { 
+            try {
+                const r = await callApi("updateActivity", {
+                    id: document.getElementById('editActId').value, 
+                    name: document.getElementById('editActName').value, 
+                    date: document.getElementById('editActDate').value, 
+                    period: document.getElementById('editActPeriod').value, 
+                    location: document.getElementById('editActLocation').value, 
+                    quota: document.getElementById('editActQuota').value,
+                    adminId: adminId,
+                    token: userToken
+                });
                 hideLoading(); 
                 if (r.success) { 
                     Swal.fire('สำเร็จ', '', 'success'); 
@@ -2889,23 +2945,23 @@
                 } else {
                     Swal.fire('ผิดพลาด', r.message, 'error');
                 } 
-           }).updateActivity({
-                id: document.getElementById('editActId').value, 
-                name: document.getElementById('editActName').value, 
-                date: document.getElementById('editActDate').value, 
-                period: document.getElementById('editActPeriod').value, 
-                location: document.getElementById('editActLocation').value, 
-                quota: document.getElementById('editActQuota').value
-            }, adminId, userToken);
+            } catch(err) {
+                hideLoading();
+                Swal.fire('ผิดพลาด', err.message, 'error');
+            }
         };
     }
 
-    window.toggleStatus = (id, st) => { 
+    window.toggleStatus = async (id, st) => { 
         showLoading(); 
-        google.script.run.withSuccessHandler(r => {
+        try {
+            await callApi("toggleActivityStatus", { id: id, status: st, adminId: adminId, token: userToken });
             hideLoading(); 
             loadActivitiesForAdmin();
-        }).toggleActivityStatus(id, st, adminId, userToken);
+        } catch(err) {
+            hideLoading();
+            console.error(err);
+        }
     };
 
     window.deleteActivity = (id) => { 
@@ -2915,13 +2971,17 @@
             showCancelButton: true,
             confirmButtonColor: '#d33',
             confirmButtonText: 'ลบข้อมูล'
-        }).then(r => {
+        }).then(async r => {
             if (r.isConfirmed) {
                 showLoading(); 
-                google.script.run.withSuccessHandler(res => {
+                try {
+                    await callApi("deleteActivity", { id: id, adminId: adminId, token: userToken });
                     hideLoading(); 
                     loadActivitiesForAdmin();
-                }).deleteActivity(id, adminId, userToken);
+                } catch(err) {
+                    hideLoading();
+                    console.error(err);
+                }
             }
         });
     };
@@ -2929,16 +2989,20 @@
     const searchPrintFormEl = document.getElementById('searchPrintForm');
     window.printActivitiesCache = [];
     if (searchPrintFormEl) {
-        searchPrintFormEl.onsubmit = (e) => {
+        searchPrintFormEl.onsubmit = async (e) => {
             e.preventDefault(); 
             showLoading(); 
             const d = document.getElementById('printSearchDate').value;
             const p = document.getElementById('printSearchPeriod').value;
-            google.script.run.withSuccessHandler(a => { 
+            try {
+                const a = await callApi("getActivities", { mode: 'admin', studentId: adminId, token: userToken });
                 hideLoading(); 
                 window.printActivitiesCache = a;
                 renderPrintSearchResults(a, d, p); 
-           }).getActivities('admin', adminId, userToken);
+            } catch(err) {
+                hideLoading();
+                console.error(err);
+            }
         };
     }
 
@@ -2956,11 +3020,12 @@
         });
     }
 
-    window.printActivityList = (id) => {
+    window.printActivityList = async (id) => {
         const act = window.printActivitiesCache.find(x => x.id === id);
         if(!act) return;
         showLoading(); 
-        google.script.run.withSuccessHandler(list => { 
+        try {
+            const list = await callApi("getRegisteredList", { id: id, adminId: adminId, token: userToken });
             hideLoading(); 
             if (!list || list.length === 0) return Swal.fire('เตือน', 'ไม่มีคนลงทะเบียน', 'info');
             
@@ -2976,7 +3041,10 @@
             }
             const modal = document.getElementById('printPreviewModal');
             if(modal) modal.style.display = 'flex';
-        }).getRegisteredList(id, adminId, userToken);
+        } catch(err) {
+            hideLoading();
+            Swal.fire('Error', err.message, 'error');
+        }
     };
 
     window.triggerPrintFromPreview = () => { 
@@ -2986,30 +3054,43 @@
 
     const exportFormEl = document.getElementById('exportForm');
     if (exportFormEl) {
-        exportFormEl.onsubmit = (e) => {
+        exportFormEl.onsubmit = async (e) => {
             e.preventDefault(); 
             showLoading('รวบรวมไฟล์');
-            google.script.run.withSuccessHandler(res => { 
+            try {
+                const res = await callApi("getExportDataCSV", { 
+                    startDate: document.getElementById('exportStartDate').value, 
+                    endDate: document.getElementById('exportEndDate').value, 
+                    adminId: adminId, 
+                    token: userToken 
+                });
                 hideLoading(); 
                 if (res.success) {
                     downloadCSV(res.csvData, res.fileName); 
                 } else {
                     Swal.fire('Error', res.message, 'error'); 
                 }
-           }).getExportDataCSV(document.getElementById('exportStartDate').value, document.getElementById('exportEndDate').value, adminId, userToken);
+            } catch(err) {
+                hideLoading();
+                Swal.fire('Error', err.message, 'error');
+            }
         };
     }
 
     let adminQueueCache = [];
     let currentQueueTab = 'current';
 
-    window.loadAdminQueueSlots = () => { 
+    window.loadAdminQueueSlots = async () => { 
         showLoading(); 
-        google.script.run.withSuccessHandler(s => { 
+        try {
+            const s = await callApi("getQueueSlots", { role: 'admin', studentId: adminId, token: userToken });
             hideLoading(); 
             adminQueueCache = s; 
             renderAdminQueueTable(s); 
-        }).getQueueSlots('admin', adminId, userToken);
+        } catch(err) {
+            hideLoading();
+            console.error(err);
+        }
     };
 
     window.switchQueueTab = (tab) => { 
@@ -3097,7 +3178,7 @@
 
     const queueFormEl = document.getElementById('queueForm');
     if (queueFormEl) {
-        queueFormEl.onsubmit = (e) => {
+        queueFormEl.onsubmit = async (e) => {
             e.preventDefault(); 
             showLoading(); 
             const idEl = document.getElementById('qEditId');
@@ -3109,7 +3190,15 @@
                 quota: document.getElementById('qQuota').value, 
                 status: document.getElementById('qStatus').value
             };
-            const hd = (res) => {
+            
+            try {
+                let res;
+                if (id) {
+                    res = await callApi("updateQueueSlot", { ...d, adminId: adminId, token: userToken });
+                } else {
+                    res = await callApi("createQueueSlot", { ...d, adminId: adminId, token: userToken });
+                }
+                
                 hideLoading(); 
                 if (res.success) {
                     closeQueueModal(); 
@@ -3117,11 +3206,9 @@
                 } else {
                     Swal.fire('Error', res.message, 'error');
                 }
-            };
-            if (id) {
-                google.script.run.withSuccessHandler(hd).updateQueueSlot(d, adminId, userToken);
-            } else {
-                google.script.run.withSuccessHandler(hd).createQueueSlot(d, adminId, userToken);
+            } catch(err) {
+                hideLoading();
+                Swal.fire('Error', err.message, 'error');
             }
         };
     }
@@ -3131,13 +3218,17 @@
             title: 'ยืนยันเปลี่ยนสถานะ', 
             icon: 'question', 
             showCancelButton: true
-        }).then(r => {
+        }).then(async r => {
             if (r.isConfirmed) { 
                 showLoading(); 
-                google.script.run.withSuccessHandler(res => {
+                try {
+                    await callApi("toggleQueueStatus", { id: id, status: st === 'Show' ? 'Hide' : 'Show', adminId: adminId, token: userToken });
                     hideLoading();
                     loadAdminQueueSlots();
-                }).toggleQueueStatus(id, st === 'Show' ? 'Hide' : 'Show', adminId, userToken);
+                } catch(err) {
+                    hideLoading();
+                    console.error(err);
+                }
             }
         }); 
     };
@@ -3149,13 +3240,17 @@
             icon: 'warning', 
             showCancelButton: true, 
             confirmButtonColor: '#d33'
-        }).then(r => {
+        }).then(async r => {
             if (r.isConfirmed) { 
                 showLoading(); 
-                google.script.run.withSuccessHandler(res => {
+                try {
+                    await callApi("deleteQueueSlot", { id: id, adminId: adminId, token: userToken });
                     hideLoading();
                     loadAdminQueueSlots();
-                }).deleteQueueSlot(id, adminId, userToken);
+                } catch(err) {
+                    hideLoading();
+                    console.error(err);
+                }
             }
         }); 
     };
@@ -3164,15 +3259,18 @@
     let currentSearchInfo = {};
     let currentQueueListData = [];
 
-    window.loadQueueDateOptions = () => {
-        google.script.run.withSuccessHandler(m => { 
+    window.loadQueueDateOptions = async () => {
+        try {
+            const m = await callApi("getQueueSlotOptions", { adminId: adminId, token: userToken });
             queueOptionsCache = m; 
             const sel = document.getElementById('searchQDate'); 
             if(sel) {
                 sel.innerHTML = '<option value="">-- เลือก --</option>'; 
                 Object.keys(m).forEach(k => sel.innerHTML += '<option value="' + escapeHTML(k) + '">' + escapeHTML(formatDate(k)) + '</option>'); 
             }
-        }).getQueueSlotOptions(adminId, userToken);
+        } catch(err) {
+            console.error(err);
+        }
     };
 
     window.updateTimeOptions = () => { 
@@ -3191,14 +3289,15 @@
 
     const searchQueueListFormEl = document.getElementById('searchQueueListForm');
     if (searchQueueListFormEl) {
-        searchQueueListFormEl.onsubmit = (e) => {
+        searchQueueListFormEl.onsubmit = async (e) => {
             e.preventDefault(); 
             showLoading(); 
             currentSearchInfo = {
                 date: document.getElementById('searchQDate').value, 
                 time: document.getElementById('searchQTime').value
             };
-            google.script.run.withSuccessHandler(l => { 
+            try {
+                const l = await callApi("getQueueAttendees", { date: currentSearchInfo.date, time: currentSearchInfo.time, adminId: adminId, token: userToken });
                 hideLoading(); 
                 currentQueueListData = l; 
                 const tb = document.querySelector('#queueResultTable tbody'); 
@@ -3212,7 +3311,10 @@
                 }
                 const pArea = document.getElementById('printQueueBtnArea');
                 if(pArea) pArea.style.display = l.length > 0 ? 'block' : 'none';
-            }).getQueueAttendees(currentSearchInfo.date, currentSearchInfo.time, adminId, userToken);
+            } catch(err) {
+                hideLoading();
+                console.error(err);
+            }
         };
     }
 
@@ -3238,13 +3340,16 @@
         }
     };
 
-    window.loadAdminLoanStats = () => {
-        google.script.run.withSuccessHandler(s => { 
+    window.loadAdminLoanStats = async () => {
+        try {
+            const s = await callApi("getLoanDashboardStats2569", { adminId: adminId, token: userToken });
             const e1 = document.getElementById('statEligible'); if(e1) e1.textContent = s.totalEligible; 
             const e2 = document.getElementById('statSubmitted'); if(e2) e2.textContent = s.submitted; 
             const e3 = document.getElementById('statNotSubmitted'); if(e3) e3.textContent = s.notSubmitted; 
             const e4 = document.getElementById('statFailed'); if(e4) e4.textContent = `${s.gpaFail} / ${s.creditFail}`; 
-        }).getLoanDashboardStats2569(adminId, userToken);
+        } catch(err) {
+            console.error(err);
+        }
     };
 
     window.uploadExcelFile = () => {
@@ -3269,25 +3374,26 @@
         });
         
         const reader = new FileReader();
-        reader.onload = e => {
-            google.script.run
-                .withSuccessHandler(r => {
-                    if (r.success) {
-                        Swal.fire('สำเร็จ', r.message, 'success'); 
-                        loadAdminLoanStats();
-                        fileInput.value = ''; // ล้างค่าไฟล์เพื่อให้กดอัปโหลดซ้ำได้
-                    } else {
-                        Swal.fire('ผิดพลาด', r.message, 'error');
-                    }
-                })
-                .withFailureHandler(err => {
-                    Swal.fire('ข้อผิดพลาดระบบ', err.message, 'error');
-                })
-                .uploadAndImportExcel({
+        reader.onload = async e => {
+            try {
+                const r = await callApi("uploadAndImportExcel", {
                     fileName: file.name, 
                     mimeType: file.type || "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
-                    content: e.target.result.split(',')[1]
-                }, adminId, userToken);
+                    content: e.target.result.split(',')[1],
+                    adminId: adminId, 
+                    token: userToken
+                });
+                
+                if (r.success) {
+                    Swal.fire('สำเร็จ', r.message, 'success'); 
+                    loadAdminLoanStats();
+                    fileInput.value = ''; 
+                } else {
+                    Swal.fire('ผิดพลาด', r.message, 'error');
+                }
+            } catch(err) {
+                Swal.fire('ข้อผิดพลาดระบบ', err.message, 'error');
+            }
         };
         reader.onerror = () => Swal.fire('ผิดพลาด', 'ไม่สามารถอ่านไฟล์ได้', 'error');
         reader.readAsDataURL(file);
@@ -3315,29 +3421,30 @@
         });
         
         const reader = new FileReader();
-        reader.onload = e => {
-            google.script.run
-                .withSuccessHandler(r => {
-                    if (r.success) {
-                        Swal.fire({
-                            title: 'อัปเดตสำเร็จ', 
-                            html: `อัปเดต <b>${r.updateCount}</b> รายการ<br>` + (r.failedCount > 0 ? `<span style="color:red">ไม่พบรหัส ${r.failedCount} รายการ</span>` : ''), 
-                            icon: 'success'
-                        });
-                        fileInput.value = '';
-                    } else {
-                        Swal.fire('ผิดพลาด', r.message, 'error'); 
-                    }
-                    loadAdminLoanStats();
-                })
-                .withFailureHandler(err => {
-                    Swal.fire('ข้อผิดพลาดระบบ', err.message, 'error');
-                })
-                .uploadAndImportGPACredits({
+        reader.onload = async e => {
+            try {
+                const r = await callApi("uploadAndImportGPACredits", {
                     fileName: file.name, 
                     mimeType: file.type || "application/vnd.ms-excel", 
-                    content: e.target.result.split(',')[1]
-                }, adminId, userToken);
+                    content: e.target.result.split(',')[1],
+                    adminId: adminId,
+                    token: userToken
+                });
+                
+                if (r.success) {
+                    Swal.fire({
+                        title: 'อัปเดตสำเร็จ', 
+                        html: `อัปเดต <b>${r.updateCount}</b> รายการ<br>` + (r.failedCount > 0 ? `<span style="color:red">ไม่พบรหัส ${r.failedCount} รายการ</span>` : ''), 
+                        icon: 'success'
+                    });
+                    fileInput.value = '';
+                } else {
+                    Swal.fire('ผิดพลาด', r.message, 'error'); 
+                }
+                loadAdminLoanStats();
+            } catch(err) {
+                Swal.fire('ข้อผิดพลาดระบบ', err.message, 'error');
+            }
         };
         reader.onerror = () => Swal.fire('ผิดพลาด', 'ไม่สามารถอ่านไฟล์ได้', 'error');
         reader.readAsDataURL(file);
@@ -3345,12 +3452,13 @@
     
     let currentAdminLoanData = null;
 
-    window.searchLoanForAdmin = () => {
+    window.searchLoanForAdmin = async () => {
         const searchInput = document.getElementById('adminLoanSearchInput');
         if(!searchInput) return;
         const val = searchInput.value;
         showLoading(); 
-        google.script.run.withSuccessHandler(res => { 
+        try {
+            const res = await callApi("adminGetLoanInfo", { studentId: val, adminId: adminId, token: userToken });
             hideLoading();
             const resArea = document.getElementById('adminLoanResultArea');
             if (res.status === 'not_found_student') { 
@@ -3395,7 +3503,10 @@
                 if(btnDel) btnDel.style.display = res.loanData ? 'inline-flex' : 'none';
                 if(resArea) resArea.style.display = 'block';
             }
-        }).adminGetLoanInfo(val, adminId, userToken);
+        } catch(err) {
+            hideLoading();
+            Swal.fire('Error', err.message, 'error');
+        }
     };
 
     window.toggleAdminTuition = () => { 
@@ -3422,7 +3533,7 @@
         if (showTot) showTot.textContent = t.toLocaleString(); 
     };
 
-    window.saveLoanAsAdmin = () => {
+    window.saveLoanAsAdmin = async () => {
         const cLiving = document.getElementById('adm_checkLiving');
         const cTuition = document.getElementById('adm_checkTuition');
         const iTuition = document.getElementById('adm_inputTuition');
@@ -3438,17 +3549,23 @@
         showLoading(); 
         const req = (isL && isT) ? 'Both' : (isL ? 'Living' : 'Tuition');
         
-        google.script.run.withSuccessHandler(r => { 
+        try {
+            await callApi("adminSaveLoanRequest", {
+                studentId: currentAdminLoanData.studentInfo.studentId, 
+                name: currentAdminLoanData.studentInfo.name, 
+                reqType: req, 
+                livingAmount: isL ? 18000 : 0, 
+                tuitionAmount: isT ? tVal : 0, 
+                totalAmount: (isL ? 18000 : 0) + (isT ? tVal : 0),
+                adminId: adminId, 
+                token: userToken
+            });
             hideLoading(); 
             Swal.fire('สำเร็จ', '', 'success'); 
-        }).adminSaveLoanRequest({
-            studentId: currentAdminLoanData.studentInfo.studentId, 
-            name: currentAdminLoanData.studentInfo.name, 
-            reqType: req, 
-            livingAmount: isL ? 18000 : 0, 
-            tuitionAmount: isT ? tVal : 0, 
-            totalAmount: (isL ? 18000 : 0) + (isT ? tVal : 0)
-        }, adminId, userToken);
+        } catch(err) {
+            hideLoading();
+            Swal.fire('Error', err.message, 'error');
+        }
     };
 
     window.deleteLoanAsAdmin = () => { 
@@ -3458,34 +3575,42 @@
             showCancelButton: true,
             confirmButtonColor: '#d33',
             confirmButtonText: 'ตกลงลบ'
-        }).then(r => {
+        }).then(async r => {
             if (r.isConfirmed) { 
                 showLoading(); 
-                google.script.run.withSuccessHandler(res => {
+                try {
+                    await callApi("adminDeleteLoanRequest", { studentId: currentAdminLoanData.studentInfo.studentId, adminId: adminId, token: userToken });
                     hideLoading(); 
                     const resArea = document.getElementById('adminLoanResultArea');
                     const searchIn = document.getElementById('adminLoanSearchInput');
                     if(resArea) resArea.style.display = 'none'; 
                     if(searchIn) searchIn.value = '';
-                }).adminDeleteLoanRequest(currentAdminLoanData.studentInfo.studentId, adminId, userToken);
+                } catch(err) {
+                    hideLoading();
+                    Swal.fire('Error', err.message, 'error');
+                }
             } 
         });
     };
 
-    window.downloadAdminReport = () => { 
+    window.downloadAdminReport = async () => { 
         showLoading(); 
         const reportTypeEl = document.querySelector('input[name="reportType"]:checked');
         const facultyEl = document.getElementById('reportFaculty');
         if(!reportTypeEl || !facultyEl) { hideLoading(); return; }
         
-        google.script.run.withSuccessHandler(r => {
+        try {
+            const r = await callApi("getAdminReportCSV", { reportType: reportTypeEl.value, faculty: facultyEl.value, adminId: adminId, token: userToken });
             hideLoading(); 
             if (r.success) {
                 downloadCSV(r.csvData, 'Loan2569_Report.csv'); 
             } else {
                 Swal.fire('Error', r.message, 'error');
             }
-        }).getAdminReportCSV(reportTypeEl.value, facultyEl.value, adminId, userToken);
+        } catch(err) {
+            hideLoading();
+            Swal.fire('Error', err.message, 'error');
+        }
     };
 
     function downloadCSV(csv, name) { 
@@ -3501,8 +3626,9 @@
     let overCurrentPage = 1;
     let overRowsPerPage = 10;
 
-    window.loadAdminOverLoanStats = () => { 
-        google.script.run.withSuccessHandler(s => { 
+    window.loadAdminOverLoanStats = async () => { 
+        try {
+            const s = await callApi("getOverLoanDashboardStats", { adminId: adminId, token: userToken });
             const s1 = document.getElementById('statOverEligible');
             const s2 = document.getElementById('statOverSubmitted');
             const s3 = document.getElementById('statOverNotSubmitted');
@@ -3511,7 +3637,9 @@
             if(s2) s2.textContent = s.submitted; 
             if(s3) s3.textContent = s.notSubmitted; 
             if(s4) s4.textContent = `${s.gpaFail} / ${s.creditFail}`; 
-        }).getOverLoanDashboardStats(adminId, userToken);
+        } catch(err) {
+            console.error(err);
+        }
     };
 
     window.uploadOverExcel = () => { 
@@ -3536,26 +3664,27 @@
         }); 
         
         const reader = new FileReader(); 
-        reader.onload = e => {
-            google.script.run
-                .withSuccessHandler(x => {
-                    if (x.success) {
-                        Swal.fire('สำเร็จ', x.message, 'success');
-                        fileInput.value = '';
-                    } else {
-                        Swal.fire('ผิดพลาด', x.message, 'error');
-                    }
-                    loadAdminOverLoanStats();
-                    loadOverLoanAdminTable();
-                })
-                .withFailureHandler(err => {
-                    Swal.fire('ข้อผิดพลาดระบบ', err.message, 'error');
-                })
-                .uploadAndImportOverExcel({
+        reader.onload = async e => {
+            try {
+                const x = await callApi("uploadAndImportOverExcel", {
                     fileName: file.name,
                     mimeType: file.type || "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    content: e.target.result.split(',')[1]
-                }, adminId, userToken);
+                    content: e.target.result.split(',')[1],
+                    adminId: adminId,
+                    token: userToken
+                });
+                
+                if (x.success) {
+                    Swal.fire('สำเร็จ', x.message, 'success');
+                    fileInput.value = '';
+                } else {
+                    Swal.fire('ผิดพลาด', x.message, 'error');
+                }
+                loadAdminOverLoanStats();
+                loadOverLoanAdminTable();
+            } catch(err) {
+                Swal.fire('ข้อผิดพลาดระบบ', err.message, 'error');
+            }
         };
         reader.onerror = () => Swal.fire('ผิดพลาด', 'ไม่สามารถอ่านไฟล์ได้', 'error');
         reader.readAsDataURL(file); 
@@ -3583,38 +3712,42 @@
         }); 
         
         const reader = new FileReader(); 
-        reader.onload = e => {
-            google.script.run
-                .withSuccessHandler(x => {
-                    if (x.success) {
-                        Swal.fire('สำเร็จ', `สำเร็จ ${x.updateCount} รายการ`, 'success');
-                        fileInput.value = '';
-                    } else {
-                        Swal.fire('ผิดพลาด', x.message, 'error');
-                    }
-                    loadAdminOverLoanStats();
-                    loadOverLoanAdminTable();
-                })
-                .withFailureHandler(err => {
-                    Swal.fire('ข้อผิดพลาดระบบ', err.message, 'error');
-                })
-                .uploadAndImportOverGPACredits({
+        reader.onload = async e => {
+            try {
+                const x = await callApi("uploadAndImportOverGPACredits", {
                     fileName: file.name,
                     mimeType: file.type || "application/vnd.ms-excel",
-                    content: e.target.result.split(',')[1]
-                }, adminId, userToken);
+                    content: e.target.result.split(',')[1],
+                    adminId: adminId,
+                    token: userToken
+                });
+                
+                if (x.success) {
+                    Swal.fire('สำเร็จ', `สำเร็จ ${x.updateCount} รายการ`, 'success');
+                    fileInput.value = '';
+                } else {
+                    Swal.fire('ผิดพลาด', x.message, 'error');
+                }
+                loadAdminOverLoanStats();
+                loadOverLoanAdminTable();
+            } catch(err) {
+                Swal.fire('ข้อผิดพลาดระบบ', err.message, 'error');
+            }
         };
         reader.onerror = () => Swal.fire('ผิดพลาด', 'ไม่สามารถอ่านไฟล์ได้', 'error');
         reader.readAsDataURL(file); 
     };
 
-    window.loadOverLoanAdminTable = () => { 
+    window.loadOverLoanAdminTable = async () => { 
         const tb = document.querySelector('#overAdminTable tbody');
         if(tb) tb.innerHTML = '<tr><td colspan="7" style="text-align:center;">กำลังโหลดข้อมูล</td></tr>'; 
-        google.script.run.withSuccessHandler(d => { 
+        try {
+            const d = await callApi("getOverLoanProfilesSummary", { adminId: adminId, token: userToken });
             overAllData = d || []; 
             filterOverTable(); 
-        }).getOverLoanProfilesSummary(adminId, userToken);
+        } catch(err) {
+            console.error(err);
+        }
     };
 
     window.filterOverTable = () => { 
@@ -3667,12 +3800,16 @@
         if(btnN) btnN.disabled = (overCurrentPage === total);
     }
 
-    window.downloadOverReport = () => { 
+    window.downloadOverReport = async () => { 
         showLoading(); 
-        google.script.run.withSuccessHandler(r => {
+        try {
+            const r = await callApi("getOverAdminReportCSV", { adminId: adminId, token: userToken });
             hideLoading(); 
             downloadCSV(r.csvData, 'over_loan.csv');
-        }).getOverAdminReportCSV(adminId, userToken);
+        } catch(err) {
+            hideLoading();
+            Swal.fire('Error', err.message, 'error');
+        }
     };
 
     let rsAllData = [];
@@ -3680,11 +3817,14 @@
     let rsCurrentPage = 1;
     let rsRowsPerPage = 10;
 
-    window.loadResignStats = () => { 
-        google.script.run.withSuccessHandler(s => { 
+    window.loadResignStats = async () => { 
+        try {
+            const s = await callApi("getResignDashboardStats", { adminId: adminId, token: userToken });
             const el = document.getElementById('statResignEligible');
             if(el) el.textContent = s.totalEligible; 
-        }).getResignDashboardStats(adminId, userToken);
+        } catch(err) {
+            console.error(err);
+        }
     };
 
     window.uploadResignFile = () => { 
@@ -3709,33 +3849,34 @@
         }); 
         
         const reader = new FileReader(); 
-        reader.onload = e => {
-            google.script.run
-                .withSuccessHandler(x => {
-                    if (x.success) {
-                        Swal.fire('สำเร็จ', x.message, 'success'); 
-                        fileInput.value = '';
-                    } else {
-                        Swal.fire('ผิดพลาด', x.message, 'error');
-                    }
-                    loadResignStats();
-                })
-                .withFailureHandler(err => {
-                    Swal.fire('ข้อผิดพลาดระบบ', err.message, 'error');
-                })
-                .uploadAndImportResignExcel({
+        reader.onload = async e => {
+            try {
+                const x = await callApi("uploadAndImportResignExcel", {
                     fileName: file.name,
                     mimeType: file.type || "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    content: e.target.result.split(',')[1]
-                }, adminId, userToken);
+                    content: e.target.result.split(',')[1],
+                    adminId: adminId,
+                    token: userToken
+                });
+                if (x.success) {
+                    Swal.fire('สำเร็จ', x.message, 'success'); 
+                    fileInput.value = '';
+                } else {
+                    Swal.fire('ผิดพลาด', x.message, 'error');
+                }
+                loadResignStats();
+            } catch(err) {
+                Swal.fire('ข้อผิดพลาดระบบ', err.message, 'error');
+            }
         };
         reader.onerror = () => Swal.fire('ผิดพลาด', 'ไม่สามารถอ่านไฟล์ได้', 'error');
         reader.readAsDataURL(file); 
     };
     
-    window.loadResignManagementData = () => { 
+    window.loadResignManagementData = async () => { 
         showLoading(); 
-        google.script.run.withSuccessHandler(r => { 
+        try {
+            const r = await callApi("getResignAdminData", { adminId: adminId, token: userToken });
             hideLoading(); 
             if (r.success) { 
                 rsAllData = r.data; 
@@ -3750,7 +3891,10 @@
                 if(sc) sc.textContent = r.stats.completed; 
                 filterResignData(); 
             } 
-        }).getResignAdminData(adminId, userToken);
+        } catch(err) {
+            hideLoading();
+            console.error(err);
+        }
     };
 
     window.filterResignData = () => {
@@ -3798,13 +3942,17 @@
             showCancelButton: true,
             confirmButtonColor: '#28a745',
             confirmButtonText: 'ยืนยันผล'
-        }).then(r => {
+        }).then(async r => {
             if (r.isConfirmed) { 
                 showLoading(); 
-                google.script.run.withSuccessHandler(res => {
+                try {
+                    await callApi("updateResignRequestStatus", { requestId: id, status: 'Completed', adminId: adminId, token: userToken });
                     hideLoading();
                     loadResignManagementData();
-                }).updateResignRequestStatus(id, 'Completed', adminId, userToken);
+                } catch(err) {
+                    hideLoading();
+                    Swal.fire('Error', err.message, 'error');
+                }
             }
         }); 
     };
@@ -3852,9 +4000,10 @@
         }
     };
 
-    window.loadAdminMenuSettings = () => { 
+    window.loadAdminMenuSettings = async () => { 
         showLoading(); 
-        google.script.run.withSuccessHandler(s => { 
+        try {
+            const s = await callApi("getSystemMenuSettings", { adminId: adminId, token: userToken });
             hideLoading(); 
             ['userProfile','userActivity','userQueue','loan2569','userResign','userPetition','overLoan'].forEach(k => {
                 if (document.getElementById('setting_menu_' + k)) document.getElementById('setting_menu_' + k).checked = (s['menu_' + k] === 'true');
@@ -3862,10 +4011,13 @@
             ['type1','type2','type3'].forEach(k => {
                 if (document.getElementById('setting_pet_' + k + '_open')) document.getElementById('setting_pet_' + k + '_open').checked = (s['pet_' + k + '_open'] === 'true');
             }); 
-        }).getSystemMenuSettings(adminId, userToken);
+        } catch(err) {
+            hideLoading();
+            console.error(err);
+        }
     };
 
-    window.saveAdminMenuSettings = () => { 
+    window.saveAdminMenuSettings = async () => { 
         showLoading(); 
         const s = {}; 
         ['userProfile','userActivity','userQueue','loan2569','userResign','userPetition','overLoan'].forEach(k => {
@@ -3875,20 +4027,25 @@
             if (document.getElementById('setting_pet_' + k + '_open')) s['pet_' + k + '_open'] = document.getElementById('setting_pet_' + k + '_open').checked.toString();
         }); 
         
-        google.script.run.withSuccessHandler(r => {
+        try {
+            await callApi("saveSystemMenuSettings", { settings: s, adminId: adminId, token: userToken });
             hideLoading();
             Swal.fire('สำเร็จ','อัปเดตเมนูเรียบร้อย','success');
-        }).saveSystemMenuSettings(s, adminId, userToken);
+        } catch(err) {
+            hideLoading();
+            Swal.fire('Error', err.message, 'error');
+        }
     };
 
     let currentSpecialAccessStudent = null;
 
-    window.searchForSpecialAccess = () => { 
+    window.searchForSpecialAccess = async () => { 
         showLoading(); 
         const saInput = document.getElementById('specialAccessSearchInput');
         if(!saInput) return;
         
-        google.script.run.withSuccessHandler(r => { 
+        try {
+            const r = await callApi("searchStudentForSpecialAccess", { studentId: saInput.value.trim(), adminId: adminId, token: userToken });
             hideLoading(); 
             const resArea = document.getElementById('specialAccessResultArea');
             if (r.success) { 
@@ -3901,13 +4058,17 @@
                 Swal.fire('ไม่พบ', '', 'error'); 
                 if(resArea) resArea.style.display = 'none'; 
             } 
-        }).searchStudentForSpecialAccess(saInput.value.trim(), adminId, userToken);
+        } catch(err) {
+            hideLoading();
+            Swal.fire('Error', err.message, 'error');
+        }
     };
 
-    window.grantSpecialAccess = () => { 
+    window.grantSpecialAccess = async () => { 
         if(!currentSpecialAccessStudent) return;
         showLoading(); 
-        google.script.run.withSuccessHandler(r => { 
+        try {
+            await callApi("grantSpecialMenuAccess", { studentId: currentSpecialAccessStudent.studentId, adminId: adminId, token: userToken });
             hideLoading(); 
             Swal.fire('สำเร็จ', '', 'success'); 
             loadSpecialAccessList(); 
@@ -3915,11 +4076,15 @@
             const saInput = document.getElementById('specialAccessSearchInput');
             if(resArea) resArea.style.display = 'none'; 
             if(saInput) saInput.value = ''; 
-        }).grantSpecialMenuAccess(currentSpecialAccessStudent.studentId, adminId, userToken);
+        } catch(err) {
+            hideLoading();
+            Swal.fire('Error', err.message, 'error');
+        }
     };
 
-    window.loadSpecialAccessList = () => { 
-        google.script.run.withSuccessHandler(l => { 
+    window.loadSpecialAccessList = async () => { 
+        try {
+            const l = await callApi("getSpecialAccessList", { adminId: adminId, token: userToken });
             const tb = document.querySelector('#specialAccessTable tbody'); 
             if(!tb) return;
             tb.innerHTML = ''; 
@@ -3930,7 +4095,9 @@
             l.forEach((x, i) => { 
                 tb.innerHTML += '<tr><td style="text-align:center;">' + (i + 1) + '</td><td style="font-weight:bold; color:var(--secondary-color);">' + escapeHTML(x.studentId) + '</td><td>' + escapeHTML(x.name) + '</td><td>' + escapeHTML(formatDate(x.timestamp)) + '</td><td style="text-align:center;"><button class="btn btn-danger btn-sm" style="border-radius:20px;" onclick="revokeSpecialAccess(\'' + escapeHTML(x.studentId) + '\')">ลบสิทธิ์</button></td></tr>'; 
             }); 
-       }).getSpecialAccessList(adminId, userToken);
+        } catch(err) {
+            console.error(err);
+        }
     };
 
     window.revokeSpecialAccess = (id) => { 
@@ -3940,13 +4107,17 @@
             showCancelButton: true,
             confirmButtonColor: '#d33',
             confirmButtonText: 'ลบสิทธิ์'
-        }).then(r => {
+        }).then(async r => {
             if (r.isConfirmed) { 
                 showLoading(); 
-                google.script.run.withSuccessHandler(res => {
+                try {
+                    await callApi("revokeSpecialMenuAccess", { studentId: id, adminId: adminId, token: userToken });
                     hideLoading(); 
                     loadSpecialAccessList();
-               }).revokeSpecialMenuAccess(id, adminId, userToken);
+                } catch(err) {
+                    hideLoading();
+                    Swal.fire('Error', err.message, 'error');
+                }
             } 
         });
     };
@@ -3956,10 +4127,10 @@
     let petRowsPerPage = 20;
     let lastFilteredPetitions = [];
 
-    window.loadAdminPetitions = () => { 
+    window.loadAdminPetitions = async () => { 
         showLoading('กำลังโหลดคำร้อง'); 
-        google.script.run
-        .withSuccessHandler(r => { 
+        try {
+            const r = await callApi("getAdminPetitions", { adminId: adminId, token: userToken });
             hideLoading(); 
             if (r && r.success) { 
                 adminPetitionsCache = r.data || []; 
@@ -3970,13 +4141,12 @@
                 const tb = document.querySelector('#adminPetitionTable tbody');
                 if(tb) tb.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#d32f2f;">ไม่สามารถโหลดข้อมูลฐานข้อมูลคำร้องได้</td></tr>';
             } 
-        })
-        .withFailureHandler(err => {
+        } catch(err) {
             hideLoading();
             Swal.fire('ข้อผิดพลาดการเชื่อมต่อ', 'Error: ' + err.message, 'error');
             const tb = document.querySelector('#adminPetitionTable tbody');
             if(tb) tb.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#d32f2f;">การเชื่อมต่อฐานข้อมูลล้มเหลว</td></tr>';
-        }).getAdminPetitions(adminId, userToken);
+        }
     };
 
     window.updatePetitionStats = () => { 
@@ -3989,7 +4159,7 @@
         let pendingCount = 0;
 
         adminPetitionsCache.forEach(p => {
-            const currentStatus = p['สถานะ'] || 'รอดำเนินการ';
+            const currentStatus = p['館ะ'] || p['สถานะ'] || 'รอดำเนินการ';
             if (doneStatuses.includes(currentStatus)) {
                 doneCount++;
             } else {
@@ -4050,7 +4220,7 @@
         const total = Math.ceil(lastFilteredPetitions.length / petRowsPerPage);
         if(infoEl) infoEl.textContent = `หน้า ${petCurrentPage} / ${total} (ทั้งหมด ${lastFilteredPetitions.length} รายการ)`;
         if(bPrev) bPrev.disabled = (petCurrentPage === 1); 
-        if(bNext) bNext.disabled = (petCurrentPage === total || total === 0);
+        if(bNext) bNext.disabled = (imgCurrentPage === total || total === 0 || petCurrentPage === total);
     };
 
     window.openPetModal = (rowIndex) => { 
@@ -4081,11 +4251,17 @@
 
     const petitionUpdateFormEl = document.getElementById('petitionUpdateForm');
     if(petitionUpdateFormEl) {
-        petitionUpdateFormEl.onsubmit = (e) => { 
+        petitionUpdateFormEl.onsubmit = async (e) => { 
             e.preventDefault(); 
             showLoading('กำลังบันทึกสถานะ'); 
-            google.script.run
-            .withSuccessHandler(r => {
+            try {
+                const r = await callApi("updatePetitionStatus", {
+                    rowIndex: document.getElementById('modalPetRowIndex').value, 
+                    status: document.getElementById('modalPetStatus').value, 
+                    note: document.getElementById('modalPetNote').value, 
+                    adminId: adminId, 
+                    token: userToken
+                });
                 hideLoading(); 
                 if(r && r.success) {
                     Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', showConfirmButton: false, timer: 1500 });
@@ -4095,15 +4271,10 @@
                 } else {
                     Swal.fire('ผิดพลาด', r ? r.message : 'ไม่สามารถบันทึกได้', 'error');
                 }
-            })
-            .withFailureHandler(err => {
+            } catch(err) {
                 hideLoading();
                 Swal.fire('ข้อผิดพลาด', err.message, 'error');
-            }).updatePetitionStatus(
-                document.getElementById('modalPetRowIndex').value, 
-                document.getElementById('modalPetStatus').value, 
-                document.getElementById('modalPetNote').value, 
-                adminId, userToken);
+            }
         };
     }
 
