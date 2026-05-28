@@ -1,83 +1,552 @@
 <!DOCTYPE html>
-<html lang="th">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบบริหารงาน กยศ. มหาวิทยาลัยอุบลราชธานี</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .notice-container {
-            background-color: #ffffff;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            text-align: center;
-            max-width: 500px;
-            width: 90%;
-        }
-        h1 {
-            color: #d9534f;
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-        p {
-            color: #555555;
-            font-size: 16px;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-        .btn {
-            display: inline-block;
-            padding: 12px 24px;
-            background-color: #0056b3;
-            color: #ffffff;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-            font-size: 16px;
-            transition: background-color 0.3s;
-        }
-        .btn:hover {
-            background-color: #004494;
-        }
-        .warning-box {
-            background-color: #fff3cd;
-            color: #856404;
-            padding: 15px;
-            border-radius: 5px;
-            margin-top: 30px;
-            font-size: 15px;
-            border: 1px solid #ffeeba;
-            text-align: left;
-            line-height: 1.5;
-        }
-        .highlight {
-            color: #d35400;
-            font-weight: bold;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบบริหารงานกองทุนเงินให้กู้ยืมเพื่อการศึกษา มหาวิทยาลัยอุบลราชธานี</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <link rel="stylesheet" href="style.css">
+  <script src="api.js"></script>
+   <?!= include('Style_CSS'); ?>
+   
 </head>
 <body>
 
-    <div class="notice-container">
-        <h1>ประกาศเปลี่ยนแปลงลิงก์การเข้าใช้งาน</h1>
-        <p>ระบบบริหารงาน กยศ. มหาวิทยาลัยอุบลราชธานี ได้เปลี่ยนรูปแบบลิงก์การเข้าใช้งานใหม่แล้ว ท่านสามารถเข้าสู่ระบบผ่านลิงก์ด้านล่างนี้</p>
-        
-        <a href="https://qrcode.ubu.ac.th/XA2Lns" class="btn" target="_blank">เข้าสู่ระบบบริหารงาน กยศ.</a>
-        
-        <div class="warning-box">
-            <strong>⚠️ เงื่อนไขการเข้าใช้งาน:</strong><br>
-            ท่านจะต้องเข้าใช้งานเว็บไซต์บนเว็บเบราว์เซอร์ที่ล็อกอินด้วยบัญชีอีเมล <span class="highlight">@ubu.ac.th</span> เท่านั้น จึงจะสามารถเข้าใช้งานระบบได้
+    <div id="customLoader" style="display: none;">
+        <div class="loader-box">
+            <div id="loaderText" style="font-size: 16px; margin-bottom: 10px; line-height: 1.4;">ระบบกำลังประมวลผล กรุณารอสักครู่</div>
+            <div class="loader-track"><div class="loader-bar"></div></div>
         </div>
     </div>
 
+    <div id="authLayout">
+        <div class="login-wrapper">
+            
+            <div class="login-image-side">
+                <div class="login-image-text">
+                    <h1 style="font-size: 32px; line-height: 1.2; white-space: nowrap;">ระบบบริหารงานกองทุนเงินให้กู้ยืมเพื่อการศึกษา</h1>
+                    <p style="font-size: 20px; margin-bottom: 25px;">
+                        กองทุนเงินให้กู้ยืมเพื่อการศึกษา มหาวิทยาลัยอุบลราชธานี   
+                    </p>
+                    <p style="font-size: 15px; opacity: 0.8; margin-bottom: 25px;">
+                        ออกเเบบเเละพัฒนาระบบโดย : กองทุนเงินให้กู้ยืมเพื่อการศึกษา มหาวิทยาลัยอุบลราชธานี 
+                        <br>งานสวัสดิการนักศึกษา สำนักงานพัฒนานักศึกษา
+                        <br>ระบบขัดข้องพบปัญหา โทร. 045-353-093 ทีมพัฒนาซอฟต์แวร์ โทร. 062-474-0508 หรือ 0507
+                    </p>
+                </div>
+            </div>
+
+            <div class="login-form-side">   
+                
+                <div id="loginSection" class="section active login-form-container">
+                    <img src="https://img1.pic.in.th/images/Ubu_logo.png" alt="UBU Logo" class="login-logo">
+                    <div style="margin-bottom: 30px; text-align: center;">
+                        <h2 style="justify-content: center; color: #333; font-size: 22px; border: none; padding: 0; margin-bottom: 5px;">เข้าสู่ระบบ</h2>
+                        <p style="color: #666; margin: 0; font-size: 14px;">ระบบบริหารงาน กยศ. มหาวิทยาลัยอุบลราชธานี</p>
+                    </div>
+                    <form id="loginForm">
+                        <div class="modern-input-group">
+                            <input type="text" id="loginStudentId" class="modern-input" placeholder=" " required>
+                            <label for="loginStudentId" class="modern-label">รหัสนักศึกษา</label>
+                        </div>
+                        <div class="modern-input-group">
+                            <input type="password" id="loginPassword" class="modern-input" placeholder=" " required>
+                            <label for="loginPassword" class="modern-label">รหัสผ่าน</label>
+                            <button type="button" class="toggle-password-btn" id="toggleLoginPassBtn">
+                                <i class="material-icons" id="loginEyeIcon">visibility_off</i>
+                            </button>
+                        </div>
+                        <button type="submit" id="btnLoginSubmit" class="btn-login-new">เข้าสู่ระบบ</button>
+                    </form>
+                    <div style="text-align: center; margin-top: 20px; font-size: 14px; display: flex; flex-direction: column; gap: 10px;">
+                        <div>
+                            <span style="color: #666;">ยังไม่มีบัญชีผู้ใช้งาน</span> 
+                            <a href="#" id="showSignup" style="color: var(--secondary-color); font-weight: bold;">ลงทะเบียนขอสิทธิ์เข้าใช้งาน</a>
+                        </div>
+                        <div>
+                            <a href="#" id="showResetPassword" style="color: #777; font-size: 13px; text-decoration: underline;">ลืมรหัสผ่าน สำหรับผู้ใช้งานทั่วไป</a>
+                        </div>
+                        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;">
+                            <div style="color: #555; font-weight: 600; font-size: 13px;">งานสวัสดิการนักศึกษา สำนักงานพัฒนานักศึกษา</div>
+                            <div style="color: #666; font-size: 12px;">มหาวิทยาลัยอุบลราชธานี</div>
+                            <div style="margin-top: 10px; color: #aaa; font-size: 11px;">
+                                สงวนลิขสิทธิ์ © 2025 | Version 2.0.1 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="signupSection" class="section login-form-container" style="display: none;">
+                    <div class="form-container">
+                        <h2 style="color: #333; font-size: 24px; border: none; justify-content: center;">ลงทะเบียนขอสิทธิ์เข้าใช้งาน</h2>
+                        <form id="signupForm" style="text-align: left;">
+                            <p class="form-subheading">ข้อมูลส่วนตัว</p>
+                            <div class="form-group">
+                                <label for="signupPrefix">คำนำหน้า</label>
+                                <select id="signupPrefix" class="floating-input" required>
+                                    <option value="">เลือกคำนำหน้า</option>
+                                    <option value="นาย">นาย</option>
+                                    <option value="นาง">นาง</option>
+                                    <option value="นางสาว">นางสาว</option>
+                                </select>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group" style="flex:1;">
+                                    <label for="signupFirstName">ชื่อ (ไม่ต้องระบุคำนำหน้านาม)</label>
+                                    <input type="text" id="signupFirstName" class="floating-input" required>
+                                </div>
+                                <div class="form-group" style="flex:1;">
+                                    <label for="signupLastName">นามสกุล</label>
+                                    <input type="text" id="signupLastName" class="floating-input" required>
+                                </div>
+                            </div>
+                            <p class="form-subheading">ข้อมูลนักศึกษา</p>
+                            <div class="form-group">
+                                <label for="signupStudentId">รหัสนักศึกษา</label>
+                                <input type="text" id="signupStudentId" class="floating-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="signupFaculty">สังกัดคณะ/วิทยาลัย</label>
+                                <select id="signupFaculty" class="floating-input" required>
+                                    <option value="">-- กรุณาเลือก --</option>
+                                    <option value="คณะเกษตรศาสตร์">คณะเกษตรศาสตร์</option>
+                                    <option value="คณะวิทยาศาสตร์">คณะวิทยาศาสตร์</option>
+                                    <option value="คณะวิศวกรรมศาสตร์">คณะวิศวกรรมศาสตร์</option>
+                                    <option value="คณะศิลปศาสตร์">คณะศิลปศาสตร์</option>
+                                    <option value="คณะเภสัชศาสตร์">คณะเภสัชศาสตร์</option>
+                                    <option value="คณะบริหารศาสตร์">คณะบริหารศาสตร์</option>
+                                    <option value="คณะพยาบาลศาสตร์">คณะพยาบาลศาสตร์</option>
+                                    <option value="คณะศิลปประยุกต์และสถาปัตยกรรมศาสตร์">คณะศิลปประยุกต์และสถาปัตยกรรมศาสตร์</option>
+                                    <option value="คณะนิติศาสตร์">คณะนิติศาสตร์</option>
+                                    <option value="คณะรัฐศาสตร์">คณะรัฐศาสตร์</option>
+                                    <option value="คณะศึกษาศาสตร์">คณะศึกษาศาสตร์</option>
+                                    <option value="วิทยาลัยแพทยศาสตร์และการสาธารณสุข">วิทยาลัยแพทยศาสตร์และการสาธารณสุข</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="signupPhone">หมายเลขโทรศัพท์</label>
+                                <input type="tel" id="signupPhone" class="floating-input" pattern="[0-9]{10}" placeholder="08XXXXXXXX" required>
+                            </div>
+                            <p class="form-subheading">ข้อมูลบัญชี</p>
+                            <div class="form-group">
+                                <label for="signupGmail">อีเมล</label>
+                                <input type="email" id="signupGmail" class="floating-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="signupPassword">รหัสผ่าน</label>
+                                <div class="input-group-password">
+                                    <input type="password" id="signupPassword" class="floating-input" minlength="6" required>
+                                    <i class="material-icons toggle-password" id="toggleSignupPassword">visibility_off</i>
+                                </div>
+                            </div>
+                            <button type="submit" id="btnSignupSubmit" class="btn-login-new" style="background: linear-gradient(135deg, #2e7d32 0%, #43a047 100%); width:100%">ลงทะเบียนเข้าใช้งาน</button>
+                        </form>
+                        <div style="text-align: center; margin-top: 20px;">
+                            <a href="#" id="showLogin" style="color: #666; font-weight:bold;">กลับสู่หน้าเข้าสู่ระบบ</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="resetPasswordSection" class="section login-form-container" style="display: none;">
+                    <div class="form-container">
+                        <h2 style="color: #333; font-size: 24px; border: none; justify-content: center; margin-bottom: 10px;">ตั้งรหัสผ่านใหม่</h2>
+                        <p style="text-align: center; color: #666; font-size: 14px; margin-bottom: 30px;">
+                            กรุณากรอกข้อมูลเพื่อยืนยันตัวตน
+                        </p>
+                        <form id="resetPasswordForm" style="text-align: left;">
+                            <div id="resetStep1Area">
+                                <div class="modern-input-group">
+                                    <input type="text" id="resetStudentId" class="modern-input" placeholder=" " required>
+                                    <label for="resetStudentId" class="modern-label">รหัสนักศึกษา</label>
+                                </div>
+                                <div class="modern-input-group">
+                                    <input type="tel" id="resetPhone" class="modern-input" pattern="[0-9]{10}" placeholder=" " required>
+                                    <label for="resetPhone" class="modern-label">เบอร์โทรศัพท์ที่ลงทะเบียนไว้</label>
+                                </div>
+                                <div class="modern-input-group">
+                                    <input type="text" id="resetIdCard" class="modern-input" placeholder=" " maxlength="13" required>
+                                    <label for="resetIdCard" class="modern-label">เลขประจำตัวประชาชน 13 หลัก</label>
+                                </div>
+                                
+                                <button type="button" id="btnVerifyIdentity" class="btn-login-new" style="background: linear-gradient(135deg, #0d47a1 0%, #1976D2 100%); width:100%; margin-bottom: 15px;">
+                                    ตรวจสอบข้อมูล
+                                </button>
+                            </div>
+
+                            <div id="resetStep2Area" style="display: none; animation: fadeIn 0.5s;">
+                                <hr style="margin: 20px 0; border: 0; border-top: 1px dashed #ccc;">
+                                <div class="modern-input-group">
+                                    <input type="password" id="resetNewPassword" class="modern-input" minlength="6" placeholder=" ">
+                                    <label for="resetNewPassword" class="modern-label">รหัสผ่านใหม่</label>
+                                </div>
+                                <div class="modern-input-group">
+                                    <input type="password" id="resetConfirmPassword" class="modern-input" minlength="6" placeholder=" ">
+                                    <label for="resetConfirmPassword" class="modern-label">ยืนยันรหัสผ่านใหม่</label>
+                                </div>
+                                <button type="submit" id="btnResetSubmit" class="btn-login-new" style="background: linear-gradient(135deg, #e65100 0%, #ff9800 100%); width:100%">
+                                    ยืนยันการเปลี่ยนรหัสผ่าน
+                                </button>
+                            </div>
+                        </form>
+                        <div style="text-align: center; margin-top: 20px;">
+                            <a href="#" id="backToLoginFromReset" style="color: #666; font-weight:bold;">ยกเลิก / กลับหน้าเข้าสู่ระบบ</a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+<script>
+    const WEB_APP_URL = "<?= ScriptApp.getService().getUrl() ?>";
+    window.Swal = Swal.mixin({
+        confirmButtonText: 'ตกลง',
+        cancelButtonText: 'ยกเลิก'
+    });
+
+    function escapeHTML(str) {
+        if(typeof str !== 'string') return str;
+        return str.replace(/[&<>'"]/g, tag => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+        }[tag] || tag));
+    }
+
+    async function getClientIp() {
+        try {
+            const response = await fetch('https://api.ipify.org?format=json');
+            const data = await response.json();
+            return data.ip;
+        } catch (e) {
+            return "Unknown IP";
+        }
+    }
+
+    function showLoading(customMessage) { 
+        const defaultMsg = 'ระบบกำลังประมวลผล กรุณารอสักครู่';
+        document.getElementById('loaderText').textContent = customMessage || defaultMsg; 
+        document.getElementById('customLoader').style.display = 'flex'; 
+    }
+    
+    function hideLoading() { 
+        document.getElementById('customLoader').style.display = 'none'; 
+    }
+
+    function showAlert(message, type = 'success') {
+        Swal.fire({
+            icon: type,
+            title: type === 'success' ? 'สำเร็จ' : 'แจ้งเตือน',
+            text: message,
+            confirmButtonColor: 'var(--secondary-color)',
+            confirmButtonText: 'ตกลง', 
+            timer: type === 'success' ? 2000 : undefined
+        });
+    }
+
+    function showSection(sectionId) {
+        document.querySelectorAll('.section').forEach(el => {
+            el.classList.remove('active');
+            el.style.display = 'none';
+        });
+        const activeSection = document.getElementById(sectionId);
+        activeSection.classList.add('active');
+        activeSection.style.display = 'block';
+        window.scrollTo(0, 0);
+    }
+
+    document.getElementById('showSignup').onclick = (e) => { 
+        e.preventDefault(); 
+        document.getElementById('signupForm').reset();
+        showSection('signupSection'); 
+    };
+
+    document.getElementById('showLogin').onclick = (e) => { 
+        e.preventDefault(); 
+        showSection('loginSection'); 
+    };
+
+    document.getElementById('showResetPassword').onclick = (e) => {
+        e.preventDefault();
+        document.getElementById('resetPasswordForm').reset();
+        
+        document.getElementById('resetStep2Area').style.display = 'none';
+        document.getElementById('btnVerifyIdentity').style.display = 'block';
+        document.getElementById('resetStudentId').readOnly = false;
+        document.getElementById('resetPhone').readOnly = false;
+        document.getElementById('resetIdCard').readOnly = false; 
+        document.getElementById('resetStudentId').parentElement.style.opacity = '1';
+        document.getElementById('resetPhone').parentElement.style.opacity = '1';
+        document.getElementById('resetIdCard').parentElement.style.opacity = '1'; 
+
+        showSection('resetPasswordSection');
+    };
+
+    document.getElementById('backToLoginFromReset').onclick = (e) => {
+        e.preventDefault();
+        showSection('loginSection');
+    };
+
+    document.getElementById('toggleSignupPassword').addEventListener('click', function () {
+        const passwordInput = document.getElementById('signupPassword');
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        this.textContent = type === 'password' ? 'visibility_off' : 'visibility';
+    });
+    
+    document.getElementById('toggleLoginPassBtn').addEventListener('click', function() {
+        const loginPassInput = document.getElementById('loginPassword');
+        const loginEyeIcon = document.getElementById('loginEyeIcon');
+        
+        if (loginPassInput.type === 'password') {
+            loginPassInput.type = 'text'; 
+            loginEyeIcon.textContent = 'visibility'; 
+        } else {
+            loginPassInput.type = 'password'; 
+            loginEyeIcon.textContent = 'visibility_off'; 
+        }
+    });
+
+    document.getElementById('loginForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const btnSubmit = document.getElementById('btnLoginSubmit');
+        btnSubmit.disabled = true;
+
+        showLoading('กำลังตรวจสอบข้อมูลเข้าสู่ระบบ');
+        
+        const id = document.getElementById('loginStudentId').value.trim();
+        const pass = document.getElementById('loginPassword').value;
+        const clientIp = await getClientIp(); 
+
+        google.script.run.withSuccessHandler(res => {
+            hideLoading();
+            btnSubmit.disabled = false;
+
+            if (res.success) {
+                sessionStorage.setItem('ubu_student_id', res.user.studentId);
+                sessionStorage.setItem('ubu_token', res.user.token);
+                sessionStorage.setItem('ubu_role', res.user.role);
+                sessionStorage.setItem('ubu_user_data', JSON.stringify(res.user));
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'เข้าสู่ระบบสำเร็จ',
+                    text: 'คลิกปุ่มด้านล่างเพื่อเข้าสู่ระบบ',
+                    showConfirmButton: true,
+                    confirmButtonText: 'เข้าสู่หน้าหลัก <i class="material-icons" style="vertical-align: middle; font-size: 16px;">arrow_forward</i>',
+                    confirmButtonColor: 'var(--secondary-color)',
+                    allowOutsideClick: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const redirectUrl = WEB_APP_URL + "?page=" + res.user.role;
+                        window.top.location.href = redirectUrl;
+                    }
+                });
+            } else {
+                if (res.isSuspended) {
+                    const safeMessage = escapeHTML(res.message);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'บัญชีถูกระงับการใช้งาน',
+                        html: `<p style="color:red; font-weight:bold;">${safeMessage}</p>
+                               <p style="font-size:14px; margin-top:10px;">กรุณาติดต่อเจ้าหน้าที่ กยศ. มหาวิทยาลัยอุบลราชธานี</p>`,
+                        confirmButtonText: 'รับทราบ',
+                        confirmButtonColor: '#dc3545'
+                    });
+                } else if (res.isUnauthorizedAdmin) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'ปฏิเสธการเข้าถึง (Access Denied)',
+                        html: `
+                            <div style="text-align: left; font-size: 14px; line-height: 1.6; background: #fff5f5; padding: 15px; border-radius: 8px; border: 1px solid #ffcdd2;">
+                                <p style="color: #c62828; font-weight: bold; text-align: center; font-size: 16px; margin-top: 0;">
+                                    อีเมลของท่านไม่ได้รับอนุญาตให้ใช้สิทธิ์เจ้าหน้าที่สถานศึกษา
+                                </p>
+                                <hr style="border: 0; border-top: 1px dashed #ef9a9a; margin: 15px 0;">
+                                <p style="font-weight: bold; color: #333; margin-bottom: 5px;">แนวทางปฏิบัติ:</p>
+                                <ol style="color: #555; padding-left: 20px; margin-top: 0; margin-bottom: 0;">
+                                    <li style="margin-bottom: 8px;">
+                                        <b>หากเข้าระบบไม่ได้:</b> ต้องล็อกอินด้วยบัญชีที่ผูกกับอีเมลที่ลงทะเบียนสิทธิ์แอดมินไว้เท่านั้น
+                                    </li>
+                                    <li style="margin-bottom: 8px;">
+                                        <b>หากท่านเป็นเจ้าหน้าที่:</b> กรุณาตรวจสอบว่าท่านใช้อีเมล <i>(@ubu.ac.th)</i> ตรงกับที่ลงทะเบียนไว้หรือไม่
+                                    </li>
+                                    <li>
+                                        <b>การขอเพิ่มสิทธิ์:</b> โปรดติดต่อฝ่ายพัฒนาระบบเพื่อเพิ่มอีเมลของท่านเข้าสู่รายชื่อ Admin
+                                    </li>
+                                </ol>
+                            </div>
+                        `,
+                        confirmButtonText: 'ปิดหน้าต่าง',
+                        confirmButtonColor: '#6c757d'
+                    });
+                } else {
+                    showAlert(res.message, 'error');
+                }
+            }
+        }).withFailureHandler(err => {
+            hideLoading();
+            btnSubmit.disabled = false;
+            showAlert(err.message, 'error');
+        }).login(id, pass, clientIp); 
+    };
+
+    document.getElementById('signupForm').onsubmit = (e) => {
+        e.preventDefault();
+        const btnSubmit = document.getElementById('btnSignupSubmit');
+        btnSubmit.disabled = true;
+
+        showLoading('กำลังบันทึกข้อมูลลงทะเบียน');
+        const data = {
+            studentId: document.getElementById('signupStudentId').value.trim(),
+            password: document.getElementById('signupPassword').value,
+            prefix: document.getElementById('signupPrefix').value,
+            firstName: document.getElementById('signupFirstName').value.trim(),
+            lastName: document.getElementById('signupLastName').value.trim(),
+            gmail: document.getElementById('signupGmail').value.trim(),
+            faculty: document.getElementById('signupFaculty').value,
+            phone: document.getElementById('signupPhone').value.trim()
+        };
+
+        google.script.run.withSuccessHandler(res => {
+            hideLoading();
+            btnSubmit.disabled = false;
+            
+            if (res.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'ลงทะเบียนสำเร็จ',
+                    text: 'กรุณาเข้าสู่ระบบด้วยรหัสนักศึกษาและรหัสผ่านที่คุณตั้งไว้',
+                    confirmButtonColor: 'var(--secondary-color)'
+                }).then(() => {
+                    document.getElementById('signupForm').reset();
+                    document.getElementById('loginStudentId').value = data.studentId;
+                    showSection('loginSection');
+                });
+            } else {
+                showAlert(res.message, 'error');
+            }
+        }).withFailureHandler(err => { 
+            hideLoading(); 
+            btnSubmit.disabled = false;
+            showAlert(err.message, 'error'); 
+        }).signUp(data);
+    };
+
+    document.getElementById('btnVerifyIdentity').onclick = () => {
+        const studentId = document.getElementById('resetStudentId').value.trim();
+        const phone = document.getElementById('resetPhone').value.trim();
+        const idCard = document.getElementById('resetIdCard').value.trim();
+
+        if (!studentId || !phone || !idCard) {
+            showAlert('กรุณากรอกข้อมูลให้ครบถ้วน', 'warning');
+            return;
+        }
+
+        if (!/^\d{13}$/.test(idCard)) {
+            showAlert('เลขประจำตัวประชาชนต้องเป็นตัวเลข 13 หลัก', 'warning');
+            return;
+        }
+        if (!/^\d{10}$/.test(phone)) {
+            showAlert('หมายเลขโทรศัพท์ต้องเป็นตัวเลข 10 หลัก', 'warning');
+            return;
+        }
+
+        const btnVerify = document.getElementById('btnVerifyIdentity');
+        btnVerify.disabled = true;
+        showLoading('ระบบกำลังตรวจสอบข้อมูลยืนยันตัวตน');
+
+        google.script.run.withSuccessHandler(res => {
+            hideLoading();
+            btnVerify.disabled = false;
+
+            if (res.success) {
+                showAlert('ข้อมูลถูกต้อง กรุณาตั้งรหัสผ่านใหม่', 'success');
+                
+                document.getElementById('resetStudentId').readOnly = true;
+                document.getElementById('resetPhone').readOnly = true;
+                document.getElementById('resetIdCard').readOnly = true;
+                document.getElementById('resetStudentId').parentElement.style.opacity = '0.7';
+                document.getElementById('resetPhone').parentElement.style.opacity = '0.7';
+                document.getElementById('resetIdCard').parentElement.style.opacity = '0.7';
+                document.getElementById('btnVerifyIdentity').style.display = 'none';
+                document.getElementById('resetStep2Area').style.display = 'block';
+                document.getElementById('resetNewPassword').required = true;
+                document.getElementById('resetConfirmPassword').required = true;
+
+            } else {
+                showAlert(res.message, 'error');
+            }
+        }).withFailureHandler(err => {
+            hideLoading();
+            btnVerify.disabled = false;
+            showAlert(err.message, 'error');
+        }).verifyUserForReset(studentId, phone, idCard); 
+    };
+
+    document.getElementById('resetPasswordForm').onsubmit = (e) => {
+        e.preventDefault();
+        
+        if (document.getElementById('resetStep2Area').style.display === 'none') {
+            document.getElementById('btnVerifyIdentity').click();
+            return;
+        }
+
+        const studentId = document.getElementById('resetStudentId').value;
+        const phone = document.getElementById('resetPhone').value;
+        const idCard = document.getElementById('resetIdCard').value; 
+        const newPass = document.getElementById('resetNewPassword').value;
+        const confirmPass = document.getElementById('resetConfirmPassword').value;
+
+        if (newPass !== confirmPass) {
+            showAlert('รหัสผ่านยืนยันไม่ตรงกัน', 'error');
+            return;
+        }
+
+        if (newPass.length < 6) {
+            showAlert('รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร', 'warning');
+            return;
+        }
+
+        const btnReset = document.getElementById('btnResetSubmit');
+        btnReset.disabled = true;
+        showLoading('กำลังเปลี่ยนรหัสผ่าน');
+
+        const data = {
+            studentId: studentId,
+            phone: phone,
+            idCard: idCard, 
+            newPassword: newPass
+        };
+
+        google.script.run.withSuccessHandler(res => {
+            hideLoading();
+            btnReset.disabled = false;
+
+            if (res.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'เปลี่ยนรหัสผ่านสำเร็จ',
+                    text: 'ระบบอัปเดตรหัสผ่านใหม่เรียบร้อยแล้ว กรุณาเข้าสู่ระบบอีกครั้ง',
+                    confirmButtonColor: 'var(--secondary-color)'
+                }).then(() => {
+                    document.getElementById('resetPasswordForm').reset();
+                    document.getElementById('loginStudentId').value = studentId;
+                    showSection('loginSection');
+                });
+            } else {
+                showAlert(res.message, 'error');
+            }
+        }).withFailureHandler(err => {
+            hideLoading();
+            btnReset.disabled = false;
+            showAlert(err.message, 'error');
+        }).resetPassword(data);
+    };
+</script>
 </body>
 </html>
