@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,13 +7,10 @@
   
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   
   <link rel="stylesheet" href="style.css">
   <script src="api.js"></script>
-   <?!= include('Style_CSS'); ?>
-   
 </head>
 <body>
 
@@ -34,14 +31,14 @@
                         กองทุนเงินให้กู้ยืมเพื่อการศึกษา มหาวิทยาลัยอุบลราชธานี   
                     </p>
                     <p style="font-size: 15px; opacity: 0.8; margin-bottom: 25px;">
-                        ออกเเบบเเละพัฒนาระบบโดย : กองทุนเงินให้กู้ยืมเพื่อการศึกษา มหาวิทยาลัยอุบลราชธานี 
+                        ออกแบบและพัฒนาระบบโดย : กองทุนเงินให้กู้ยืมเพื่อการศึกษา มหาวิทยาลัยอุบลราชธานี 
                         <br>งานสวัสดิการนักศึกษา สำนักงานพัฒนานักศึกษา
                         <br>ระบบขัดข้องพบปัญหา โทร. 045-353-093 ทีมพัฒนาซอฟต์แวร์ โทร. 062-474-0508 หรือ 0507
                     </p>
                 </div>
             </div>
 
-            <div class="login-form-side">   
+            <div class="login-form-side">    
                 
                 <div id="loginSection" class="section active login-form-container">
                     <img src="https://img1.pic.in.th/images/Ubu_logo.png" alt="UBU Logo" class="login-logo">
@@ -204,7 +201,6 @@
     </div>
 
 <script>
-    // ตั้งค่า SweetAlert
     window.Swal = Swal.mixin({
         confirmButtonText: 'ตกลง',
         cancelButtonText: 'ยกเลิก'
@@ -308,11 +304,6 @@
         }
     });
 
-    // ==========================================
-    // ส่วนเชื่อมต่อ API (แทนที่ google.script.run)
-    // ==========================================
-
-    // ฟังก์ชันเข้าสู่ระบบ
     document.getElementById('loginForm').onsubmit = async (e) => {
         e.preventDefault();
         const btnSubmit = document.getElementById('btnLoginSubmit');
@@ -349,7 +340,6 @@
                     allowOutsideClick: false
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // แยกหน้าเว็บ
                         window.location.href = res.user.role === 'admin' ? 'View_Admin.html' : 'View_User.html';
                     }
                 });
@@ -383,7 +373,6 @@
         }
     };
 
-    // ฟังก์ชันลงทะเบียน
     document.getElementById('signupForm').onsubmit = async (e) => {
         e.preventDefault();
         const btnSubmit = document.getElementById('btnSignupSubmit');
@@ -427,7 +416,6 @@
         }
     };
 
-    // ฟังก์ชันตรวจสอบยืนยันตัวตนก่อนเปลี่ยนรหัสผ่าน
     document.getElementById('btnVerifyIdentity').onclick = async () => {
         const studentId = document.getElementById('resetStudentId').value.trim();
         const phone = document.getElementById('resetPhone').value.trim();
@@ -474,7 +462,6 @@
         }
     };
 
-    // ฟังก์ชันยืนยันเปลี่ยนรหัสผ่านใหม่
     document.getElementById('resetPasswordForm').onsubmit = async (e) => {
         e.preventDefault();
         
