@@ -276,7 +276,7 @@
                                 <i class="material-icons" style="color: white; font-size: 32px;">monetization_on</i>
                             </div>
                             <h2 style="border: none; justify-content: center; margin-bottom: 5px; font-weight: 700; color: #1565C0;">
-                                ยื่นคำร้องขอกู้ยืม ปี 2569 
+                                ยื่นคำร้องขอกู้ยืม ปี 2569 
                             </h2>
                             <p style="color: #777; font-size: 15px; margin: 0;">สำหรับนักศึกษากู้ยืมรายเก่าเลื่อนชั้นปี</p>
                         </div>
@@ -365,7 +365,7 @@
                                 <div style="display: flex; gap: 15px; margin-top: 25px;">
                                     <button class="btn" onclick="initUserLoanPage()" style="flex: 1; background: #eceff1; border-radius: 8px;">ย้อนกลับ</button>
                                     <button class="btn btn-login-new" onclick="confirmSubmitLoan()" style="flex: 2; height: 50px; font-size: 16px; border-radius: 8px;">
-                                        ยืนยันการส่งคำร้อง <i class="material-icons" style="margin-left: 8px;">send</i>
+                                        ยื่นคำร้อง <i class="material-icons" style="margin-left: 8px;">send</i>
                                     </button>
                                 </div>
                             </div>
@@ -753,7 +753,7 @@
                 '&': '&amp;', 
                 '<': '&lt;', 
                 '>': '&gt;', 
-                "'": '&#x27;', 
+                "'": '&#39;', 
                 '"': '&quot;' 
             };
             return charsToReplace[tag] || tag;
@@ -1032,48 +1032,46 @@
         e.preventDefault();
         showLoading('ระบบกำลังประมวลผลบันทึกข้อมูล');
         const pData = {
-        studentId: currentUser.studentId, 
-        idCard: document.getElementById('epIdCard').value,
-        nickname: document.getElementById('epNickname').value,
-        dob: document.getElementById('epDob').value,
-        phone: document.getElementById('epPhone').value,
-        gpa: document.getElementById('epGpa').value,
-        disease: document.getElementById('epDisease').value,
-        fatherName: document.getElementById('epFatherName').value,
-        fatherJob: document.getElementById('epFatherJob').value,
-        fatherPhone: document.getElementById('epFatherPhone').value,
-        motherName: document.getElementById('epMotherName').value,
-        motherJob: document.getElementById('epMotherJob').value,
-        motherPhone: document.getElementById('epMotherPhone').value,
-        parentsStatus: document.getElementById('epParentsStatus').value,
-        familyMembers: document.getElementById('epFamilyMembers').value,
-        householdIncome: document.getElementById('epHouseholdIncome').value,
-        debt: document.getElementById('epDebt').value,
-        addrNo: document.getElementById('epAddrNo').value,
-        subDistrict: document.getElementById('epSubDistrict').value,
-        district: document.getElementById('epDistrict').value,
-        province: document.getElementById('epProvince').value,
-        zipcode: document.getElementById('epZipcode').value,
-        mapLink: document.getElementById('epMapLink').value
-    };
+            studentId: currentUser.studentId, 
+            idCard: document.getElementById('epIdCard').value,
+            nickname: document.getElementById('epNickname').value,
+            dob: document.getElementById('epDob').value,
+            phone: document.getElementById('epPhone').value,
+            gpa: document.getElementById('epGpa').value,
+            disease: document.getElementById('epDisease').value,
+            fatherName: document.getElementById('epFatherName').value,
+            fatherJob: document.getElementById('epFatherJob').value,
+            fatherPhone: document.getElementById('epFatherPhone').value,
+            motherName: document.getElementById('epMotherName').value,
+            motherJob: document.getElementById('epMotherJob').value,
+            motherPhone: document.getElementById('epMotherPhone').value,
+            parentsStatus: document.getElementById('epParentsStatus').value,
+            familyMembers: document.getElementById('epFamilyMembers').value,
+            householdIncome: document.getElementById('epHouseholdIncome').value,
+            debt: document.getElementById('epDebt').value,
+            addrNo: document.getElementById('epAddrNo').value,
+            subDistrict: document.getElementById('epSubDistrict').value,
+            district: document.getElementById('epDistrict').value,
+            province: document.getElementById('epProvince').value,
+            zipcode: document.getElementById('epZipcode').value,
+            mapLink: document.getElementById('epMapLink').value
+        };
 
-    try {
-        // ปรับแต่งโครงสร้างการส่งให้สมบูรณ์ มีทั้งเกตเวย์ชั้นนอก และก้อนข้อมูลชั้นใน
-        const res = await callApi("saveProfile", {
-            studentId: currentUser.studentId,
-            token: userToken,
-            profileData: pData
-        });
-        
-        hideLoading();
-        if (res.success) showAlert('บันทึกข้อมูลเรียบร้อยแล้ว'); 
-        else showAlert(res.message, 'error');
-    } catch(err) {
-        hideLoading();
-        showAlert(err.message, 'error');
-    }
-};
-        
+        try {
+            const res = await callApi("saveProfile", {
+                studentId: currentUser.studentId,
+                token: userToken,
+                profileData: pData
+            });
+            
+            hideLoading();
+            if (res.success) showAlert('บันทึกข้อมูลเรียบร้อยแล้ว'); 
+            else showAlert(res.message, 'error');
+        } catch(err) {
+            hideLoading();
+            showAlert(err.message, 'error');
+        }
+    };
 
     let allActivitiesCache = [];
     async function loadActivitiesForUser() {
