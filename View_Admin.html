@@ -186,7 +186,7 @@
                 </div>
                 <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0;">
                     <div class="user-profile-info">
-                        <div id="topbarUserName" style="font-weight: bold; color: #333;">กำลังโหลด</div>
+                        <div id="topbarAdminName" style="font-weight: bold; color: #333;">กำลังโหลด</div>
                         <div id="topbarUserRole" style="font-size: 12px; color: #777;">ผู้ทำรายการระดับสถานศึกษา</div>
                     </div>
                     <button id="navLogout" class="btn btn-danger btn-logout" title="ออกจากระบบ">
@@ -1817,24 +1817,25 @@
     </div>
 
     <div id="printPreviewModal" class="modal" style="z-index: 9999;">
-    <div class="modal-content" style="max-width: 900px; width: 95%; height: 90vh; display: flex; flex-direction: column; padding: 0;">
-      <div style="padding: 15px 20px; background: #333; color: white; display: flex; justify-content: space-between; align-items: center; border-radius: 8px 8px 0 0;">
-        <h3 style="margin: 0; font-size: 18px; display: flex; align-items: center; gap: 10px;">
-          <i class="material-icons">print</i> ตัวอย่างก่อนพิมพ์
-        </h3>
-        <div style="display: flex; gap: 10px;">
-          <button class="btn btn-primary" onclick="triggerPrintFromPreview()" style="display: flex; align-items: center; gap: 5px; background: var(--secondary-color); border: none;">
-            <i class="material-icons" style="font-size: 18px;">print</i> สั่งพิมพ์
-          </button>
-          <button class="btn" onclick="document.getElementById('printPreviewModal').style.display='none'" style="background: rgba(255,255,255,0.2); color: white; border: none;">
-            ปิดหน้าต่าง
-          </button>
+        <div class="modal-content" style="max-width: 900px; width: 95%; height: 90vh; display: flex; flex-direction: column; padding: 0;">
+          <div style="padding: 15px 20px; background: #333; color: white; display: flex; justify-content: space-between; align-items: center; border-radius: 8px 8px 0 0;">
+            <h3 style="margin: 0; font-size: 18px; display: flex; align-items: center; gap: 10px;">
+              <i class="material-icons">print</i> ตัวอย่างก่อนพิมพ์
+            </h3>
+            <div style="display: flex; gap: 10px;">
+              <button class="btn btn-primary" onclick="triggerPrintFromPreview()" style="display: flex; align-items: center; gap: 5px; background: var(--secondary-color); border: none;">
+                <i class="material-icons" style="font-size: 18px;">print</i> สั่งพิมพ์
+              </button>
+              <button class="btn" onclick="document.getElementById('printPreviewModal').style.display='none'" style="background: rgba(255,255,255,0.2); color: white; border: none;">
+                ปิดหน้าต่าง
+              </button>
+            </div>
+          </div>
+          <iframe id="previewIframe" style="flex: 1; width: 100%; border: none; background: white; border-radius: 0 0 8px 8px;"></iframe>
         </div>
-      </div>
-      <iframe id="previewIframe" style="flex: 1; width: 100%; border: none; background: white; border-radius: 0 0 8px 8px;"></iframe>
     </div>
-  </div>
-  <div id="lightboxModal" class="modal" style="display: none; z-index: 10000; align-items: center; justify-content: center; background-color: rgba(0,0,0,0.85);">
+    
+    <div id="lightboxModal" class="modal" style="display: none; z-index: 10000; align-items: center; justify-content: center; background-color: rgba(0,0,0,0.85);">
         <span class="close-button" onclick="document.getElementById('lightboxModal').style.display='none'" style="position: absolute; top: 20px; right: 30px; color: white; font-size: 40px; cursor: pointer; transition: 0.3s;">&times;</span>
         <img id="lightboxImage" src="" style="max-width: 90vw; max-height: 90vh; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); object-fit: contain;">
     </div>
@@ -1865,7 +1866,7 @@
         </div>
     </div>
 
-    <script>
+<script>
     function escapeHTML(str) {
         if (str === null || str === undefined) return '';
         return String(str)
@@ -2160,7 +2161,6 @@
     };
     autoLogout();
 
-
     // ==========================================
     // 5. โหลดข้อมูล API และนำข้อมูลใส่ตาราง
     // ==========================================
@@ -2396,8 +2396,8 @@
             return; 
         }
         const filtered = cachedDuplicateGroups.filter(g => 
-            g.duplicateValue.toLowerCase().includes(q) || 
-            g.users.some(u => u.studentId.toLowerCase().includes(q) || u.name.toLowerCase().includes(q))
+            String(g.duplicateValue).toLowerCase().includes(q) || 
+            g.users.some(u => String(u.studentId).toLowerCase().includes(q) || String(u.name).toLowerCase().includes(q))
         );
         displayDuplicateResults(filtered);
     };
@@ -2639,7 +2639,7 @@
         const input = document.getElementById('adminProfileSearchInput');
         if(!input) return;
         const q = input.value.toLowerCase();
-        currentFilteredData = q ? allProfilesData.filter(p => p.studentId.includes(q) || p.name.toLowerCase().includes(q)) : allProfilesData;
+        currentFilteredData = q ? allProfilesData.filter(p => String(p.studentId).toLowerCase().includes(q) || String(p.name).toLowerCase().includes(q)) : allProfilesData;
         currentPage = 1; 
         renderPagination();
     };
@@ -2749,7 +2749,7 @@
         const f = filterEl.value;
         
         currentFilteredImageReportData = cachedImageReportData.filter(i => {
-            const m = i.studentId.toLowerCase().includes(q) || i.name.toLowerCase().includes(q) || (i.idCard && i.idCard.includes(q));
+            const m = String(i.studentId).toLowerCase().includes(q) || String(i.name).toLowerCase().includes(q) || (i.idCard && String(i.idCard).includes(q));
             const mf = f === 'all' ? true : (f === 'has_image' ? !!i.profileImage : !i.profileImage);
             return m && mf;
         });
@@ -3876,7 +3876,7 @@
         if(!qInput || !stInput) return;
         const q = qInput.value.toLowerCase().trim();
         const st = stInput.value;
-        overFilteredData = overAllData.filter(x => (x.studentId.includes(q) || x.name.toLowerCase().includes(q)) && (st === 'all' || x.status === st));
+        overFilteredData = overAllData.filter(x => (String(x.studentId).toLowerCase().includes(q) || String(x.name).toLowerCase().includes(q)) && (st === 'all' || x.status === st));
         resetOverPagination(); 
     };
 
@@ -4029,7 +4029,7 @@
         
         const q = qInput.value.toLowerCase().trim();
         const st = stInput.value;
-        rsFilteredData = rsAllData.filter(x => (x.studentId.includes(q) || x.name.toLowerCase().includes(q)) && (st === 'all' || x.status === st));
+        rsFilteredData = rsAllData.filter(x => (String(x.studentId).toLowerCase().includes(q) || String(x.name).toLowerCase().includes(q)) && (st === 'all' || x.status === st));
         rsCurrentPage = 1; 
         renderResignTable();
     };
@@ -4429,11 +4429,13 @@
             Swal.fire('แจ้งเตือน', 'ไม่มีข้อมูลคำร้องให้ดาวน์โหลด', 'warning');
             return;
         }
+        
         const csv = "\uFEFFวันที่ยื่นคำร้อง,รหัสนักศึกษา,ชื่อ-สกุล,ประเภทคำร้อง,เหตุผลประกอบ,สถานะ,หมายเหตุเจ้าหน้าที่\n" + 
             lastFilteredPetitions.map(p => `"${p['วันที่ยื่นคำร้อง'] || ''}","${p['รหัสนักศึกษา'] || ''}","${p['ชื่อ-สกุล'] || ''}","${p['ประเภทคำร้อง'] || ''}","${(p['เหตุผลประกอบ'] || '').replace(/\n/g,' ')}","${p['สถานะ'] || 'รอดำเนินการ'}","${(p['หมายเหตุเจ้าหน้าที่'] || '').replace(/\n/g,' ')}"`).join("\n"); 
         
         downloadCSV(csv, "petitions.csv"); 
     };
+
 </script>
 </body>
 </html>
