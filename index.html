@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="th">
+<html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,10 +7,14 @@
   
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   
   <link rel="stylesheet" href="style.css">
-  <script src="api.js"></script>
+
+  <?!= include('Style_CSS'); ?>
+  <?!= include('API_JS'); ?>
+   
 </head>
 <body>
 
@@ -31,14 +35,14 @@
                         กองทุนเงินให้กู้ยืมเพื่อการศึกษา มหาวิทยาลัยอุบลราชธานี   
                     </p>
                     <p style="font-size: 15px; opacity: 0.8; margin-bottom: 25px;">
-                        ออกแบบและพัฒนาระบบโดย : กองทุนเงินให้กู้ยืมเพื่อการศึกษา มหาวิทยาลัยอุบลราชธานี 
+                        ออกเเบบเเละพัฒนาระบบโดย : กองทุนเงินให้กู้ยืมเพื่อการศึกษา มหาวิทยาลัยอุบลราชธานี 
                         <br>งานสวัสดิการนักศึกษา สำนักงานพัฒนานักศึกษา
                         <br>ระบบขัดข้องพบปัญหา โทร. 045-353-093 ทีมพัฒนาซอฟต์แวร์ โทร. 062-474-0508 หรือ 0507
                     </p>
                 </div>
             </div>
 
-            <div class="login-form-side">    
+            <div class="login-form-side">   
                 
                 <div id="loginSection" class="section active login-form-container">
                     <img src="https://img1.pic.in.th/images/Ubu_logo.png" alt="UBU Logo" class="login-logo">
@@ -201,6 +205,7 @@
     </div>
 
 <script>
+    const WEB_APP_URL = "<?= ScriptApp.getService().getUrl() ?>";
     window.Swal = Swal.mixin({
         confirmButtonText: 'ตกลง',
         cancelButtonText: 'ยกเลิก'
@@ -214,13 +219,28 @@
     }
 
     async function getClientIp() {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000); 
+
         try {
-            const response = await fetch('https://api.ipify.org?format=json');
+            const response = await fetch('https://api.ipify.org?format=json', { signal: controller.signal });
+            clearTimeout(timeoutId);
             const data = await response.json();
             return data.ip;
         } catch (e) {
-            return "Unknown IP";
+            clearTimeout(timeoutId);
+            return "Unknown IP (Blocked/Timeout)"; 
         }
+    }
+
+    function validateThaiIdCard(id) {
+        if (id.length !== 13 || !/^\d{13}$/.test(id)) return false;
+        let sum = 0;
+        for (let i = 0; i < 12; i++) {
+            sum += parseFloat(id.charAt(i)) * (13 - i);
+        }
+        const checkDigit = (11 - (sum % 11)) % 10;
+        return checkDigit === parseFloat(id.charAt(12));
     }
 
     function showLoading(customMessage) { 
@@ -269,6 +289,7 @@
     document.getElementById('showResetPassword').onclick = (e) => {
         e.preventDefault();
         document.getElementById('resetPasswordForm').reset();
+        
         document.getElementById('resetStep2Area').style.display = 'none';
         document.getElementById('btnVerifyIdentity').style.display = 'block';
         document.getElementById('resetStudentId').readOnly = false;
@@ -277,6 +298,7 @@
         document.getElementById('resetStudentId').parentElement.style.opacity = '1';
         document.getElementById('resetPhone').parentElement.style.opacity = '1';
         document.getElementById('resetIdCard').parentElement.style.opacity = '1'; 
+
         showSection('resetPasswordSection');
     };
 
@@ -295,6 +317,7 @@
     document.getElementById('toggleLoginPassBtn').addEventListener('click', function() {
         const loginPassInput = document.getElementById('loginPassword');
         const loginEyeIcon = document.getElementById('loginEyeIcon');
+        
         if (loginPassInput.type === 'password') {
             loginPassInput.type = 'text'; 
             loginEyeIcon.textContent = 'visibility'; 
@@ -308,19 +331,14 @@
         e.preventDefault();
         const btnSubmit = document.getElementById('btnLoginSubmit');
         btnSubmit.disabled = true;
+
         showLoading('กำลังตรวจสอบข้อมูลเข้าสู่ระบบ');
         
         const id = document.getElementById('loginStudentId').value.trim();
         const pass = document.getElementById('loginPassword').value;
         const clientIp = await getClientIp(); 
 
-        try {
-            const res = await callApi("login", { 
-                studentId: id, 
-                password: pass, 
-                ipAddress: clientIp 
-            });
-
+        google.script.run.withSuccessHandler(res => {
             hideLoading();
             btnSubmit.disabled = false;
 
@@ -340,7 +358,8 @@
                     allowOutsideClick: false
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        window.location.href = res.user.role === 'admin' ? 'View_Admin.html' : 'View_User.html';
+                        const redirectUrl = WEB_APP_URL + "?page=" + res.user.role;
+                        window.top.location.href = redirectUrl;
                     }
                 });
             } else {
@@ -350,15 +369,34 @@
                         icon: 'error',
                         title: 'บัญชีถูกระงับการใช้งาน',
                         html: `<p style="color:red; font-weight:bold;">${safeMessage}</p>
-                               <p style="font-size:14px; margin-top:10px;">กรุณาติดต่อเจ้าหน้าที่ กยศ.</p>`,
+                               <p style="font-size:14px; margin-top:10px;">กรุณาติดต่อเจ้าหน้าที่ กยศ. มหาวิทยาลัยอุบลราชธานี</p>`,
                         confirmButtonText: 'รับทราบ',
                         confirmButtonColor: '#dc3545'
                     });
                 } else if (res.isUnauthorizedAdmin) {
                     Swal.fire({
                         icon: 'warning',
-                        title: 'ปฏิเสธการเข้าถึง',
-                        text: 'อีเมลของท่านไม่ได้รับอนุญาตให้ใช้สิทธิ์เจ้าหน้าที่สถานศึกษา',
+                        title: 'ปฏิเสธการเข้าถึง (Access Denied)',
+                        html: `
+                            <div style="text-align: left; font-size: 14px; line-height: 1.6; background: #fff5f5; padding: 15px; border-radius: 8px; border: 1px solid #ffcdd2;">
+                                <p style="color: #c62828; font-weight: bold; text-align: center; font-size: 16px; margin-top: 0;">
+                                    อีเมลของท่านไม่ได้รับอนุญาตให้ใช้สิทธิ์เจ้าหน้าที่สถานศึกษา
+                                </p>
+                                <hr style="border: 0; border-top: 1px dashed #ef9a9a; margin: 15px 0;">
+                                <p style="font-weight: bold; color: #333; margin-bottom: 5px;">แนวทางปฏิบัติ:</p>
+                                <ol style="color: #555; padding-left: 20px; margin-top: 0; margin-bottom: 0;">
+                                    <li style="margin-bottom: 8px;">
+                                        <b>หากเข้าระบบไม่ได้:</b> ต้องล็อกอินด้วยบัญชีที่ผูกกับอีเมลที่ลงทะเบียนสิทธิ์แอดมินไว้เท่านั้น
+                                    </li>
+                                    <li style="margin-bottom: 8px;">
+                                        <b>หากท่านเป็นเจ้าหน้าที่:</b> กรุณาตรวจสอบว่าท่านใช้อีเมล <i>(@ubu.ac.th)</i> ตรงกับที่ลงทะเบียนไว้หรือไม่
+                                    </li>
+                                    <li>
+                                        <b>การขอเพิ่มสิทธิ์:</b> โปรดติดต่อฝ่ายพัฒนาระบบเพื่อเพิ่มอีเมลของท่านเข้าสู่รายชื่อ Admin
+                                    </li>
+                                </ol>
+                            </div>
+                        `,
                         confirmButtonText: 'ปิดหน้าต่าง',
                         confirmButtonColor: '#6c757d'
                     });
@@ -366,14 +404,14 @@
                     showAlert(res.message, 'error');
                 }
             }
-        } catch (err) {
+        }).withFailureHandler(err => {
             hideLoading();
             btnSubmit.disabled = false;
             showAlert(err.message, 'error');
-        }
+        }).login(id, pass, clientIp); 
     };
 
-    document.getElementById('signupForm').onsubmit = async (e) => {
+    document.getElementById('signupForm').onsubmit = (e) => {
         e.preventDefault();
         const btnSubmit = document.getElementById('btnSignupSubmit');
         btnSubmit.disabled = true;
@@ -390,8 +428,7 @@
             phone: document.getElementById('signupPhone').value.trim()
         };
 
-        try {
-            const res = await callApi("signUp", { userData: data });
+        google.script.run.withSuccessHandler(res => {
             hideLoading();
             btnSubmit.disabled = false;
             
@@ -409,14 +446,14 @@
             } else {
                 showAlert(res.message, 'error');
             }
-        } catch (err) {
+        }).withFailureHandler(err => { 
             hideLoading(); 
             btnSubmit.disabled = false;
             showAlert(err.message, 'error'); 
-        }
+        }).signUp(data);
     };
 
-    document.getElementById('btnVerifyIdentity').onclick = async () => {
+    document.getElementById('btnVerifyIdentity').onclick = () => {
         const studentId = document.getElementById('resetStudentId').value.trim();
         const phone = document.getElementById('resetPhone').value.trim();
         const idCard = document.getElementById('resetIdCard').value.trim();
@@ -426,22 +463,27 @@
             return;
         }
 
+        if (!validateThaiIdCard(idCard)) {
+            showAlert('เลขประจำตัวประชาชนไม่ถูกต้องตามรูปแบบ', 'warning');
+            return;
+        }
+
+        if (!/^\d{10}$/.test(phone)) {
+            showAlert('หมายเลขโทรศัพท์ต้องเป็นตัวเลข 10 หลัก', 'warning');
+            return;
+        }
+
         const btnVerify = document.getElementById('btnVerifyIdentity');
         btnVerify.disabled = true;
         showLoading('ระบบกำลังตรวจสอบข้อมูลยืนยันตัวตน');
 
-        try {
-            const res = await callApi("verifyUserForReset", { 
-                studentId: studentId, 
-                phone: phone, 
-                idCard: idCard 
-            });
-
+        google.script.run.withSuccessHandler(res => {
             hideLoading();
             btnVerify.disabled = false;
 
             if (res.success) {
                 showAlert('ข้อมูลถูกต้อง กรุณาตั้งรหัสผ่านใหม่', 'success');
+                
                 document.getElementById('resetStudentId').readOnly = true;
                 document.getElementById('resetPhone').readOnly = true;
                 document.getElementById('resetIdCard').readOnly = true;
@@ -452,17 +494,18 @@
                 document.getElementById('resetStep2Area').style.display = 'block';
                 document.getElementById('resetNewPassword').required = true;
                 document.getElementById('resetConfirmPassword').required = true;
+
             } else {
                 showAlert(res.message, 'error');
             }
-        } catch (err) {
+        }).withFailureHandler(err => {
             hideLoading();
             btnVerify.disabled = false;
             showAlert(err.message, 'error');
-        }
+        }).verifyUserForReset(studentId, phone, idCard); 
     };
 
-    document.getElementById('resetPasswordForm').onsubmit = async (e) => {
+    document.getElementById('resetPasswordForm').onsubmit = (e) => {
         e.preventDefault();
         
         if (document.getElementById('resetStep2Area').style.display === 'none') {
@@ -490,14 +533,14 @@
         btnReset.disabled = true;
         showLoading('กำลังเปลี่ยนรหัสผ่าน');
 
-        try {
-            const res = await callApi("resetPassword", {
-                studentId: studentId,
-                phone: phone,
-                idCard: idCard, 
-                newPassword: newPass
-            });
+        const data = {
+            studentId: studentId,
+            phone: phone,
+            idCard: idCard, 
+            newPassword: newPass
+        };
 
+        google.script.run.withSuccessHandler(res => {
             hideLoading();
             btnReset.disabled = false;
 
@@ -515,12 +558,19 @@
             } else {
                 showAlert(res.message, 'error');
             }
-        } catch (err) {
+        }).withFailureHandler(err => {
             hideLoading();
             btnReset.disabled = false;
             showAlert(err.message, 'error');
-        }
+        }).resetPassword(data);
     };
+    document.addEventListener("DOMContentLoaded", () => {
+        sessionStorage.removeItem('ubu_student_id');
+        sessionStorage.removeItem('ubu_token');
+        sessionStorage.removeItem('ubu_role');
+        sessionStorage.removeItem('ubu_user_data');
+    });
+
 </script>
 </body>
 </html>
