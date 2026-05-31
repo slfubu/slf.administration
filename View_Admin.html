@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,12 +7,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <link rel="stylesheet" href="style.css">
   
-
-  <?!= include('Style_CSS'); ?>
-  <?!= include('API_JS'); ?>
-
+  <link rel="stylesheet" href="style.css">
+  <script src="api.js"></script>
 </head>
 <body>
 
@@ -1901,7 +1898,7 @@
             confirmButtonColor: '#1976D2',
             allowOutsideClick: false
         }).then(() => {
-            window.top.location.href = WEB_APP_URL + "?page=login";
+            window.top.location.href = "index.html";
         });
         
         throw new Error("Unauthorized access");
@@ -2120,7 +2117,7 @@
                     confirmButtonColor: '#f57f17',
                     allowOutsideClick: false
                 }).then(() => {
-                    window.top.location.href = WEB_APP_URL + "?page=login";
+                    window.top.location.href = "index.html";
                 });
             }, 15 * 60 * 1000); 
         };
@@ -4187,7 +4184,7 @@
         let pendingCount = 0;
 
         adminPetitionsCache.forEach(p => {
-            const currentStatus = p['館ะ'] || p['สถานะ'] || 'รอดำเนินการ';
+            const currentStatus = p['สถานะ'] || 'รอดำเนินการ';
             if (doneStatuses.includes(currentStatus)) {
                 doneCount++;
             } else {
@@ -4317,23 +4314,6 @@
         downloadCSV(csv, "petitions.csv"); 
     };
 
-    function callApi(action, payload) {
-        return new Promise((resolve, reject) => {
-            fetch(WEB_APP_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'text/plain;charset=utf-8',
-                },
-                body: JSON.stringify({ action: action, ...payload })
-            })
-            .then(response => response.json())
-            .then(data => resolve(data))
-            .catch(error => {
-                console.error("API Error:", error);
-                reject(error);
-            });
-        });
-    }
     </script>
 </body>
 </html>
