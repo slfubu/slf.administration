@@ -4,6 +4,10 @@ async function callApi(actionName, payloadData = {}) {
     try {
         const response = await fetch(WEB_APP_URL, {
             method: 'POST',
+            redirect: 'follow',
+            headers: {
+                "Content-Type": "text/plain;charset=utf-8"
+            },
             body: JSON.stringify({ action: actionName, ...payloadData })
         });
 
