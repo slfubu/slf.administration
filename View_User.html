@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,10 +11,8 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   
   <link rel="stylesheet" href="style.css">
-
-
-  <?!= include('Style_CSS'); ?>
-  <?!= include('API_JS'); ?>
+  
+  <script src="api.js"></script>
 </head>
 <body>
 
@@ -684,7 +682,9 @@
                     </div>
                 </div>
 
-            </div> <footer class="app-footer">
+            </div> 
+
+            <footer class="app-footer">
                 <div class="footer-container">
                     <div class="footer-col">
                         <div class="logo-section">
@@ -716,7 +716,10 @@
                 </div>
             </footer>
 
-        </div> </div> <div id="activityHistoryModal" class="modal">
+        </div> 
+    </div> 
+
+    <div id="activityHistoryModal" class="modal">
         <div class="modal-content" style="max-width: 600px; padding: 20px;">
             <span class="close-button" onclick="document.getElementById('activityHistoryModal').style.display='none'">×</span>
             <h3 style="color: var(--secondary-color); margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 15px; font-size: 20px;">
@@ -759,7 +762,6 @@
             .replace(/'/g, '&' + '#39;');
     }
 
-    const WEB_APP_URL = "<?= ScriptApp.getService().getUrl() ?>";
     const userDataString = sessionStorage.getItem('ubu_user_data');
     const userToken = sessionStorage.getItem('ubu_token');
     
@@ -770,9 +772,7 @@
     
     if (!currentUser || !userToken || currentUser.role !== 'user') {
         sessionStorage.clear();
-        
         document.body.style.display = 'none'; 
-
         Swal.fire({
             icon: 'error',
             title: 'ปฏิเสธการเข้าถึง',
@@ -781,12 +781,12 @@
             confirmButtonColor: '#1976D2',
             allowOutsideClick: false
         }).then(() => {
-            window.top.location.href = WEB_APP_URL + "?page=login";
+            window.top.location.href = "index.html";
         });
-        
         throw new Error("Unauthorized access"); 
     }
 
+    // สร้าง payload รวมข้อมูลรับรองตัวตน (ใช้กับฝั่ง Backend ที่รับ data เป็นก้อน)
     function createSecurePayload(dataObj = {}) {
         return {
             studentId: currentUser.studentId,
@@ -810,15 +810,6 @@
     function showAlert(msg, type = 'success') {
         Swal.fire({ icon: type, title: type==='success'?'สำเร็จ':'แจ้งเตือน', text: msg });
     }
-    function maskString(str, type) {
-        if (!str) return '-';
-        if (type === 'email') {
-            const parts = str.split('@');
-            if (parts.length < 2) return str;
-            return (parts[0].length > 3 ? parts[0].substring(0,3) + '***' : '***') + '@' + parts[1];
-        }
-        return str;
-    }
     function formatDate(dateStr) {
         if(!dateStr) return '-';
         const d = new Date(dateStr);
@@ -832,6 +823,7 @@
         updateUserDashboard();
     });
 
+    // --- Sidebar & Mobile Layout ---
     const sidebar = document.getElementById('sidebar');
     const sidebarOverlay = document.getElementById('sidebarOverlay');
 
@@ -896,7 +888,7 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 sessionStorage.clear();
-                window.top.location.href = WEB_APP_URL + "?page=login";
+                window.top.location.href = "index.html"; // เปลี่ยนกลับไปหน้าล็อกอินที่ถูกต้อง
             }
         });
     };
@@ -914,7 +906,7 @@
                     confirmButtonText: 'กลับสู่หน้าเข้าสู่ระบบ',
                     allowOutsideClick: false
                 }).then(() => {
-                    window.top.location.href = WEB_APP_URL + "?page=login";
+                    window.top.location.href = "index.html";
                 });
             }, 10 * 60 * 1000);
         };
@@ -924,8 +916,18 @@
     autoLogout();
 
     window.currentSystemSettings = {};
-    function applyStudentMenuSettings() {
-        google.script.run.withSuccessHandler(permissions => {
+    
+    // ==========================================
+    // API CALLS REFACTORED (แทนที่ google.script.run ด้วย callApi)
+    // ==========================================
+    
+    // 1. ตรวจสอบสิทธิ์เมนู
+    async function applyStudentMenuSettings() {
+        try {
+            const permissions = await callApi('getStudentMenuPermissions', { 
+                studentId: currentUser.studentId, 
+                token: userToken 
+            });
             window.currentSystemSettings = permissions.globalSettings; 
             const menus = [
                 'menu_userProfile', 'menu_userActivity', 'menu_userQueue', 
@@ -940,59 +942,56 @@
                     el.style.setProperty('display', (isGlobalOpen || hasSpecial) ? 'block' : 'none', 'important');
                 }
             });
-        }).getStudentMenuPermissions(currentUser.studentId, userToken);
+        } catch (error) {
+            console.error("Menu Settings Error:", error);
+        }
     }
 
     function updateUserDashboard() {
-        // อัปเดตข้อมูลทั่วไป
         document.getElementById('cardFullName').textContent = `${currentUser.prefix || ''}${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim();
         document.getElementById('cardStudentId').textContent = currentUser.studentId || '-';
         document.getElementById('cardFaculty').textContent = currentUser.faculty || '-';
         document.getElementById('cardEmail').textContent = currentUser.gmail || '-';
         
-        // --- แก้ไขส่วนแสดงรูปโปรไฟล์ ---
-const imgEl = document.getElementById('cardProfileImg');
-console.log("Current Profile Image Raw:", currentUser.profileImage);
-
-if (currentUser.profileImage && currentUser.profileImage !== 'undefined' && currentUser.profileImage !== "") {
-    // 1. ดึงเฉพาะ ID ของรูปภาพ (เผื่อกรณีที่เผลอบันทึกมาเป็น URL เต็ม)
-    let imageId = currentUser.profileImage;
-    if (imageId.includes('id=')) {
-        imageId = imageId.split('id=')[1].split('&')[0];
-    } else if (imageId.includes('/d/')) {
-        imageId = imageId.split('/d/')[1].split('/')[0];
-    }
-
-    // 2. ล้างค่า onerror เดิมก่อน (ป้องกันบั๊กจากรูปเก่า)
-    imgEl.onerror = null;
-
-    // 3. ใส่ src เป็น lh3
-    imgEl.src = "https://lh3.googleusercontent.com/d/" + imageId;
-    imgEl.style.display = 'block';
-    
-    // 4. กรณีโหลดไม่ขึ้น ให้ใช้ fallback และป้องกัน Infinite Loop
-    imgEl.onerror = function() {
-        this.onerror = null; // **สำคัญมาก** ป้องกันการวนลูปถ้าลิงก์นี้พังอีก
-        this.src = "https://drive.google.com/uc?export=view&id=" + imageId;
-    };
-} else {
-    imgEl.style.display = 'none'; 
-}
+        const imgEl = document.getElementById('cardProfileImg');
+        if (currentUser.profileImage && currentUser.profileImage !== 'undefined' && currentUser.profileImage !== "") {
+            let imageId = currentUser.profileImage;
+            if (imageId.includes('id=')) imageId = imageId.split('id=')[1].split('&')[0];
+            else if (imageId.includes('/d/')) imageId = imageId.split('/d/')[1].split('/')[0];
+        
+            imgEl.onerror = null;
+            imgEl.src = "https://lh3.googleusercontent.com/d/" + imageId;
+            imgEl.style.display = 'block';
+            
+            imgEl.onerror = function() {
+                this.onerror = null; 
+                this.src = "https://drive.google.com/uc?export=view&id=" + imageId;
+            };
+        } else {
+            imgEl.style.display = 'none'; 
+        }
         loadMyQueue();
     }
 
+    // 2. อัปโหลดรูปโปรไฟล์
     document.getElementById('uploadProfileInput').addEventListener('change', function() {
         const file = this.files[0];
         if (!file) return;
         if (file.size > 5 * 1024 * 1024) return showAlert("ไฟล์มีขนาดใหญ่เกินไป (สูงสุด 5MB)", "error");
 
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = async function(e) {
             const base64Content = e.target.result.split(',')[1];
             const mimeType = e.target.result.split(',')[0].match(/:(.*?);/)[1];
             
             showLoading('กำลังอัปโหลด');
-            google.script.run.withSuccessHandler(res => {
+            try {
+                const res = await callApi('uploadProfileImage', createSecurePayload({
+                    base64: base64Content,
+                    mimeType: mimeType,
+                    fileName: file.name
+                }));
+                
                 hideLoading();
                 if (res.success) {
                     const imgEl = document.getElementById('cardProfileImg');
@@ -1005,21 +1004,25 @@ if (currentUser.profileImage && currentUser.profileImage !== 'undefined' && curr
                 } else {
                     showAlert(res.message, "error");
                 }
-            }).uploadProfileImage(createSecurePayload({
-                base64: base64Content,
-                mimeType: mimeType,
-                fileName: file.name
-            }));
+            } catch (err) {
+                hideLoading();
+                showAlert(err.message, "error");
+            }
         };
         reader.readAsDataURL(file);
     });
 
-    function loadUserProfile() {
+    // 3. ดึงข้อมูลโปรไฟล์
+    async function loadUserProfile() {
         document.getElementById('epStudentId').value = currentUser.studentId;
         document.getElementById('epFullNameTH').value = `${currentUser.prefix || ''}${currentUser.firstName || ''} ${currentUser.lastName || ''}`;
         
         showLoading();
-        google.script.run.withSuccessHandler(profile => {
+        try {
+            const profile = await callApi('getProfile', { 
+                studentId: currentUser.studentId, 
+                token: userToken 
+            });
             hideLoading();
             if (profile) {
                 ['epIdCard','epNickname','epDob','epPhone','epGpa','epDisease','epFatherName','epFatherJob','epFatherPhone','epMotherName','epMotherJob','epMotherPhone','epParentsStatus','epFamilyMembers','epHouseholdIncome','epDebt','epAddrNo','epSubDistrict','epDistrict','epProvince','epZipcode','epMapLink'].forEach(key => {
@@ -1031,10 +1034,14 @@ if (currentUser.profileImage && currentUser.profileImage !== 'undefined' && curr
             } else {
                 document.getElementById('epPhone').value = currentUser.phone || ''; 
             }
-        }).getProfile(currentUser.studentId, userToken); 
+        } catch (error) {
+            hideLoading();
+            console.error(error);
+        }
     }
 
-    document.getElementById('eProfileForm').onsubmit = (e) => {
+    // 4. บันทึกข้อมูลโปรไฟล์
+    document.getElementById('eProfileForm').onsubmit = async (e) => {
         e.preventDefault();
         showLoading('ระบบกำลังประมวลผลบันทึกข้อมูล');
         const pData = {
@@ -1062,17 +1069,30 @@ if (currentUser.profileImage && currentUser.profileImage !== 'undefined' && curr
             mapLink: document.getElementById('epMapLink').value
         };
 
-        google.script.run.withSuccessHandler(res => {
+        try {
+            const res = await callApi('saveProfile', { 
+                profileData: createSecurePayload(pData), 
+                token: userToken 
+            });
             hideLoading();
             if (res.success) showAlert('บันทึกข้อมูลเรียบร้อยแล้ว'); 
             else showAlert(res.message, 'error');
-        }).saveProfile(createSecurePayload(pData), userToken); 
+        } catch (err) {
+            hideLoading();
+            showAlert(err.message, 'error');
+        }
     };
 
+    // 5. โหลดกิจกรรมจิตอาสา
     let allActivitiesCache = [];
-    function loadActivitiesForUser() {
+    async function loadActivitiesForUser() {
         showLoading();
-        google.script.run.withSuccessHandler(data => {
+        try {
+            const data = await callApi('getActivities', { 
+                mode: 'user', 
+                studentId: currentUser.studentId, 
+                token: userToken 
+            });
             hideLoading();
             allActivitiesCache = data;
             const container = document.getElementById('activityCardContainer');
@@ -1099,7 +1119,10 @@ if (currentUser.profileImage && currentUser.profileImage !== 'undefined' && curr
                         <button class="btn btn-primary" onclick="openRoundSelectionModal('${escapeHTML(g.date)}')" style="width:100%;">ดูรอบ/ลงทะเบียน</button>
                     </div>`;
             });
-        }).getActivities('user', currentUser.studentId, userToken); 
+        } catch (err) {
+            hideLoading();
+            console.error(err);
+        }
     }
 
     function openRoundSelectionModal(dateKey) {
@@ -1118,37 +1141,70 @@ if (currentUser.profileImage && currentUser.profileImage !== 'undefined' && curr
         document.getElementById('roundSelectionModal').style.display = 'flex';
     }
 
+    // 6. ลงทะเบียนจิตอาสา
     function registerActivity(actId, btn) {
-        Swal.fire({ title: 'ยืนยันข้้อมูล', text: 'ต้องการลงทะเบียนใช่ไหม', icon: 'question', showCancelButton: true }).then(r => {
+        Swal.fire({ title: 'ยืนยันข้้อมูล', text: 'ต้องการลงทะเบียนใช่ไหม', icon: 'question', showCancelButton: true }).then(async r => {
             if (r.isConfirmed) {
-                btn.disabled = true; showLoading();
-                google.script.run.withSuccessHandler(res => {
+                btn.disabled = true; 
+                showLoading();
+                try {
+                    const res = await callApi('registerStudentActivity', {
+                        studentId: currentUser.studentId,
+                        activityId: actId,
+                        token: userToken
+                    });
                     hideLoading();
-                    if(res.success) { Swal.fire('สำเร็จ','','success'); document.getElementById('roundSelectionModal').style.display='none'; loadActivitiesForUser(); }
-                    else { Swal.fire('ผิดพลาด', res.message, 'error'); btn.disabled=false; }
-                }).registerStudentActivity(currentUser.studentId, actId, userToken); 
+                    if(res.success) { 
+                        Swal.fire('สำเร็จ','','success'); 
+                        document.getElementById('roundSelectionModal').style.display='none'; 
+                        loadActivitiesForUser(); 
+                    } else { 
+                        Swal.fire('ผิดพลาด', res.message, 'error'); 
+                        btn.disabled=false; 
+                    }
+                } catch (err) {
+                    hideLoading();
+                    btn.disabled=false; 
+                    showAlert(err.message, "error");
+                }
             }
         });
     }
 
-    function loadMyActivityHistory() {
+    // 7. โหลดประวัติลงทะเบียนจิตอาสา
+    async function loadMyActivityHistory() {
         showLoading();
-        google.script.run.withSuccessHandler(history => {
+        try {
+            // Note: getStudentActivityHistory ไม่ได้อยู่ใน action 53 ตัวของ Backend ฉบับก่อนหน้านี้
+            // หากหลังบ้านยังไม่มีการทำฟังก์ชันนี้ จะทำการแจ้งเตือน 
+            const history = await callApi('getStudentActivityHistory', { 
+                studentId: currentUser.studentId, 
+                token: userToken 
+            });
             hideLoading();
             const c = document.getElementById('historyListContainer');
-            c.innerHTML = history.length === 0 ? '<div style="text-align:center; padding:20px; color:#999;">ยังไม่มีประวัติ</div>' : 
+            c.innerHTML = (history && history.length === 0) || !history ? '<div style="text-align:center; padding:20px; color:#999;">ยังไม่มีประวัติ</div>' : 
                 history.map(h => `<div class="history-card" style="border:1px solid #ddd; padding:10px; margin-bottom:10px; border-radius:8px;"><b>${escapeHTML(formatDate(h.date))} (${escapeHTML(h.period)})</b><br>${escapeHTML(h.name)}</div>`).join('');
             document.getElementById('activityHistoryModal').style.display = 'flex';
-        }).getStudentActivityHistory(currentUser.studentId, userToken);
+        } catch (err) {
+            hideLoading();
+            showAlert("ฟังก์ชันประวัติไม่พบในระบบ หรือ " + err.message, "warning");
+        }
     }
 
-    function loadUserQueueSlots() {
+    // 8. โหลดรอบคิว
+    async function loadUserQueueSlots() {
         showLoading(); 
-        google.script.run.withSuccessHandler(slots => {
+        try {
+            const slots = await callApi('getQueueSlots', {
+                role: 'user',
+                studentId: currentUser.studentId,
+                token: userToken
+            });
             hideLoading();
             const c = document.getElementById('bookingSlotsContainer'); 
             c.innerHTML = '';
-            if (slots.length === 0) { c.innerHTML = '<div style="text-align:center; padding:40px; color:#999;">ไม่มีรอบว่าง</div>'; return; }
+            if (!slots || slots.length === 0) { c.innerHTML = '<div style="text-align:center; padding:40px; color:#999;">ไม่มีรอบว่าง</div>'; return; }
             slots.forEach(s => {
                 const booked = parseInt(s.current), quota = parseInt(s.quota), avail = quota - booked, isFull = avail <= 0;
                 const percent = quota > 0 ? Math.min(100, Math.round((booked/quota)*100)) : 0;
@@ -1161,83 +1217,124 @@ if (currentUser.profileImage && currentUser.profileImage !== 'undefined' && curr
                         <button class="btn ${isFull?'btn-secondary':'btn-primary'}" onclick="bookQ('${escapeHTML(s.id)}')" ${isFull?'disabled':''} style="width:100%;">${isFull?'เต็ม':'จองคิว'}</button>
                     </div>`;
             });
-        }).getQueueSlots('user', currentUser.studentId, userToken);
+        } catch (err) {
+            hideLoading();
+            console.error(err);
+        }
     }
 
+    // 9. จองคิว
     function bookQ(id) {
-        Swal.fire({ title: 'ยืนยันจองคิว', icon: 'question', showCancelButton: true }).then(r => {
+        Swal.fire({ title: 'ยืนยันจองคิว', icon: 'question', showCancelButton: true }).then(async r => {
             if(r.isConfirmed){
                 showLoading();
-                google.script.run.withSuccessHandler(res => {
+                try {
+                    const res = await callApi('bookQueue', {
+                        studentId: currentUser.studentId,
+                        slotId: id,
+                        token: userToken
+                    });
                     hideLoading();
                     if(res.success){ Swal.fire('สำเร็จ','รหัส: '+res.queueNumber,'success'); loadMyQueue(); loadUserQueueSlots(); }
                     else Swal.fire('ผิดพลาด', res.message, 'error');
-                }).bookQueue(currentUser.studentId, id, userToken); 
+                } catch (err) {
+                    hideLoading();
+                    showAlert(err.message, "error");
+                }
             }
         });
     }
 
-    function loadMyQueue() {
-        google.script.run.withSuccessHandler(t => {
-           const ta = document.getElementById('myQueueTicketArea'), ba = document.getElementById('bookingSectionWrapper');
-           if(t) {
-              ta.style.display='block'; ba.style.display='none';
-              document.getElementById('ticketNumber').innerText = t.queueNumber;
-              document.getElementById('ticketDate').innerText = t.date;
-              document.getElementById('ticketTime').innerText = t.time;
-              document.getElementById('ticketName').innerText = t.name;
-              
-              const qrContainer = document.getElementById('qrCodeContainer');
-              qrContainer.innerHTML = ''; 
-              new QRCode(qrContainer, {
-                  text: String(t.queueNumber),
-                  width: 80,
-                  height: 80,
-                  colorDark : "#000000",
-                  colorLight : "#ffffff"
-              });
-           } else {
-              ta.style.display='none'; ba.style.display='block';
-           }
-        }).getMyQueue(currentUser.studentId, userToken); 
+    // 10. ดึงคิวของฉัน
+    async function loadMyQueue() {
+        try {
+            const t = await callApi('getMyQueue', {
+                studentId: currentUser.studentId,
+                token: userToken
+            });
+            const ta = document.getElementById('myQueueTicketArea'), ba = document.getElementById('bookingSectionWrapper');
+            if(t) {
+                ta.style.display='block'; ba.style.display='none';
+                document.getElementById('ticketNumber').innerText = t.queueNumber;
+                document.getElementById('ticketDate').innerText = t.date;
+                document.getElementById('ticketTime').innerText = t.time;
+                document.getElementById('ticketName').innerText = t.name;
+                
+                const qrContainer = document.getElementById('qrCodeContainer');
+                qrContainer.innerHTML = ''; 
+                // หมายเหตุ: หากโปรเจกต์ของคุณไม่มีไฟล์ QRCode ให้ใช้ library ภายนอกเสริม
+                if(typeof QRCode !== 'undefined') {
+                    new QRCode(qrContainer, {
+                        text: String(t.queueNumber),
+                        width: 80,
+                        height: 80,
+                        colorDark : "#000000",
+                        colorLight : "#ffffff"
+                    });
+                } else {
+                    qrContainer.innerHTML = '<span style="color:#888;">(QR Code Library Not Found)</span>';
+                }
+            } else {
+                ta.style.display='none'; ba.style.display='block';
+            }
+        } catch (err) {
+            console.error(err);
+        }
     }
 
+    // 11. ยกเลิกคิว
     function cancelMyQueue() {
-        Swal.fire({ title:'ยกเลิกคิว?', icon:'warning', showCancelButton:true, confirmButtonColor:'#d33' }).then(r => {
+        Swal.fire({ title:'ยกเลิกคิว?', icon:'warning', showCancelButton:true, confirmButtonColor:'#d33' }).then(async r => {
             if(r.isConfirmed){
                 showLoading();
-                google.script.run.withSuccessHandler(res => {
+                try {
+                    const res = await callApi('cancelQueue', {
+                        studentId: currentUser.studentId,
+                        token: userToken
+                    });
                     hideLoading();
                     if(res.success){ Swal.fire('ยกเลิกสำเร็จ','','success'); loadMyQueue(); loadUserQueueSlots(); }
                     else Swal.fire('ผิดพลาด', res.message, 'error');
-                }).cancelQueue(currentUser.studentId, userToken); 
+                } catch (err) {
+                    hideLoading();
+                    showAlert(err.message, 'error');
+                }
             }
         });
     }
 
-    function initUserLoanPage() {
+    // 12. กู้ยืม 2569 - หน้าแรก
+    async function initUserLoanPage() {
         document.getElementById('loanStep1').style.display = 'block';
         document.getElementById('loanStep2').style.display = 'none';
         document.getElementById('loanStep3').style.display = 'none';
         updateStepper(1, 'loan-step');
         
         showLoading(); 
-        google.script.run.withSuccessHandler(res => {
+        try {
+            const res = await callApi('checkStudentEligibility2569', {
+                studentId: currentUser.studentId,
+                token: userToken
+            });
             hideLoading();
             if (res.status === 'submitted') {
                 updateStepper(3, 'loan-step');          
                 showLoanSummary(res.data); 
-            } else if (res.status === 'eligible_check') {
-                
-            } else if (res.status === 'not_found') {
-                 
             }
-        }).checkStudentEligibility2569(currentUser.studentId, userToken); 
+        } catch (err) {
+            hideLoading();
+            console.error(err);
+        }
     }
 
-    function checkMyEligibility() {
+    // 13. ตรวจสอบสิทธิ์กู้ 2569
+    async function checkMyEligibility() {
         showLoading('ระบบกำลังตรวจสอบสิทธิ์');
-        google.script.run.withSuccessHandler(res => {
+        try {
+            const res = await callApi('checkStudentEligibility2569', {
+                studentId: currentUser.studentId,
+                token: userToken
+            });
             hideLoading();
             if (res.status === 'not_found') {
                 Swal.fire('ไม่พบสิทธิ์', 'ท่านไม่อยู่ในกลุ่มผู้มีสิทธิ์กู้ปกติ ปี 2569', 'error');
@@ -1262,7 +1359,10 @@ if (currentUser.profileImage && currentUser.profileImage !== 'undefined' && curr
                     document.getElementById('loanFormArea').style.display = 'none';
                 }
             }
-        }).checkStudentEligibility2569(currentUser.studentId, userToken); 
+        } catch (err) {
+            hideLoading();
+            showAlert(err.message, 'error');
+        }
     }
 
     function goToPetitionFromFail(type) {
@@ -1295,6 +1395,7 @@ if (currentUser.profileImage && currentUser.profileImage !== 'undefined' && curr
         document.getElementById('showTotalLoan').textContent = total.toLocaleString();
     }
 
+    // 14. กดยืนยันการส่งคำร้องกู้ 2569
     function confirmSubmitLoan() {
         const isL = document.getElementById('checkLiving').checked;
         const isT = document.getElementById('checkTuition').checked;
@@ -1302,7 +1403,7 @@ if (currentUser.profileImage && currentUser.profileImage !== 'undefined' && curr
         if (!isL && !isT) return Swal.fire('เตือน', 'เลือกอย่างน้อย 1 รายการ', 'warning');
         if (isT && (!tVal || tVal <= 0)) return Swal.fire('เตือน', 'ระบุค่าเทอม', 'warning');
 
-        Swal.fire({ title:'ยืนยันข้อมูล', text:'ตรวจสอบยอดเงินถูกต้องแล้วการทำรายการนี้จะไม่สามารถแก้ไขได้', icon:'question', showCancelButton:true }).then(r => {
+        Swal.fire({ title:'ยืนยันข้อมูล', text:'ตรวจสอบยอดเงินถูกต้องแล้วการทำรายการนี้จะไม่สามารถแก้ไขได้', icon:'question', showCancelButton:true }).then(async r => {
             if(r.isConfirmed) {
                 showLoading();
                 const payload = createSecurePayload({ 
@@ -1312,14 +1413,19 @@ if (currentUser.profileImage && currentUser.profileImage !== 'undefined' && curr
                     tuitionAmount: isT ? parseFloat(tVal) : 0,
                     totalAmount: (isL ? 18000 : 0) + (isT ? parseFloat(tVal) : 0)
                 });
-                google.script.run.withSuccessHandler(res => {
+                
+                try {
+                    const res = await callApi('submitLoanRequest2569', payload);
                     hideLoading();
                     if(res.success) {
                         updateStepper(3, 'loan-step');
                         showLoanSummary(payload);
                         Swal.fire('สำเร็จ', 'ส่งคำร้องแล้ว', 'success');
                     } else Swal.fire('ผิดพลาด', res.message, 'error');
-                }).submitLoanRequest2569(payload);
+                } catch (err) {
+                    hideLoading();
+                    showAlert(err.message, 'error');
+                }
             }
         });
     }
@@ -1355,9 +1461,14 @@ if (currentUser.profileImage && currentUser.profileImage !== 'undefined' && curr
         updateStepper(1, 'over-step');
     }
 
-    function checkMyOverEligibility() {
+    // 15. เช็คสิทธิ์กู้เกิน
+    async function checkMyOverEligibility() {
         showLoading('ระบบกำลังตรวจสอบสิทธิ์');
-        google.script.run.withSuccessHandler(res => {
+        try {
+            const res = await callApi('checkStudentOverEligibility', {
+                studentId: currentUser.studentId,
+                token: userToken
+            });
             hideLoading();
             if(res.status === 'not_found') Swal.fire('ไม่พบสิทธิ์', res.message, 'error');
             else if(res.status === 'submitted') {
@@ -1377,7 +1488,10 @@ if (currentUser.profileImage && currentUser.profileImage !== 'undefined' && curr
                     document.getElementById('overLoanFormArea').style.display = 'none';
                 }
             }
-        }).checkStudentOverEligibility(currentUser.studentId, userToken); 
+        } catch (err) {
+            hideLoading();
+            showAlert(err.message, 'error');
+        }
     }
 
     function toggleOverTuition() {
@@ -1388,13 +1502,14 @@ if (currentUser.profileImage && currentUser.profileImage !== 'undefined' && curr
         else { wrapper.style.display = 'none'; input.required = false; input.value = ''; }
     }
 
+    // 16. ยื่นกู้เกิน
     document.getElementById('overLoanForm').onsubmit = (e) => {
         e.preventDefault();
         const typeVal = document.getElementById('overType').value;
         const tVal = document.getElementById('overTuitionAmount').value;
         if ((typeVal === 'Both' || typeVal === 'Tuition') && (!tVal || tVal <= 0)) return Swal.fire('เตือน', 'ระบุค่าเล่าเรียน', 'warning');
 
-        Swal.fire({ title:'ยืนยันส่งคำร้อง', icon:'question', showCancelButton:true }).then(r => {
+        Swal.fire({ title:'ยืนยันส่งคำร้อง', icon:'question', showCancelButton:true }).then(async r => {
             if(r.isConfirmed) {
                 showLoading();
                 const payload = createSecurePayload({ 
@@ -1405,11 +1520,16 @@ if (currentUser.profileImage && currentUser.profileImage !== 'undefined' && curr
                     tuitionAmount: tVal || 0,
                     livingAmount: (typeVal !== 'Tuition') ? 18000 : 0
                 });
-                google.script.run.withSuccessHandler(res => {
+                
+                try {
+                    const res = await callApi('submitOverRequest', payload);
                     hideLoading();
                     if(res.success) { updateStepper(3, 'over-step'); showOverLoanSummary(payload); Swal.fire('สำเร็จ', '', 'success'); } 
                     else Swal.fire('ผิดพลาด', res.message, 'error');
-                }).submitOverRequest(payload);
+                } catch (err) {
+                    hideLoading();
+                    showAlert(err.message, 'error');
+                }
             }
         });
     };
@@ -1431,15 +1551,19 @@ if (currentUser.profileImage && currentUser.profileImage !== 'undefined' && curr
         document.getElementById('resignStep3').style.display = 'none';
     }
 
-    function checkMyResignStatus() {
+    // 17. เช็คสิทธิ์ลาออก
+    async function checkMyResignStatus() {
         showLoading();
-        google.script.run.withSuccessHandler(res => {
+        try {
+            const res = await callApi('checkStudentResignStatus', {
+                studentId: currentUser.studentId,
+                token: userToken
+            });
             hideLoading();
-            // [แก้ไขจุดนี้] รองรับสถานะ 'submitted' เพื่อให้จำค่าว่าเคยยื่นแล้ว
             if(res.status === 'submitted') {
                 document.getElementById('resignStep1').style.display = 'none';
                 document.getElementById('resignStep2').style.display = 'none'; 
-                document.getElementById('resignStep3').style.display = 'block'; // แสดงหน้ายื่นสำเร็จ
+                document.getElementById('resignStep3').style.display = 'block'; 
             } else if(res.status === 'eligible') {
                 document.getElementById('res_stdName').innerText = res.info.name;
                 document.getElementById('res_stdId').innerText = res.info.studentId;
@@ -1451,7 +1575,10 @@ if (currentUser.profileImage && currentUser.profileImage !== 'undefined' && curr
             } else {
                 Swal.fire('ไม่พบสิทธิ์', res.message || 'ไม่พบข้อมูล', 'error');
             }
-        }).checkStudentResignStatus(currentUser.studentId, userToken); 
+        } catch (err) {
+            hideLoading();
+            showAlert(err.message, 'error');
+        }
     }
 
     function selectResignType(type, cardEl) {
@@ -1467,11 +1594,12 @@ if (currentUser.profileImage && currentUser.profileImage !== 'undefined' && curr
         document.getElementById('inputNewMajor').required = type==='change_fac';
     }
 
+    // 18. ส่งคำร้องลาออก
     document.getElementById('resignForm').onsubmit = (e) => {
         e.preventDefault();
         const tEl = document.querySelector('input[name="resignType"]:checked');
         if(!tEl) return Swal.fire('เตือน', 'เลือกรูปแบบการลาออก', 'warning');
-        Swal.fire({ title:'ยืนยันข้อมูล', text:'ส่งคำร้องแล้วจะไม่สามารถเเก้ไขรายการได้', icon:'warning', showCancelButton:true }).then(r => {
+        Swal.fire({ title:'ยืนยันข้อมูล', text:'ส่งคำร้องแล้วจะไม่สามารถเเก้ไขรายการได้', icon:'warning', showCancelButton:true }).then(async r => {
             if(r.isConfirmed) {
                 showLoading();
                 const payload = createSecurePayload({ 
@@ -1482,11 +1610,16 @@ if (currentUser.profileImage && currentUser.profileImage !== 'undefined' && curr
                     newFaculty: document.getElementById('inputNewFaculty').value,
                     newMajor: document.getElementById('inputNewMajor').value
                 });
-                google.script.run.withSuccessHandler(res => {
+                
+                try {
+                    const res = await callApi('submitResignRequest', payload);
                     hideLoading();
                     if(res.success) { document.getElementById('resignStep2').style.display='none'; document.getElementById('resignStep3').style.display='block'; }
                     else Swal.fire('ผิดพลาด', res.message, 'error');
-                }).submitResignRequest(payload);
+                } catch (err) {
+                    hideLoading();
+                    showAlert(err.message, 'error');
+                }
             }
         });
     };
@@ -1511,10 +1644,11 @@ if (currentUser.profileImage && currentUser.profileImage !== 'undefined' && curr
         }
     });
 
+    // 19. ส่งคำร้องออนไลน์
     document.getElementById('petitionForm').onsubmit = (e) => {
         e.preventDefault();
         if(!document.getElementById('petType').value) return Swal.fire('เตือน','เลือกประเภท','warning');
-        Swal.fire({ title:'ยืนยัน', icon:'question', showCancelButton:true }).then(r => {
+        Swal.fire({ title:'ยืนยัน', icon:'question', showCancelButton:true }).then(async r => {
             if(r.isConfirmed) {
                 showLoading();
                 const payload = createSecurePayload({ 
@@ -1522,18 +1656,28 @@ if (currentUser.profileImage && currentUser.profileImage !== 'undefined' && curr
                     type: document.getElementById('petType').value,
                     reason: document.getElementById('petReason').value
                 });
-                google.script.run.withSuccessHandler(res => {
+                
+                try {
+                    const res = await callApi('submitOnlinePetition', payload);
                     hideLoading();
                     if(res.success) { Swal.fire('สำเร็จ','','success').then(()=>{ showSection('userDashboardSection'); }); }
                     else Swal.fire('ผิดพลาด', res.message, 'error');
-                }).submitOnlinePetition(payload);
+                } catch (err) {
+                    hideLoading();
+                    showAlert(err.message, 'error');
+                }
             }
         });
     };
 
-    function loadMyPetitions() {
+    // 20. ดูสถานะคำร้อง
+    async function loadMyPetitions() {
         showLoading();
-        google.script.run.withSuccessHandler(data => {
+        try {
+            const data = await callApi('getMyPetitions', {
+                studentId: currentUser.studentId,
+                token: userToken
+            });
             hideLoading();
             const tb = document.querySelector('#petitionStatusTable tbody');
             tb.innerHTML = '';
@@ -1554,10 +1698,12 @@ if (currentUser.profileImage && currentUser.profileImage !== 'undefined' && curr
                 tr.insertCell().innerHTML = `<span style="background:${bg}; color:${col}; padding:4px 10px; border-radius:20px; font-size:12px;">${escapeHTML(st)}</span>`;
                 tr.insertCell().innerText = i['หมายเหตุเจ้าหน้าที่'] || '-';
             });
-        }).getMyPetitions(currentUser.studentId, userToken); 
+        } catch (err) {
+            hideLoading();
+            console.error(err);
+        }
     }
     
-
 </script>
 </body>
 </html>
