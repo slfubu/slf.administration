@@ -4027,15 +4027,29 @@
 
             if (r.success) { 
                 rsAllData = safeArray(r); 
+                
+                // ดึง Elements สถิติเดิม
                 const se = document.getElementById('rsStatEligible');
                 const ss = document.getElementById('rsStatSubmitted');
                 const sp = document.getElementById('rsStatPending');
                 const sc = document.getElementById('rsStatCompleted');
                 
+                // ดึง Elements สถิติที่เพิ่มใหม่
+                const sMove = document.getElementById('rsStatMoveUni');
+                const sChange = document.getElementById('rsStatChangeFac');
+                const sQuit = document.getElementById('rsStatQuit');
+                
+                // นำค่าไปใส่ในกล่องเดิม
                 if(se) se.textContent = r.stats.eligible || 0; 
                 if(ss) ss.textContent = r.stats.submitted || 0; 
                 if(sp) sp.textContent = r.stats.pending || 0; 
                 if(sc) sc.textContent = r.stats.completed || 0; 
+                
+                // นำค่าไปใส่ในกล่องสถิติใหม่
+                if(sMove) sMove.textContent = r.stats.typeMoveUni || 0;
+                if(sChange) sChange.textContent = r.stats.typeChangeFac || 0;
+                if(sQuit) sQuit.textContent = r.stats.typeQuit || 0;
+
                 filterResignData(); 
             } 
         } catch(err) {
