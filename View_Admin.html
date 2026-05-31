@@ -1196,145 +1196,232 @@
                 </div>
 
                 <div id="adminMenuSettingsSection" class="section">
-                    <div class="card">
-                        <h2><i class="material-icons">settings_applications</i> ตั้งค่าการแสดงผลเมนูนักศึกษา</h2>
-                        <div style="max-width: 600px;">
-                            <div class="toggle-row">
-                                <div class="toggle-label">
-                                    <div class="toggle-icon"><i class="material-icons">assignment_ind</i></div>
-                                    <div>
-                                        <div>ทะเบียนประวัตินักศึกษา</div>
-                                    </div>
-                                </div>
-                                <label class="switch">
-                                    <input type="checkbox" id="setting_menu_userProfile">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                            <div class="toggle-row">
-                                <div class="toggle-label">
-                                    <div class="toggle-icon"><i class="material-icons">rate_review</i></div>
-                                    <div>
-                                        <div>เมนูยื่นคำร้องออนไลน์</div>
-                                    </div>
-                                </div>
-                                <label class="switch">
-                                    <input type="checkbox" id="setting_menu_userPetition"> <span class="slider"></span>
-                                </label>
-                            </div>
-                            <div class="toggle-row">
-                                <div class="toggle-label">
-                                    <div class="toggle-icon"><i class="material-icons">volunteer_activism</i></div>
-                                    <div>
-                                        <div>ระบบจิตอาสา</div>
-                                    </div>
-                                </div>
-                                <label class="switch">
-                                    <input type="checkbox" id="setting_menu_userActivity">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                            <div class="toggle-row">
-                                <div class="toggle-label">
-                                    <div class="toggle-icon"><i class="material-icons">confirmation_number</i></div>
-                                    <div>
-                                        <div>ระบบจองคิว</div>
-                                    </div>
-                                </div>
-                                <label class="switch">
-                                    <input type="checkbox" id="setting_menu_userQueue">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                            <div class="toggle-row">
-                                <div class="toggle-label">
-                                    <div class="toggle-icon"><i class="material-icons">monetization_on</i></div>
-                                    <div>
-                                        <div>ยื่นคำร้องกู้ยืม ปี 2569</div>
-                                    </div>
-                                </div>
-                                <label class="switch">
-                                    <input type="checkbox" id="setting_menu_loan2569">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                            <div class="toggle-row">
-                                <div class="toggle-label">
-                                    <div class="toggle-icon"><i class="material-icons">history_edu</i></div>
-                                    <div>
-                                        <div>เมนูกู้ยืมเกินหลักสูตร</div>
-                                    </div>
-                                </div>
-                                <label class="switch">
-                                    <input type="checkbox" id="setting_menu_overLoan">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                            <div class="toggle-row" style="border-bottom: none;">
-                                <div class="toggle-label">
-                                    <div class="toggle-icon"><i class="material-icons">exit_to_app</i></div>
-                                    <div>
-                                        <div>แจ้งความประสงค์ลาออก</div>
-                                    </div>
-                                </div>
-                                <label class="switch">
-                                    <input type="checkbox" id="setting_menu_userResign">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                            <div style="margin-top: 20px; text-align: right;">
-                                <button class="btn btn-primary" onclick="saveAdminMenuSettings()" style="padding: 10px 25px;">
-                                    <i class="material-icons">save</i> บันทึกการตั้งค่า
-                                </button>
-                            </div>
-
-                            <hr style="border: 0; border-top: 1px dashed #ccc; margin: 30px 0 20px 0;">
-                            <h3 style="color: #2a5298; margin-bottom: 15px; font-size: 18px;">
-                                <i class="material-icons" style="vertical-align: middle; font-size: 20px;">rule</i> 
-                                ตั้งค่าการรับคำร้องออนไลน์ (แต่ละประเภท)
-                            </h3>
-
-                            <div class="toggle-row">
-                                <div class="toggle-label">
-                                    <div class="toggle-icon" style="background: #e3f2fd; color: #1976D2;"><i class="material-icons">manage_accounts</i></div>
-                                    <div>
-                                        <div>รับคำร้อง: ปรับปรุงข้อมูลประวัติ</div>
-                                    </div>
-                                </div>
-                                <label class="switch">
-                                    <input type="checkbox" id="setting_pet_type1_open">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-
-                            <div class="toggle-row">
-                                <div class="toggle-label">
-                                    <div class="toggle-icon" style="background: #fff3e0; color: #ef6c00;"><i class="material-icons">school</i></div>
-                                    <div>
-                                        <div>รับคำร้อง: ประมวลผลเกรด/หน่วยกิตเพิ่มเติม</div>
-                                    </div>
-                                </div>
-                                <label class="switch">
-                                    <input type="checkbox" id="setting_pet_type2_open">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-
-                            <div class="toggle-row" style="border-bottom: none;">
-                                <div class="toggle-label">
-                                    <div class="toggle-icon" style="background: #f3e5f5; color: #0277bd;"><i class="material-icons">more_horiz</i></div>
-                                    <div>
-                                        <div>รับคำร้อง: เรื่องอื่นๆ ผ่านระบบ</div>
-                                    </div>
-                                </div>
-                                <label class="switch">
-                                    <input type="checkbox" id="setting_pet_type3_open">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
+    <div class="card">
+        <h2><i class="material-icons">settings_applications</i> ตั้งค่าการแสดงผลเมนูนักศึกษา</h2>
+        <div style="max-width: 600px;">
+            <div class="toggle-row" style="flex-direction: column; align-items: stretch; gap: 10px;">
+                <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                    <div class="toggle-label">
+                        <div class="toggle-icon"><i class="material-icons">assignment_ind</i></div>
+                        <div>
+                            <div>ทะเบียนประวัตินักศึกษา</div>
                         </div>
                     </div>
+                    <label class="switch">
+                        <input type="checkbox" id="setting_menu_userProfile">
+                        <span class="slider"></span>
+                    </label>
                 </div>
+                <div style="display: flex; gap: 10px; padding-left: 45px; align-items: center; font-size: 13px; color: #666;">
+                    <span>เปิดวันที่:</span>
+                    <input type="date" id="date_start_menu_userProfile" class="modern-input" style="padding: 5px; height: 35px; width: 130px;">
+                    <span>ถึง:</span>
+                    <input type="date" id="date_end_menu_userProfile" class="modern-input" style="padding: 5px; height: 35px; width: 130px;">
+                </div>
+            </div>
+
+            <div class="toggle-row" style="flex-direction: column; align-items: stretch; gap: 10px;">
+                <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                    <div class="toggle-label">
+                        <div class="toggle-icon"><i class="material-icons">rate_review</i></div>
+                        <div>
+                            <div>เมนูยื่นคำร้องออนไลน์</div>
+                        </div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="setting_menu_userPetition"> <span class="slider"></span>
+                    </label>
+                </div>
+                <div style="display: flex; gap: 10px; padding-left: 45px; align-items: center; font-size: 13px; color: #666;">
+                    <span>เปิดวันที่:</span>
+                    <input type="date" id="date_start_menu_userPetition" class="modern-input" style="padding: 5px; height: 35px; width: 130px;">
+                    <span>ถึง:</span>
+                    <input type="date" id="date_end_menu_userPetition" class="modern-input" style="padding: 5px; height: 35px; width: 130px;">
+                </div>
+            </div>
+
+            <div class="toggle-row" style="flex-direction: column; align-items: stretch; gap: 10px;">
+                <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                    <div class="toggle-label">
+                        <div class="toggle-icon"><i class="material-icons">volunteer_activism</i></div>
+                        <div>
+                            <div>ระบบจิตอาสา</div>
+                        </div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="setting_menu_userActivity">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div style="display: flex; gap: 10px; padding-left: 45px; align-items: center; font-size: 13px; color: #666;">
+                    <span>เปิดวันที่:</span>
+                    <input type="date" id="date_start_menu_userActivity" class="modern-input" style="padding: 5px; height: 35px; width: 130px;">
+                    <span>ถึง:</span>
+                    <input type="date" id="date_end_menu_userActivity" class="modern-input" style="padding: 5px; height: 35px; width: 130px;">
+                </div>
+            </div>
+
+            <div class="toggle-row" style="flex-direction: column; align-items: stretch; gap: 10px;">
+                <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                    <div class="toggle-label">
+                        <div class="toggle-icon"><i class="material-icons">confirmation_number</i></div>
+                        <div>
+                            <div>ระบบจองคิว</div>
+                        </div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="setting_menu_userQueue">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div style="display: flex; gap: 10px; padding-left: 45px; align-items: center; font-size: 13px; color: #666;">
+                    <span>เปิดวันที่:</span>
+                    <input type="date" id="date_start_menu_userQueue" class="modern-input" style="padding: 5px; height: 35px; width: 130px;">
+                    <span>ถึง:</span>
+                    <input type="date" id="date_end_menu_userQueue" class="modern-input" style="padding: 5px; height: 35px; width: 130px;">
+                </div>
+            </div>
+
+            <div class="toggle-row" style="flex-direction: column; align-items: stretch; gap: 10px;">
+                <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                    <div class="toggle-label">
+                        <div class="toggle-icon"><i class="material-icons">monetization_on</i></div>
+                        <div>
+                            <div>ยื่นคำร้องกู้ยืม ปี 2569</div>
+                        </div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="setting_menu_loan2569">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div style="display: flex; gap: 10px; padding-left: 45px; align-items: center; font-size: 13px; color: #666;">
+                    <span>เปิดวันที่:</span>
+                    <input type="date" id="date_start_menu_loan2569" class="modern-input" style="padding: 5px; height: 35px; width: 130px;">
+                    <span>ถึง:</span>
+                    <input type="date" id="date_end_menu_loan2569" class="modern-input" style="padding: 5px; height: 35px; width: 130px;">
+                </div>
+            </div>
+
+            <div class="toggle-row" style="flex-direction: column; align-items: stretch; gap: 10px;">
+                <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                    <div class="toggle-label">
+                        <div class="toggle-icon"><i class="material-icons">history_edu</i></div>
+                        <div>
+                            <div>เมนูกู้ยืมเกินหลักสูตร</div>
+                        </div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="setting_menu_overLoan">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div style="display: flex; gap: 10px; padding-left: 45px; align-items: center; font-size: 13px; color: #666;">
+                    <span>เปิดวันที่:</span>
+                    <input type="date" id="date_start_menu_overLoan" class="modern-input" style="padding: 5px; height: 35px; width: 130px;">
+                    <span>ถึง:</span>
+                    <input type="date" id="date_end_menu_overLoan" class="modern-input" style="padding: 5px; height: 35px; width: 130px;">
+                </div>
+            </div>
+
+            <div class="toggle-row" style="border-bottom: none; flex-direction: column; align-items: stretch; gap: 10px;">
+                <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                    <div class="toggle-label">
+                        <div class="toggle-icon"><i class="material-icons">exit_to_app</i></div>
+                        <div>
+                            <div>แจ้งความประสงค์ลาออก</div>
+                        </div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="setting_menu_userResign">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div style="display: flex; gap: 10px; padding-left: 45px; align-items: center; font-size: 13px; color: #666;">
+                    <span>เปิดวันที่:</span>
+                    <input type="date" id="date_start_menu_userResign" class="modern-input" style="padding: 5px; height: 35px; width: 130px;">
+                    <span>ถึง:</span>
+                    <input type="date" id="date_end_menu_userResign" class="modern-input" style="padding: 5px; height: 35px; width: 130px;">
+                </div>
+            </div>
+
+            <div style="margin-top: 20px; text-align: right;">
+                <button class="btn btn-primary" onclick="saveAdminMenuSettings()" style="padding: 10px 25px;">
+                    <i class="material-icons">save</i> บันทึกการตั้งค่า
+                </button>
+            </div>
+
+            <hr style="border: 0; border-top: 1px dashed #ccc; margin: 30px 0 20px 0;">
+            <h3 style="color: #2a5298; margin-bottom: 15px; font-size: 18px;">
+                <i class="material-icons" style="vertical-align: middle; font-size: 20px;">rule</i> 
+                ตั้งค่าการรับคำร้องออนไลน์ (แต่ละประเภท)
+            </h3>
+
+            <div class="toggle-row" style="flex-direction: column; align-items: stretch; gap: 10px;">
+                <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                    <div class="toggle-label">
+                        <div class="toggle-icon" style="background: #e3f2fd; color: #1976D2;"><i class="material-icons">manage_accounts</i></div>
+                        <div>
+                            <div>รับคำร้อง: ปรับปรุงข้อมูลประวัติ</div>
+                        </div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="setting_pet_type1_open">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div style="display: flex; gap: 10px; padding-left: 45px; align-items: center; font-size: 13px; color: #666;">
+                    <span>เปิดวันที่:</span>
+                    <input type="date" id="date_start_pet_type1_open" class="modern-input" style="padding: 5px; height: 35px; width: 130px;">
+                    <span>ถึง:</span>
+                    <input type="date" id="date_end_pet_type1_open" class="modern-input" style="padding: 5px; height: 35px; width: 130px;">
+                </div>
+            </div>
+
+            <div class="toggle-row" style="flex-direction: column; align-items: stretch; gap: 10px;">
+                <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                    <div class="toggle-label">
+                        <div class="toggle-icon" style="background: #fff3e0; color: #ef6c00;"><i class="material-icons">school</i></div>
+                        <div>
+                            <div>รับคำร้อง: ประมวลผลเกรด/หน่วยกิตเพิ่มเติม</div>
+                        </div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="setting_pet_type2_open">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div style="display: flex; gap: 10px; padding-left: 45px; align-items: center; font-size: 13px; color: #666;">
+                    <span>เปิดวันที่:</span>
+                    <input type="date" id="date_start_pet_type2_open" class="modern-input" style="padding: 5px; height: 35px; width: 130px;">
+                    <span>ถึง:</span>
+                    <input type="date" id="date_end_pet_type2_open" class="modern-input" style="padding: 5px; height: 35px; width: 130px;">
+                </div>
+            </div>
+
+            <div class="toggle-row" style="border-bottom: none; flex-direction: column; align-items: stretch; gap: 10px;">
+                <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                    <div class="toggle-label">
+                        <div class="toggle-icon" style="background: #f3e5f5; color: #0277bd;"><i class="material-icons">more_horiz</i></div>
+                        <div>
+                            <div>รับคำร้อง: เรื่องอื่นๆ ผ่านระบบ</div>
+                        </div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="setting_pet_type3_open">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div style="display: flex; gap: 10px; padding-left: 45px; align-items: center; font-size: 13px; color: #666;">
+                    <span>เปิดวันที่:</span>
+                    <input type="date" id="date_start_pet_type3_open" class="modern-input" style="padding: 5px; height: 35px; width: 130px;">
+                    <span>ถึง:</span>
+                    <input type="date" id="date_end_pet_type3_open" class="modern-input" style="padding: 5px; height: 35px; width: 130px;">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
                 <div id="adminSpecialAccessSection" class="section">
                     <div class="card">
@@ -4001,41 +4088,72 @@
     };
 
     window.loadAdminMenuSettings = async () => { 
-        showLoading(); 
-        try {
-            const s = await callApi("getSystemMenuSettings", { adminId: adminId, token: userToken });
-            hideLoading(); 
-            ['userProfile','userActivity','userQueue','loan2569','userResign','userPetition','overLoan'].forEach(k => {
-                if (document.getElementById('setting_menu_' + k)) document.getElementById('setting_menu_' + k).checked = (s['menu_' + k] === 'true');
-            }); 
-            ['type1','type2','type3'].forEach(k => {
-                if (document.getElementById('setting_pet_' + k + '_open')) document.getElementById('setting_pet_' + k + '_open').checked = (s['pet_' + k + '_open'] === 'true');
-            }); 
-        } catch(err) {
-            hideLoading();
-            console.error(err);
-        }
-    };
-
-    window.saveAdminMenuSettings = async () => { 
-        showLoading(); 
-        const s = {}; 
+    showLoading(); 
+    try {
+        const s = await callApi("getSystemMenuSettings", { adminId: adminId, token: userToken });
+        hideLoading(); 
+        
         ['userProfile','userActivity','userQueue','loan2569','userResign','userPetition','overLoan'].forEach(k => {
-            if (document.getElementById('setting_menu_' + k)) s['menu_' + k] = document.getElementById('setting_menu_' + k).checked.toString();
+            if (document.getElementById('setting_menu_' + k)) {
+                document.getElementById('setting_menu_' + k).checked = (s['menu_' + k] === 'true');
+            }
+            if (document.getElementById('date_start_menu_' + k)) {
+                document.getElementById('date_start_menu_' + k).value = s['date_start_menu_' + k] || '';
+            }
+            if (document.getElementById('date_end_menu_' + k)) {
+                document.getElementById('date_end_menu_' + k).value = s['date_end_menu_' + k] || '';
+            }
         }); 
         ['type1','type2','type3'].forEach(k => {
-            if (document.getElementById('setting_pet_' + k + '_open')) s['pet_' + k + '_open'] = document.getElementById('setting_pet_' + k + '_open').checked.toString();
+            if (document.getElementById('setting_pet_' + k + '_open')) document.getElementById('setting_pet_' + k + '_open').checked = (s['pet_' + k + '_open'] === 'true');
+            if (document.getElementById('date_start_pet_' + k + '_open')) {
+                document.getElementById('date_start_pet_' + k + '_open').value = s['date_start_pet_' + k + '_open'] || '';
+            }
+            if (document.getElementById('date_end_pet_' + k + '_open')) {
+                document.getElementById('date_end_pet_' + k + '_open').value = s['date_end_pet_' + k + '_open'] || '';
+            }
         }); 
-        
-        try {
-            await callApi("saveSystemMenuSettings", { settings: s, adminId: adminId, token: userToken });
-            hideLoading();
-            Swal.fire('สำเร็จ','อัปเดตเมนูเรียบร้อย','success');
-        } catch(err) {
-            hideLoading();
-            Swal.fire('Error', err.message, 'error');
+    } catch(err) {
+        hideLoading();
+        console.error(err);
+    }
+};
+
+window.saveAdminMenuSettings = async () => { 
+    showLoading(); 
+    const s = {}; 
+    ['userProfile','userActivity','userQueue','loan2569','userResign','userPetition','overLoan'].forEach(k => {
+        if (document.getElementById('setting_menu_' + k)) {
+            s['menu_' + k] = document.getElementById('setting_menu_' + k).checked.toString();
         }
-    };
+        if (document.getElementById('date_start_menu_' + k)) {
+            s['date_start_menu_' + k] = document.getElementById('date_start_menu_' + k).value;
+        }
+        if (document.getElementById('date_end_menu_' + k)) {
+            s['date_end_menu_' + k] = document.getElementById('date_end_menu_' + k).value;
+        }
+    }); 
+    ['type1','type2','type3'].forEach(k => {
+        if (document.getElementById('setting_pet_' + k + '_open')) s['pet_' + k + '_open'] = document.getElementById('setting_pet_' + k + '_open').checked.toString();
+        if (document.getElementById('date_start_pet_' + k + '_open')) {
+            s['date_start_pet_' + k + '_open'] = document.getElementById('date_start_pet_' + k + '_open').value;
+        }
+        if (document.getElementById('date_end_pet_' + k + '_open')) {
+            s['date_end_pet_' + k + '_open'] = document.getElementById('date_end_pet_' + k + '_open').value;
+        }
+    }); 
+    
+    try {
+        await callApi("saveSystemMenuSettings", { settings: s, adminId: adminId, token: userToken });
+        hideLoading();
+        Swal.fire('สำเร็จ','อัปเดตเมนูและเวลาเรียบร้อย','success');
+    } catch(err) {
+        hideLoading();
+        Swal.fire('Error', err.message, 'error');
+    }
+};
+
+  
 
     let currentSpecialAccessStudent = null;
 
