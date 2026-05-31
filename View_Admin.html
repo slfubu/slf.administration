@@ -1866,30 +1866,26 @@
     </div>
 
     <script>
-    let printActivitiesCache = [];
-    
     function escapeHTML(str) {
         if (str === null || str === undefined) return '';
         return String(str)
-            .replace(/&/g, '&' + 'amp;')
-            .replace(/</g, '&' + 'lt;')
-            .replace(/>/g, '&' + 'gt;')
-            .replace(/"/g, '&' + 'quot;')
-            .replace(/'/g, '&' + '#39;');
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 
+    // --- 1. ระบบยืนยันตัวตน (Authentication) ---
     const userDataString = sessionStorage.getItem('ubu_user_data');
     const userToken = sessionStorage.getItem('ubu_token');
-    
     let currentUser = null;
-    try {
-        currentUser = JSON.parse(userDataString);
-    } catch(e) {}
+
+    try { currentUser = JSON.parse(userDataString); } catch(e) {}
     
     if (!currentUser || !userToken || currentUser.role !== 'admin') {
         sessionStorage.clear();
         document.body.style.display = 'none'; 
-
         Swal.fire({
             icon: 'error',
             title: 'ปฏิเสธการเข้าถึง',
@@ -1898,29 +1894,66 @@
             confirmButtonColor: '#1976D2',
             allowOutsideClick: false
         }).then(() => {
-            window.top.location.href = "index.html";
+            window.location.replace("index.html");
         });
-        
         throw new Error("Unauthorized access");
     }
 
     const adminId = currentUser.studentId;
 
-    window.Swal = Swal.mixin({ confirmButtonText: 'ตกลง', cancelButtonText: 'ยกเลิก' });
+    // --- 2. ระบบรักษาความปลอดภัย: ตัวดักจับข้อผิดพลาด API ---
+    function checkAuthError(res) {
+        if (!res) return false;
+        if (res.success === false) {
+            const msg = res.message || '';
+            const isAuthIssue = msg.includes('401') || msg.includes('403') || msg.includes('เซสชัน') || msg.includes('Token') || msg.includes('Unauthorized') || msg.includes('สวมรอย');
+            
+            if (isAuthIssue) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ระบบความปลอดภัย',
+                    text: msg || 'เซสชันของคุณไม่ถูกต้อง กรุณาเข้าสู่ระบบใหม่',
+                    confirmButtonText: 'เข้าสู่ระบบใหม่',
+                    allowOutsideClick: false
+                }).then(() => {
+                    sessionStorage.clear();
+                    window.location.replace("index.html");
+                });
+                return true; 
+            }
+            return false; // ถ้าเป็น Error ทั่วไป ให้ฟังก์ชันไปจัดการต่อเอง
+        }
+        return false; 
+    }
 
+    // ฟังก์ชันช่วยเเปลงข้อมูลให้เป็น Array เสมอ ป้องกัน forEach is not a function
+    function safeArray(res) {
+        if (!res) return [];
+        if (Array.isArray(res)) return res;
+        if (res.data && Array.isArray(res.data)) return res.data;
+        if (res.list && Array.isArray(res.list)) return res.list;
+        return [];
+    }
+
+    // --- 3. UI Helpers ---
+    window.Swal = Swal.mixin({ confirmButtonText: 'ตกลง', cancelButtonText: 'ยกเลิก' });
+    
     function showLoading(msg) {
         const loaderText = document.getElementById('loaderText');
         const customLoader = document.getElementById('customLoader');
         if (loaderText) loaderText.innerHTML = msg || 'ระบบกำลังประมวลผล กรุณารอสักครู่';
         if (customLoader) customLoader.style.display = 'flex'; 
     }
+    
     function hideLoading() { 
         const customLoader = document.getElementById('customLoader');
         if (customLoader) customLoader.style.display = 'none'; 
     }
+    
     function showAlert(msg, type = 'success') { 
         Swal.fire({ icon: type, title: type === 'success' ? 'สำเร็จ' : 'แจ้งเตือน', text: msg, confirmButtonColor: 'var(--secondary-color)' }); 
     }
+    
     function maskString(str, type) {
         if (!str) return '-'; str = String(str);
         if (type === 'email') {
@@ -1929,13 +1962,16 @@
         }
         return str;
     }
+    
     function formatDate(dateStr) {
         if(!dateStr) return '-';
         const d = new Date(dateStr);
         return isNaN(d) ? dateStr : d.toLocaleDateString('th-TH', {year:'numeric', month:'short', day:'numeric'});
     }
+    
     function getRoleDisplay(role) { return role === 'admin' ? 'ผู้ทำรายการสถานศึกษา' : (role === 'user' ? 'นักศึกษาผู้กู้ยืม' : role); }
 
+    // --- 4. การจัดการหน้าจอเบื้องต้น ---
     document.addEventListener('DOMContentLoaded', () => {
         const adminNameEl = document.getElementById('topbarAdminName') || document.getElementById('topbarUserName');
         if (adminNameEl) adminNameEl.textContent = escapeHTML(currentUser.firstName) + ' ' + escapeHTML(currentUser.lastName);
@@ -1944,14 +1980,14 @@
 
     const sidebar = document.getElementById('sidebar');
     const sidebarOverlay = document.getElementById('sidebarOverlay');
-
+    
     function closeSidebarOnMobile() {
         if (window.innerWidth <= 900) {
             if (sidebar) sidebar.classList.remove('active');
             if (sidebarOverlay) sidebarOverlay.classList.remove('active');
         }
     }
-
+    
     const sidebarToggle = document.getElementById('sidebarToggle');
     if (sidebarToggle) {
         sidebarToggle.addEventListener('click', () => {
@@ -1963,7 +1999,6 @@
             }
         });
     }
-
     if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebarOnMobile);
 
     window.showPage = async (id) => {
@@ -2117,7 +2152,7 @@
                     confirmButtonColor: '#f57f17',
                     allowOutsideClick: false
                 }).then(() => {
-                    window.top.location.href = "index.html";
+                    window.location.replace("index.html");
                 });
             }, 15 * 60 * 1000); 
         };
@@ -2125,30 +2160,34 @@
     };
     autoLogout();
 
+
+    // ==========================================
+    // 5. โหลดข้อมูล API และนำข้อมูลใส่ตาราง
+    // ==========================================
+
     async function loadAdminDashboardStats() {
         showLoading();
         try {
             const res = await callApi("getDashboardStats", { adminId: adminId, token: userToken });
+            if (checkAuthError(res)) { hideLoading(); return; } 
+            
             hideLoading();
-            if (res.success) {
-                const els = {
-                    total: document.getElementById('totalUsersCount'),
-                    male: document.getElementById('maleCount'),
-                    female: document.getElementById('femaleCount'),
-                    reg: document.getElementById('confirmedRegistrationsCount')
-                };
-                if(els.total) els.total.textContent = res.stats.totalUsers.toLocaleString();
-                if(els.male) els.male.textContent = res.stats.male.toLocaleString();     
-                if(els.female) els.female.textContent = res.stats.female.toLocaleString(); 
-                if(els.reg) els.reg.textContent = res.stats.confirmedRegistrations.toLocaleString();
-            }
+            const els = {
+                total: document.getElementById('totalUsersCount'),
+                male: document.getElementById('maleCount'),
+                female: document.getElementById('femaleCount'),
+                reg: document.getElementById('confirmedRegistrationsCount')
+            };
+            if(els.total) els.total.textContent = res.stats.totalUsers.toLocaleString();
+            if(els.male) els.male.textContent = res.stats.male.toLocaleString();     
+            if(els.female) els.female.textContent = res.stats.female.toLocaleString(); 
+            if(els.reg) els.reg.textContent = res.stats.confirmedRegistrations.toLocaleString();
         } catch(err) {
             hideLoading();
         }
     }
 
     let allUsersCache = [];
- 
     function loadUsersForAdmin(autoRender = false) {
         const query = document.getElementById('userSearchInput').value.trim();
         const tbody = document.querySelector('#usersTable tbody');
@@ -2171,13 +2210,14 @@
                 tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 40px; color:#666;"><i class="material-icons" style="font-size:48px; display:block; margin-bottom:10px; color:#ccc;">search</i>กรุณากรอกข้อมูลค้นหา</td></tr>';
                 return;
             }
-            
             showLoading('กำลังตรวจสอบรายการในระบบ');
             try {
                 const users = await callApi("searchUsersBackend", { query: query, adminId: adminId, token: userToken });
+                if (checkAuthError(users)) { hideLoading(); return; }
+                
                 hideLoading();
-                allUsersCache = users;
-                renderUserTable(users);
+                allUsersCache = safeArray(users); 
+                renderUserTable(allUsersCache);
             } catch(err) {
                 hideLoading();
                 showAlert(err.message, 'error');
@@ -2296,7 +2336,9 @@
                     res = await callApi("createUser", { userData: data, adminId: adminId, token: userToken });
                 }
                 
+                if (checkAuthError(res)) { hideLoading(); return; }
                 hideLoading(); 
+                
                 if (res.success) { 
                     showAlert('บันทึกสำเร็จ'); 
                     document.getElementById('userModal').style.display = 'none'; 
@@ -2318,9 +2360,10 @@
         showLoading();
         try {
             const groups = await callApi("checkDuplicateAccounts", { adminId: adminId, token: userToken });
+            if(checkAuthError(groups)) { hideLoading(); return; }
             hideLoading(); 
-            cachedDuplicateGroups = groups; 
-            displayDuplicateResults(groups);
+            cachedDuplicateGroups = safeArray(groups); 
+            displayDuplicateResults(cachedDuplicateGroups);
         } catch(err) {
             hideLoading();
             showAlert(err.message, 'error');
@@ -2370,12 +2413,15 @@
 
         try {
             const users = await callApi("getSuspendedUsers", { adminId: adminId, token: userToken });
+            if(checkAuthError(users)) return;
+            const safeU = safeArray(users);
+
             tbody.innerHTML = '';
-            if (!users || users.length === 0) { 
+            if (safeU.length === 0) { 
                 tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#999; padding:20px;">ไม่มีผู้ใช้งานที่ถูกระงับในขณะนี้</td></tr>'; 
                 return; 
             }
-            users.forEach(u => {
+            safeU.forEach(u => {
                 tbody.innerHTML += '<tr><td style="text-align:center;"><input type="checkbox" class="chk-suspended" value="' + escapeHTML(u.id) + '" onchange="checkSuspendedSelection()"></td><td>' + escapeHTML(u.studentId) + '</td><td>' + escapeHTML(u.firstName) + ' ' + escapeHTML(u.lastName) + '</td><td style="color:#dc3545">' + escapeHTML(u.suspendReason || '-') + '</td><td style="text-align:center;"><button class="btn btn-success btn-sm" style="padding:4px 8px;" onclick="actionSuspend(\'' + escapeHTML(u.id) + '\', \'Active\')"><i class="material-icons" style="font-size:14px;">lock_open</i> ปลด</button> <button class="btn btn-danger btn-sm" style="padding:4px 8px;" onclick="actionDelete(\'' + escapeHTML(u.id) + '\', \'' + escapeHTML(u.studentId) + '\')"><i class="material-icons" style="font-size:14px;">delete</i> ลบ</button></td></tr>';
             });
         } catch(err) {
@@ -2419,6 +2465,7 @@
                 showLoading();
                 try {
                     const res = await callApi("deleteMultipleUsers", { userIds: ids, adminId: adminId, token: userToken });
+                    if(checkAuthError(res)) { hideLoading(); return; }
                     hideLoading(); 
                     if (res.success) { 
                         Swal.fire('ลบสำเร็จ', '', 'success'); 
@@ -2446,7 +2493,9 @@
                 showLoading();
                 try {
                     const res = await callApi("deleteUser", { userId: userId, adminId: adminId, token: userToken });
+                    if(checkAuthError(res)) { hideLoading(); return; }
                     hideLoading(); 
+                    
                     Swal.fire('ลบสำเร็จ', '', 'success');
                     if (document.getElementById('usersTable')) loadUsersForAdmin(true);
                     if (document.getElementById('suspendedUsersTable')) loadSuspendedUsers();
@@ -2484,6 +2533,7 @@
         showLoading();
         try {
             const res = await callApi("updateUser", { userId: userId, status: status, suspendReason: reason, adminId: adminId, token: userToken });
+            if(checkAuthError(res)) { hideLoading(); return; }
             hideLoading();
             if (res.success) { 
                 Swal.fire('สำเร็จ', res.message, 'success'); 
@@ -2507,12 +2557,14 @@
         showLoading();
         try {
             const profiles = await callApi("getProfileSummaries", { adminId: adminId, token: userToken });
+            if(checkAuthError(profiles)) { hideLoading(); return; }
             hideLoading(); 
-            allProfilesData = profiles; 
-            currentFilteredData = profiles;
             
-            const total = profiles.length || 0;
-            const done = profiles.filter(p => p.hasProfile).length || 0;
+            allProfilesData = safeArray(profiles); 
+            currentFilteredData = allProfilesData;
+            
+            const total = allProfilesData.length || 0;
+            const done = allProfilesData.filter(p => p.hasProfile).length || 0;
             const elTotal = document.getElementById('profStatTotal');
             const elDone = document.getElementById('profStatDone');
             const elPend = document.getElementById('profStatPending');
@@ -2614,8 +2666,10 @@
         
         try {
             const p = await callApi("getProfile", { studentId: studentId, token: userToken });
+            if(checkAuthError(p)) { hideLoading(); return; }
             hideLoading();
-            if (p) {
+
+            if (p && Object.keys(p).length > 0) {
                 ['idCard','nickname','dob','gpa','phone','disease','fatherName','fatherJob','fatherPhone','motherName','motherJob','motherPhone','parentsStatus','familyMembers','householdIncome','debt','addrNo','subDistrict','district','province','zipcode','mapLink'].forEach(k => {
                     const el = document.getElementById('adm_'+k); 
                     if (el) el.value = p[k] || '';
@@ -2647,7 +2701,9 @@
             
             try {
                 const res = await callApi("saveProfile", { profileData: pd, token: userToken });
+                if(checkAuthError(res)) { hideLoading(); return; }
                 hideLoading(); 
+                
                 if (res.success) { 
                     showAlert('แก้ไขข้อมูลสำเร็จ'); 
                     document.getElementById('adminProfileModal').style.display='none'; 
@@ -2671,8 +2727,10 @@
         showLoading();
         try {
             const data = await callApi("getStudentImageReport", { adminId: adminId, token: userToken });
+            if(checkAuthError(data)) { hideLoading(); return; }
             hideLoading(); 
-            cachedImageReportData = data; 
+
+            cachedImageReportData = safeArray(data); 
             filterImageReport(); 
         } catch(err) {
             hideLoading();
@@ -2768,10 +2826,13 @@
         
         try {
             const h = await callApi("getProfileImageHistory", { studentId: id, adminId: adminId, token: userToken });
+            if(checkAuthError(h)) { if(c) c.innerHTML='Error API'; return; }
+            const safeH = safeArray(h);
+
             if(!c) return;
-            c.innerHTML = h.length === 0 
+            c.innerHTML = safeH.length === 0 
                 ? '<div style="grid-column: 1/-1; text-align: center; color: #999;">ไม่พบประวัติ</div>' 
-                : h.map(x => '<div style="text-align:center; border:1px solid #eee; padding:10px; border-radius:8px;"><img src="' + escapeHTML(x.imageUrl) + '" data-img="' + escapeHTML(x.imageUrl) + '" style="width:100%;height:150px;object-fit:cover;cursor:pointer;border-radius:4px;" onclick="openLightbox(this.getAttribute(\'data-img\'))"><br><small style="color:#666;">' + escapeHTML(formatDate(x.timestamp)) + '</small></div>').join('');
+                : safeH.map(x => '<div style="text-align:center; border:1px solid #eee; padding:10px; border-radius:8px;"><img src="' + escapeHTML(x.imageUrl) + '" data-img="' + escapeHTML(x.imageUrl) + '" style="width:100%;height:150px;object-fit:cover;cursor:pointer;border-radius:4px;" onclick="openLightbox(this.getAttribute(\'data-img\'))"><br><small style="color:#666;">' + escapeHTML(formatDate(x.timestamp)) + '</small></div>').join('');
         } catch(err) {
             if(c) c.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: red;">เกิดข้อผิดพลาด</div>';
         }
@@ -2790,8 +2851,9 @@
         showLoading(); 
         try {
             const a = await callApi("getActivities", { mode: 'admin', studentId: adminId, token: userToken });
+            if(checkAuthError(a)) { hideLoading(); return; }
             hideLoading(); 
-            adminActivitiesCache = a; 
+            adminActivitiesCache = safeArray(a); 
             renderAdminTable(currentAdminTab); 
         } catch(err) {
             hideLoading();
@@ -2916,7 +2978,9 @@
                     adminId: adminId, 
                     token: userToken
                 });
+                if(checkAuthError(r)) { hideLoading(); return; }
                 hideLoading(); 
+                
                 if (r.success) { 
                     Swal.fire('สำเร็จ', '', 'success'); 
                     const modal = document.getElementById('addActivityModal');
@@ -2961,7 +3025,9 @@
                     adminId: adminId,
                     token: userToken
                 });
+                if(checkAuthError(r)) { hideLoading(); return; }
                 hideLoading(); 
+                
                 if (r.success) { 
                     Swal.fire('สำเร็จ', '', 'success'); 
                     const modal = document.getElementById('editActivityModal');
@@ -2980,7 +3046,8 @@
     window.toggleStatus = async (id, st) => { 
         showLoading(); 
         try {
-            await callApi("toggleActivityStatus", { id: id, status: st, adminId: adminId, token: userToken });
+            const r = await callApi("toggleActivityStatus", { id: id, status: st, adminId: adminId, token: userToken });
+            if(checkAuthError(r)) { hideLoading(); return; }
             hideLoading(); 
             loadActivitiesForAdmin();
         } catch(err) {
@@ -3000,7 +3067,8 @@
             if (r.isConfirmed) {
                 showLoading(); 
                 try {
-                    await callApi("deleteActivity", { id: id, adminId: adminId, token: userToken });
+                    const res = await callApi("deleteActivity", { id: id, adminId: adminId, token: userToken });
+                    if(checkAuthError(res)) { hideLoading(); return; }
                     hideLoading(); 
                     loadActivitiesForAdmin();
                 } catch(err) {
@@ -3021,9 +3089,11 @@
             const p = document.getElementById('printSearchPeriod').value;
             try {
                 const a = await callApi("getActivities", { mode: 'admin', studentId: adminId, token: userToken });
+                if(checkAuthError(a)) { hideLoading(); return; }
                 hideLoading(); 
-                window.printActivitiesCache = a;
-                renderPrintSearchResults(a, d, p); 
+                
+                window.printActivitiesCache = safeArray(a);
+                renderPrintSearchResults(window.printActivitiesCache, d, p); 
             } catch(err) {
                 hideLoading();
                 console.error(err);
@@ -3051,10 +3121,13 @@
         showLoading(); 
         try {
             const list = await callApi("getRegisteredList", { id: id, adminId: adminId, token: userToken });
+            if(checkAuthError(list)) { hideLoading(); return; }
             hideLoading(); 
-            if (!list || list.length === 0) return Swal.fire('เตือน', 'ไม่มีคนลงทะเบียน', 'info');
             
-            const rows = list.map((s, i) => '<tr><td style="text-align:center;">' + (i + 1) + '</td><td style="text-align:center;">' + escapeHTML(s.studentId) + '</td><td style="padding-left:10px;">' + escapeHTML(s.name) + '</td><td style="text-align:center;">' + escapeHTML(s.faculty) + '</td><td></td></tr>').join('');
+            const safeList = safeArray(list);
+            if (safeList.length === 0) return Swal.fire('เตือน', 'ไม่มีคนลงทะเบียน', 'info');
+            
+            const rows = safeList.map((s, i) => '<tr><td style="text-align:center;">' + (i + 1) + '</td><td style="text-align:center;">' + escapeHTML(s.studentId) + '</td><td style="padding-left:10px;">' + escapeHTML(s.name) + '</td><td style="text-align:center;">' + escapeHTML(s.faculty) + '</td><td></td></tr>').join('');
             
             const html = '<html><head><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet"><style>body{font-family:\'Sarabun\',sans-serif; margin:20px;} table{width:100%;border-collapse:collapse;margin-top:10px;} th,td{border:1px solid #000;padding:8px;font-size:14px;} th{background:#f0f0f0;} h2,h3{text-align:center;margin:5px 0;}</style></head><body><h2>ใบลงชื่อผู้เข้าร่วมกิจกรรมจิตอาสา</h2><h3>มหาวิทยาลัยอุบลราชธานี</h3><div style="margin:20px 0; border-bottom:1px solid #000; padding-bottom:10px;"><b>กิจกรรม:</b> ' + escapeHTML(act.name) + '<br><b>วันที่:</b> ' + escapeHTML(formatDate(act.date)) + ' <b>เวลา:</b> ' + escapeHTML(act.period) + '<br><b>สถานที่:</b> ' + escapeHTML(act.location) + '</div><table><tr><th>ลำดับ</th><th>รหัสนักศึกษา</th><th>ชื่อ-สกุล</th><th>คณะ</th><th>ลงชื่อ</th></tr>' + rows + '</table></body></html>';
                 
@@ -3089,7 +3162,9 @@
                     adminId: adminId, 
                     token: userToken 
                 });
+                if(checkAuthError(res)) { hideLoading(); return; }
                 hideLoading(); 
+
                 if (res.success) {
                     downloadCSV(res.csvData, res.fileName); 
                 } else {
@@ -3109,9 +3184,11 @@
         showLoading(); 
         try {
             const s = await callApi("getQueueSlots", { role: 'admin', studentId: adminId, token: userToken });
+            if(checkAuthError(s)) { hideLoading(); return; }
             hideLoading(); 
-            adminQueueCache = s; 
-            renderAdminQueueTable(s); 
+            
+            adminQueueCache = safeArray(s); 
+            renderAdminQueueTable(adminQueueCache); 
         } catch(err) {
             hideLoading();
             console.error(err);
@@ -3223,8 +3300,9 @@
                 } else {
                     res = await callApi("createQueueSlot", { ...d, adminId: adminId, token: userToken });
                 }
-                
+                if(checkAuthError(res)) { hideLoading(); return; }
                 hideLoading(); 
+                
                 if (res.success) {
                     closeQueueModal(); 
                     loadAdminQueueSlots();
@@ -3247,7 +3325,8 @@
             if (r.isConfirmed) { 
                 showLoading(); 
                 try {
-                    await callApi("toggleQueueStatus", { id: id, status: st === 'Show' ? 'Hide' : 'Show', adminId: adminId, token: userToken });
+                    const res = await callApi("toggleQueueStatus", { id: id, status: st === 'Show' ? 'Hide' : 'Show', adminId: adminId, token: userToken });
+                    if(checkAuthError(res)) { hideLoading(); return; }
                     hideLoading();
                     loadAdminQueueSlots();
                 } catch(err) {
@@ -3269,7 +3348,8 @@
             if (r.isConfirmed) { 
                 showLoading(); 
                 try {
-                    await callApi("deleteQueueSlot", { id: id, adminId: adminId, token: userToken });
+                    const res = await callApi("deleteQueueSlot", { id: id, adminId: adminId, token: userToken });
+                    if(checkAuthError(res)) { hideLoading(); return; }
                     hideLoading();
                     loadAdminQueueSlots();
                 } catch(err) {
@@ -3287,11 +3367,12 @@
     window.loadQueueDateOptions = async () => {
         try {
             const m = await callApi("getQueueSlotOptions", { adminId: adminId, token: userToken });
-            queueOptionsCache = m; 
+            if(checkAuthError(m)) return;
+            queueOptionsCache = m || {}; 
             const sel = document.getElementById('searchQDate'); 
             if(sel) {
                 sel.innerHTML = '<option value="">-- เลือก --</option>'; 
-                Object.keys(m).forEach(k => sel.innerHTML += '<option value="' + escapeHTML(k) + '">' + escapeHTML(formatDate(k)) + '</option>'); 
+                Object.keys(queueOptionsCache).forEach(k => sel.innerHTML += '<option value="' + escapeHTML(k) + '">' + escapeHTML(formatDate(k)) + '</option>'); 
             }
         } catch(err) {
             console.error(err);
@@ -3323,19 +3404,21 @@
             };
             try {
                 const l = await callApi("getQueueAttendees", { date: currentSearchInfo.date, time: currentSearchInfo.time, adminId: adminId, token: userToken });
+                if(checkAuthError(l)) { hideLoading(); return; }
                 hideLoading(); 
-                currentQueueListData = l; 
+
+                currentQueueListData = safeArray(l); 
                 const tb = document.querySelector('#queueResultTable tbody'); 
                 if(tb) {
                     tb.innerHTML = '';
-                    if (l.length === 0) {
+                    if (currentQueueListData.length === 0) {
                         tb.innerHTML = '<tr><td colspan="5" style="text-align:center;">ไม่พบผู้จองคิว</td></tr>';
                     } else {
-                        l.forEach(x => tb.innerHTML += '<tr><td style="text-align:center; font-weight:bold; color:var(--secondary-color);">' + escapeHTML(x.queueNumber) + '</td><td style="text-align:center;">' + escapeHTML(x.studentId) + '</td><td>' + escapeHTML(x.name) + '</td><td>' + escapeHTML(x.faculty) + '</td><td><div style="border-bottom:1px solid #ddd; height:20px;"></div></td></tr>');
+                        currentQueueListData.forEach(x => tb.innerHTML += '<tr><td style="text-align:center; font-weight:bold; color:var(--secondary-color);">' + escapeHTML(x.queueNumber) + '</td><td style="text-align:center;">' + escapeHTML(x.studentId) + '</td><td>' + escapeHTML(x.name) + '</td><td>' + escapeHTML(x.faculty) + '</td><td><div style="border-bottom:1px solid #ddd; height:20px;"></div></td></tr>');
                     }
                 }
                 const pArea = document.getElementById('printQueueBtnArea');
-                if(pArea) pArea.style.display = l.length > 0 ? 'block' : 'none';
+                if(pArea) pArea.style.display = currentQueueListData.length > 0 ? 'block' : 'none';
             } catch(err) {
                 hideLoading();
                 console.error(err);
@@ -3368,10 +3451,12 @@
     window.loadAdminLoanStats = async () => {
         try {
             const s = await callApi("getLoanDashboardStats2569", { adminId: adminId, token: userToken });
-            const e1 = document.getElementById('statEligible'); if(e1) e1.textContent = s.totalEligible; 
-            const e2 = document.getElementById('statSubmitted'); if(e2) e2.textContent = s.submitted; 
-            const e3 = document.getElementById('statNotSubmitted'); if(e3) e3.textContent = s.notSubmitted; 
-            const e4 = document.getElementById('statFailed'); if(e4) e4.textContent = `${s.gpaFail} / ${s.creditFail}`; 
+            if(checkAuthError(s)) return;
+
+            const e1 = document.getElementById('statEligible'); if(e1) e1.textContent = s.totalEligible || 0; 
+            const e2 = document.getElementById('statSubmitted'); if(e2) e2.textContent = s.submitted || 0; 
+            const e3 = document.getElementById('statNotSubmitted'); if(e3) e3.textContent = s.notSubmitted || 0; 
+            const e4 = document.getElementById('statFailed'); if(e4) e4.textContent = `${s.gpaFail||0} / ${s.creditFail||0}`; 
         } catch(err) {
             console.error(err);
         }
@@ -3484,7 +3569,9 @@
         showLoading(); 
         try {
             const res = await callApi("adminGetLoanInfo", { studentId: val, adminId: adminId, token: userToken });
+            if(checkAuthError(res) && res.status !== 'not_found_student') { hideLoading(); return; }
             hideLoading();
+
             const resArea = document.getElementById('adminLoanResultArea');
             if (res.status === 'not_found_student') { 
                 Swal.fire('ไม่พบ', 'ไม่มีสิทธิ์กู้ 2569', 'error'); 
@@ -3575,7 +3662,7 @@
         const req = (isL && isT) ? 'Both' : (isL ? 'Living' : 'Tuition');
         
         try {
-            await callApi("adminSaveLoanRequest", {
+            const res = await callApi("adminSaveLoanRequest", {
                 studentId: currentAdminLoanData.studentInfo.studentId, 
                 name: currentAdminLoanData.studentInfo.name, 
                 reqType: req, 
@@ -3585,6 +3672,7 @@
                 adminId: adminId, 
                 token: userToken
             });
+            if(checkAuthError(res)) { hideLoading(); return; }
             hideLoading(); 
             Swal.fire('สำเร็จ', '', 'success'); 
         } catch(err) {
@@ -3604,8 +3692,10 @@
             if (r.isConfirmed) { 
                 showLoading(); 
                 try {
-                    await callApi("adminDeleteLoanRequest", { studentId: currentAdminLoanData.studentInfo.studentId, adminId: adminId, token: userToken });
+                    const res = await callApi("adminDeleteLoanRequest", { studentId: currentAdminLoanData.studentInfo.studentId, adminId: adminId, token: userToken });
+                    if(checkAuthError(res)) { hideLoading(); return; }
                     hideLoading(); 
+                    
                     const resArea = document.getElementById('adminLoanResultArea');
                     const searchIn = document.getElementById('adminLoanSearchInput');
                     if(resArea) resArea.style.display = 'none'; 
@@ -3626,7 +3716,9 @@
         
         try {
             const r = await callApi("getAdminReportCSV", { reportType: reportTypeEl.value, faculty: facultyEl.value, adminId: adminId, token: userToken });
+            if(checkAuthError(r)) { hideLoading(); return; }
             hideLoading(); 
+            
             if (r.success) {
                 downloadCSV(r.csvData, 'Loan2569_Report.csv'); 
             } else {
@@ -3654,14 +3746,15 @@
     window.loadAdminOverLoanStats = async () => { 
         try {
             const s = await callApi("getOverLoanDashboardStats", { adminId: adminId, token: userToken });
+            if(checkAuthError(s)) return;
             const s1 = document.getElementById('statOverEligible');
             const s2 = document.getElementById('statOverSubmitted');
             const s3 = document.getElementById('statOverNotSubmitted');
             const s4 = document.getElementById('statOverFailed');
-            if(s1) s1.textContent = s.totalEligible; 
-            if(s2) s2.textContent = s.submitted; 
-            if(s3) s3.textContent = s.notSubmitted; 
-            if(s4) s4.textContent = `${s.gpaFail} / ${s.creditFail}`; 
+            if(s1) s1.textContent = s.totalEligible || 0; 
+            if(s2) s2.textContent = s.submitted || 0; 
+            if(s3) s3.textContent = s.notSubmitted || 0; 
+            if(s4) s4.textContent = `${s.gpaFail||0} / ${s.creditFail||0}`; 
         } catch(err) {
             console.error(err);
         }
@@ -3768,7 +3861,9 @@
         if(tb) tb.innerHTML = '<tr><td colspan="7" style="text-align:center;">กำลังโหลดข้อมูล</td></tr>'; 
         try {
             const d = await callApi("getOverLoanProfilesSummary", { adminId: adminId, token: userToken });
-            overAllData = d || []; 
+            if(checkAuthError(d)) return;
+
+            overAllData = safeArray(d); 
             filterOverTable(); 
         } catch(err) {
             console.error(err);
@@ -3829,7 +3924,9 @@
         showLoading(); 
         try {
             const r = await callApi("getOverAdminReportCSV", { adminId: adminId, token: userToken });
+            if(checkAuthError(r)) { hideLoading(); return; }
             hideLoading(); 
+            
             downloadCSV(r.csvData, 'over_loan.csv');
         } catch(err) {
             hideLoading();
@@ -3845,8 +3942,9 @@
     window.loadResignStats = async () => { 
         try {
             const s = await callApi("getResignDashboardStats", { adminId: adminId, token: userToken });
+            if(checkAuthError(s)) return;
             const el = document.getElementById('statResignEligible');
-            if(el) el.textContent = s.totalEligible; 
+            if(el) el.textContent = s.totalEligible || 0; 
         } catch(err) {
             console.error(err);
         }
@@ -3902,18 +4000,20 @@
         showLoading(); 
         try {
             const r = await callApi("getResignAdminData", { adminId: adminId, token: userToken });
+            if(checkAuthError(r)) { hideLoading(); return; }
             hideLoading(); 
+
             if (r.success) { 
-                rsAllData = r.data; 
+                rsAllData = safeArray(r); 
                 const se = document.getElementById('rsStatEligible');
                 const ss = document.getElementById('rsStatSubmitted');
                 const sp = document.getElementById('rsStatPending');
                 const sc = document.getElementById('rsStatCompleted');
                 
-                if(se) se.textContent = r.stats.eligible; 
-                if(ss) ss.textContent = r.stats.submitted; 
-                if(sp) sp.textContent = r.stats.pending; 
-                if(sc) sc.textContent = r.stats.completed; 
+                if(se) se.textContent = r.stats.eligible || 0; 
+                if(ss) ss.textContent = r.stats.submitted || 0; 
+                if(sp) sp.textContent = r.stats.pending || 0; 
+                if(sc) sc.textContent = r.stats.completed || 0; 
                 filterResignData(); 
             } 
         } catch(err) {
@@ -3971,8 +4071,10 @@
             if (r.isConfirmed) { 
                 showLoading(); 
                 try {
-                    await callApi("updateResignRequestStatus", { requestId: id, status: 'Completed', adminId: adminId, token: userToken });
+                    const res = await callApi("updateResignRequestStatus", { requestId: id, status: 'Completed', adminId: adminId, token: userToken });
+                    if(checkAuthError(res)) { hideLoading(); return; }
                     hideLoading();
+                    
                     loadResignManagementData();
                 } catch(err) {
                     hideLoading();
@@ -4029,7 +4131,9 @@
         showLoading(); 
         try {
             const s = await callApi("getSystemMenuSettings", { adminId: adminId, token: userToken });
+            if(checkAuthError(s)) { hideLoading(); return; }
             hideLoading(); 
+            
             ['userProfile','userActivity','userQueue','loan2569','userResign','userPetition','overLoan'].forEach(k => {
                 if (document.getElementById('setting_menu_' + k)) document.getElementById('setting_menu_' + k).checked = (s['menu_' + k] === 'true');
             }); 
@@ -4053,8 +4157,10 @@
         }); 
         
         try {
-            await callApi("saveSystemMenuSettings", { settings: s, adminId: adminId, token: userToken });
+            const res = await callApi("saveSystemMenuSettings", { settings: s, adminId: adminId, token: userToken });
+            if(checkAuthError(res)) { hideLoading(); return; }
             hideLoading();
+            
             Swal.fire('สำเร็จ','อัปเดตเมนูเรียบร้อย','success');
         } catch(err) {
             hideLoading();
@@ -4071,7 +4177,9 @@
         
         try {
             const r = await callApi("searchStudentForSpecialAccess", { studentId: saInput.value.trim(), adminId: adminId, token: userToken });
+            if(checkAuthError(r)) { hideLoading(); return; }
             hideLoading(); 
+            
             const resArea = document.getElementById('specialAccessResultArea');
             if (r.success) { 
                 currentSpecialAccessStudent = r.student; 
@@ -4093,8 +4201,10 @@
         if(!currentSpecialAccessStudent) return;
         showLoading(); 
         try {
-            await callApi("grantSpecialMenuAccess", { studentId: currentSpecialAccessStudent.studentId, adminId: adminId, token: userToken });
+            const res = await callApi("grantSpecialMenuAccess", { studentId: currentSpecialAccessStudent.studentId, adminId: adminId, token: userToken });
+            if(checkAuthError(res)) { hideLoading(); return; }
             hideLoading(); 
+            
             Swal.fire('สำเร็จ', '', 'success'); 
             loadSpecialAccessList(); 
             const resArea = document.getElementById('specialAccessResultArea');
@@ -4110,14 +4220,19 @@
     window.loadSpecialAccessList = async () => { 
         try {
             const l = await callApi("getSpecialAccessList", { adminId: adminId, token: userToken });
+            if(checkAuthError(l)) return;
+
             const tb = document.querySelector('#specialAccessTable tbody'); 
             if(!tb) return;
             tb.innerHTML = ''; 
-            if (!l || l.length === 0) { 
+            
+            const safeL = safeArray(l);
+            if (safeL.length === 0) { 
                 tb.innerHTML = '<tr><td colspan="5" style="text-align:center;">ไม่มีผู้ได้รับสิทธิ์</td></tr>'; 
                 return;
             } 
-            l.forEach((x, i) => { 
+            
+            safeL.forEach((x, i) => { 
                 tb.innerHTML += '<tr><td style="text-align:center;">' + (i + 1) + '</td><td style="font-weight:bold; color:var(--secondary-color);">' + escapeHTML(x.studentId) + '</td><td>' + escapeHTML(x.name) + '</td><td>' + escapeHTML(formatDate(x.timestamp)) + '</td><td style="text-align:center;"><button class="btn btn-danger btn-sm" style="border-radius:20px;" onclick="revokeSpecialAccess(\'' + escapeHTML(x.studentId) + '\')">ลบสิทธิ์</button></td></tr>'; 
             }); 
         } catch(err) {
@@ -4136,8 +4251,10 @@
             if (r.isConfirmed) { 
                 showLoading(); 
                 try {
-                    await callApi("revokeSpecialMenuAccess", { studentId: id, adminId: adminId, token: userToken });
+                    const res = await callApi("revokeSpecialMenuAccess", { studentId: id, adminId: adminId, token: userToken });
+                    if(checkAuthError(res)) { hideLoading(); return; }
                     hideLoading(); 
+                    
                     loadSpecialAccessList();
                 } catch(err) {
                     hideLoading();
@@ -4156,9 +4273,11 @@
         showLoading('กำลังโหลดคำร้อง'); 
         try {
             const r = await callApi("getAdminPetitions", { adminId: adminId, token: userToken });
+            if(checkAuthError(r)) { hideLoading(); return; }
             hideLoading(); 
+            
             if (r && r.success) { 
-                adminPetitionsCache = r.data || []; 
+                adminPetitionsCache = safeArray(r); 
                 updatePetitionStats(); 
                 filterAdminPetitions(); 
             } else {
@@ -4245,7 +4364,7 @@
         const total = Math.ceil(lastFilteredPetitions.length / petRowsPerPage);
         if(infoEl) infoEl.textContent = `หน้า ${petCurrentPage} / ${total} (ทั้งหมด ${lastFilteredPetitions.length} รายการ)`;
         if(bPrev) bPrev.disabled = (petCurrentPage === 1); 
-        if(bNext) bNext.disabled = (imgCurrentPage === total || total === 0 || petCurrentPage === total);
+        if(bNext) bNext.disabled = (petCurrentPage === total || total === 0);
     };
 
     window.openPetModal = (rowIndex) => { 
@@ -4287,7 +4406,9 @@
                     adminId: adminId, 
                     token: userToken
                 });
+                if(checkAuthError(r)) { hideLoading(); return; }
                 hideLoading(); 
+                
                 if(r && r.success) {
                     Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', showConfirmButton: false, timer: 1500 });
                     const mod = document.getElementById('petitionUpdateModal');
@@ -4313,7 +4434,6 @@
         
         downloadCSV(csv, "petitions.csv"); 
     };
-
-    </script>
+</script>
 </body>
 </html>
