@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,11 +10,9 @@
   
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   
+  <!-- ดึงไฟล์ CSS และ API จากภายนอก -->
   <link rel="stylesheet" href="style.css">
-
-  <?!= include('Style_CSS'); ?>
-  <?!= include('API_JS'); ?>
-   
+  <script src="api.js"></script>
 </head>
 <body>
 
@@ -44,6 +42,7 @@
 
             <div class="login-form-side">   
                 
+                <!-- Section: Login -->
                 <div id="loginSection" class="section active login-form-container">
                     <img src="https://img1.pic.in.th/images/Ubu_logo.png" alt="UBU Logo" class="login-logo">
                     <div style="margin-bottom: 30px; text-align: center;">
@@ -53,7 +52,7 @@
                     <form id="loginForm">
                         <div class="modern-input-group">
                             <input type="text" id="loginStudentId" class="modern-input" placeholder=" " required>
-                            <label for="loginStudentId" class="modern-label">รหัสนักศึกษา</label>
+                            <label for="loginStudentId" class="modern-label">รหัสนักศึกษา / Username</label>
                         </div>
                         <div class="modern-input-group">
                             <input type="password" id="loginPassword" class="modern-input" placeholder=" " required>
@@ -82,6 +81,7 @@
                     </div>
                 </div>
 
+                <!-- Section: Signup -->
                 <div id="signupSection" class="section login-form-container" style="display: none;">
                     <div class="form-container">
                         <h2 style="color: #333; font-size: 24px; border: none; justify-content: center;">ลงทะเบียนขอสิทธิ์เข้าใช้งาน</h2>
@@ -153,6 +153,7 @@
                     </div>
                 </div>
 
+                <!-- Section: Reset Password -->
                 <div id="resetPasswordSection" class="section login-form-container" style="display: none;">
                     <div class="form-container">
                         <h2 style="color: #333; font-size: 24px; border: none; justify-content: center; margin-bottom: 10px;">ตั้งรหัสผ่านใหม่</h2>
@@ -205,7 +206,6 @@
     </div>
 
 <script>
-    const WEB_APP_URL = "<?= ScriptApp.getService().getUrl() ?>";
     window.Swal = Swal.mixin({
         confirmButtonText: 'ตกลง',
         cancelButtonText: 'ยกเลิก'
@@ -218,6 +218,7 @@
         }[tag] || tag));
     }
 
+    // ฟังก์ชันดึง IP สำหรับบันทึกความปลอดภัย
     async function getClientIp() {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 3000); 
@@ -275,6 +276,7 @@
         window.scrollTo(0, 0);
     }
 
+    // --- UI Listeners ---
     document.getElementById('showSignup').onclick = (e) => { 
         e.preventDefault(); 
         document.getElementById('signupForm').reset();
@@ -327,6 +329,11 @@
         }
     });
 
+    // ==========================================
+    // API CALLS (ใช้ callApi จาก api.js แทน google.script.run)
+    // ==========================================
+
+    // 1. ระบบเข้าสู่ระบบ (Login)
     document.getElementById('loginForm').onsubmit = async (e) => {
         e.preventDefault();
         const btnSubmit = document.getElementById('btnLoginSubmit');
@@ -338,11 +345,18 @@
         const pass = document.getElementById('loginPassword').value;
         const clientIp = await getClientIp(); 
 
-        google.script.run.withSuccessHandler(res => {
+        try {
+            const res = await callApi("login", { 
+                studentId: id, 
+                password: pass, 
+                ipAddress: clientIp 
+            });
+
             hideLoading();
             btnSubmit.disabled = false;
 
             if (res.success) {
+                // เก็บ Session สำหรับผู้ใช้งาน
                 sessionStorage.setItem('ubu_student_id', res.user.studentId);
                 sessionStorage.setItem('ubu_token', res.user.token);
                 sessionStorage.setItem('ubu_role', res.user.role);
@@ -358,8 +372,8 @@
                     allowOutsideClick: false
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        const redirectUrl = WEB_APP_URL + "?page=" + res.user.role;
-                        window.top.location.href = redirectUrl;
+                        // เปลี่ยนหน้าเว็บไปยังหน้าผู้ใช้งานหรือผู้ดูเเลระบบ (ใช้ HTML ภายนอก)
+                        window.location.href = res.user.role === 'admin' ? 'View_Admin.html' : 'View_User.html';
                     }
                 });
             } else {
@@ -404,14 +418,15 @@
                     showAlert(res.message, 'error');
                 }
             }
-        }).withFailureHandler(err => {
+        } catch(err) {
             hideLoading();
             btnSubmit.disabled = false;
             showAlert(err.message, 'error');
-        }).login(id, pass, clientIp); 
+        }
     };
 
-    document.getElementById('signupForm').onsubmit = (e) => {
+    // 2. ระบบลงทะเบียน (Signup)
+    document.getElementById('signupForm').onsubmit = async (e) => {
         e.preventDefault();
         const btnSubmit = document.getElementById('btnSignupSubmit');
         btnSubmit.disabled = true;
@@ -428,7 +443,8 @@
             phone: document.getElementById('signupPhone').value.trim()
         };
 
-        google.script.run.withSuccessHandler(res => {
+        try {
+            const res = await callApi("signUp", { userData: data });
             hideLoading();
             btnSubmit.disabled = false;
             
@@ -446,14 +462,15 @@
             } else {
                 showAlert(res.message, 'error');
             }
-        }).withFailureHandler(err => { 
+        } catch(err) {
             hideLoading(); 
             btnSubmit.disabled = false;
             showAlert(err.message, 'error'); 
-        }).signUp(data);
+        }
     };
 
-    document.getElementById('btnVerifyIdentity').onclick = () => {
+    // 3. ระบบยืนยันตัวตนสำหรับรีเซ็ตรหัสผ่าน (Verify Identity)
+    document.getElementById('btnVerifyIdentity').onclick = async () => {
         const studentId = document.getElementById('resetStudentId').value.trim();
         const phone = document.getElementById('resetPhone').value.trim();
         const idCard = document.getElementById('resetIdCard').value.trim();
@@ -477,7 +494,13 @@
         btnVerify.disabled = true;
         showLoading('ระบบกำลังตรวจสอบข้อมูลยืนยันตัวตน');
 
-        google.script.run.withSuccessHandler(res => {
+        try {
+            const res = await callApi("verifyUserForReset", { 
+                studentId: studentId, 
+                phone: phone, 
+                idCard: idCard 
+            });
+
             hideLoading();
             btnVerify.disabled = false;
 
@@ -498,14 +521,15 @@
             } else {
                 showAlert(res.message, 'error');
             }
-        }).withFailureHandler(err => {
+        } catch(err) {
             hideLoading();
             btnVerify.disabled = false;
             showAlert(err.message, 'error');
-        }).verifyUserForReset(studentId, phone, idCard); 
+        }
     };
 
-    document.getElementById('resetPasswordForm').onsubmit = (e) => {
+    // 4. บันทึกรหัสผ่านใหม่ (Reset Password)
+    document.getElementById('resetPasswordForm').onsubmit = async (e) => {
         e.preventDefault();
         
         if (document.getElementById('resetStep2Area').style.display === 'none') {
@@ -540,7 +564,8 @@
             newPassword: newPass
         };
 
-        google.script.run.withSuccessHandler(res => {
+        try {
+            const res = await callApi("resetPassword", data);
             hideLoading();
             btnReset.disabled = false;
 
@@ -558,12 +583,14 @@
             } else {
                 showAlert(res.message, 'error');
             }
-        }).withFailureHandler(err => {
+        } catch(err) {
             hideLoading();
             btnReset.disabled = false;
             showAlert(err.message, 'error');
-        }).resetPassword(data);
+        }
     };
+
+    // ล้างข้อมูล Session ทุกครั้งที่หน้าจอนี้โหลด (ป้องกันการค้างหน้าจอ Login ไว้หลัง Logout)
     document.addEventListener("DOMContentLoaded", () => {
         sessionStorage.removeItem('ubu_student_id');
         sessionStorage.removeItem('ubu_token');
