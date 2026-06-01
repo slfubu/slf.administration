@@ -3967,6 +3967,17 @@
             if(checkAuthError(s)) return;
             const el = document.getElementById('statResignEligible');
             if(el) el.textContent = s.totalEligible || 0; 
+
+            const r = await callApi("getResignAdminData", { adminId: adminId, token: userToken });
+            if (r && r.success) {
+                const sMove = document.getElementById('rsStatMoveUni');
+                const sChange = document.getElementById('rsStatChangeFac');
+                const sQuit = document.getElementById('rsStatQuit');
+                
+                if(sMove) sMove.textContent = r.stats.typeMoveUni || 0;
+                if(sChange) sChange.textContent = r.stats.typeChangeFac || 0;
+                if(sQuit) sQuit.textContent = r.stats.typeQuit || 0;
+            }
         } catch(err) {
             console.error(err);
         }
