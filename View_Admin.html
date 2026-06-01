@@ -3484,7 +3484,7 @@
         }
     };
 
-    window.uploadExcelFile = () => {
+    window.uploadExcelFile = async () => {
         const fileInput = document.getElementById('excelFileInput');
         if(!fileInput) return;
         const file = fileInput.files[0]; 
@@ -3497,6 +3497,26 @@
             Swal.fire('แจ้งเตือน', 'ระบบรองรับเฉพาะไฟล์ Excel (.xlsx, .xls) เท่านั้น', 'error');
             return;
         }
+
+        const { value: formValues } = await Swal.fire({
+            title: 'ตั้งค่าเงื่อนไขการนำเข้า',
+            html:
+                '<p style="font-size: 14px; color: #555;">ระบุ 2 หลักแรกของรหัสนักศึกษาที่ <b>ไม่อนุญาต</b> ให้นำเข้า<br>เช่น 64,65 (หากไม่มีให้เว้นว่างไว้)</p>' +
+                '<input id="swal-input1" class="swal2-input" placeholder="เช่น 64,65,68">',
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: 'อัปโหลดข้อมูล',
+            cancelButtonText: 'ยกเลิก',
+            confirmButtonColor: '#2e7d32',
+            preConfirm: () => {
+                const val = document.getElementById('swal-input1').value;
+                if(!val) return [];
+                return val.split(',').map(s => s.trim()).filter(s => s.length === 2);
+            }
+        });
+
+        if (formValues === undefined) return; 
+
         
         Swal.fire({
             title: 'ระบบกำลังประมวลผล', 
@@ -3512,6 +3532,7 @@
                     fileName: file.name, 
                     mimeType: file.type || "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
                     content: e.target.result.split(',')[1],
+                    blockedPrefixes: formValues, 
                     adminId: adminId, 
                     token: userToken
                 });
@@ -3521,7 +3542,7 @@
                     loadAdminLoanStats();
                     fileInput.value = ''; 
                 } else {
-                    Swal.fire('ผิดพลาด', r.message, 'error');
+                    Swal.fire('แจ้งเตือน', r.message, 'warning'); 
                 }
             } catch(err) {
                 Swal.fire('ข้อผิดพลาดระบบ', err.message, 'error');
