@@ -707,6 +707,58 @@
                                 <div class="stat-value" id="statFailed">0</div>
                                 <div class="stat-unit">คน</div>
                             </div>
+                          <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; border: 1px solid #e0e0e0; margin-top: 20px;">
+                            <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 20px;">
+                                <div style="flex: 1; min-width: 250px;">
+                                    <label style="font-weight:bold; font-size:14px;">ค้นหารายชื่อ/รหัสนักศึกษา</label>
+                                    <input type="text" id="loanSearchInput" class="modern-input" placeholder="พิมพ์เพื่อค้นหา..." onkeyup="filterLoanTable()">
+                                </div>
+                                <div style="width: 180px;">
+                                    <label style="font-weight:bold; font-size:14px;">สถานะการยื่น</label>
+                                    <select id="loanStatusFilter" class="modern-input" onchange="filterLoanTable()">
+                                        <option value="all">ทั้งหมด</option>
+                                        <option value="Submitted">ยื่นคำร้องแล้ว</option>
+                                        <option value="Not Submitted">ยังไม่ดำเนินการ</option>
+                                    </select>
+                                </div>
+                                <div style="width: 120px;">
+                                    <label style="font-weight:bold; font-size:14px;">แสดงหน้าละ</label>
+                                    <select id="loanRowsPerPage" class="modern-input" onchange="resetLoanPagination()">
+                                        <option value="10">10</option>
+                                        <option value="50">50</option>
+                                        <option value="100">100</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="table-container">
+                                <table class="clean-table" id="loanAdminTable">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 5%; text-align: center;">#</th>
+                                            <th style="width: 15%;">รหัสนักศึกษา</th>
+                                            <th style="width: 25%;">ชื่อ-นามสกุล</th>
+                                            <th style="width: 20%;">คณะ</th>
+                                            <th style="width: 10%; text-align: center;">GPAX</th>
+                                            <th style="width: 10%; text-align: center;">หน่วยกิต</th>
+                                            <th style="width: 15%; text-align: center;">สถานะระบบ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td colspan="7" style="text-align:center; padding:20px;">กำลังโหลดข้อมูล</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding: 10px; background: #fff; border-radius: 8px;">
+                                <div id="loanPageInfo" style="font-size: 14px; color: #666;">หน้า 1 จาก 1</div>
+                                <div style="display: flex; gap: 5px;">
+                                    <button class="btn btn-secondary" id="btnLoanPrev" onclick="changeLoanPage(-1)" style="padding: 5px 15px;">ก่อนหน้า</button>
+                                    <button class="btn btn-secondary" id="btnLoanNext" onclick="changeLoanPage(1)" style="padding: 5px 15px;">ถัดไป</button>
+                                </div>
+                            </div>
+                        </div>
+
                         </div>
                     </div>
                 </div>
@@ -2074,7 +2126,7 @@
             if(btnArea) btnArea.style.display = 'none'; 
             loadQueueDateOptions(); 
         }
-        if(id === 'adminLoan2569Section') loadAdminLoanStats();
+        if(id === 'adminLoan2569Section') { loadAdminLoanStats(); loadLoanAdminTable(); }
         if(id === 'adminLoanManageSection') { 
             const input = document.getElementById('adminLoanSearchInput');
             const resArea = document.getElementById('adminLoanResultArea');
@@ -4523,6 +4575,74 @@
         
         downloadCSV(csv, "petitions.csv"); 
     };
+  let loanAllData = [];
+    let loanFilteredData = [];
+    let loanCurrentPage = 1;
+    let loanRowsPerPage = 10;
+
+    window.loadLoanAdminTable = async () => { 
+        const tb = document.querySelector('#loanAdminTable tbody');
+        if(tb) tb.innerHTML = '<tr><td colspan="7" style="text-align:center;">กำลังโหลดข้อมูล</td></tr>'; 
+        try {
+            const d = await callApi("getLoanProfilesSummary2569", { adminId: adminId, token: userToken });
+            if(checkAuthError(d)) return;
+
+            loanAllData = safeArray(d); 
+            filterLoanTable(); 
+        } catch(err) {
+            console.error(err);
+        }
+    };
+
+    window.filterLoanTable = () => { 
+        const qInput = document.getElementById('loanSearchInput');
+        const stInput = document.getElementById('loanStatusFilter');
+        if(!qInput || !stInput) return;
+        const q = qInput.value.toLowerCase().trim();
+        const st = stInput.value;
+        loanFilteredData = loanAllData.filter(x => (String(x.studentId).toLowerCase().includes(q) || String(x.name).toLowerCase().includes(q)) && (st === 'all' || x.status === st));
+        resetLoanPagination(); 
+    };
+
+    window.resetLoanPagination = () => { 
+        const rpp = document.getElementById('loanRowsPerPage');
+        if(rpp) loanRowsPerPage = parseInt(rpp.value); 
+        loanCurrentPage = 1; 
+        renderLoanTable(); 
+    };
+
+    window.changeLoanPage = (s) => { 
+        loanCurrentPage += s; 
+        renderLoanTable(); 
+    };
+
+    function renderLoanTable() {
+        const tb = document.querySelector('#loanAdminTable tbody'); 
+        if(!tb) return;
+        tb.innerHTML = '';
+        
+        const infoEl = document.getElementById('loanPageInfo');
+        const btnP = document.getElementById('btnLoanPrev');
+        const btnN = document.getElementById('btnLoanNext');
+        
+        if (loanFilteredData.length === 0) { 
+            tb.innerHTML = '<tr><td colspan="7" style="text-align:center;">ไม่พบข้อมูล</td></tr>'; 
+            if(infoEl) infoEl.textContent = 'หน้า 0 / 0'; 
+            return; 
+        }
+        
+        const start = (loanCurrentPage - 1) * loanRowsPerPage; 
+        const pageData = loanFilteredData.slice(start, start + loanRowsPerPage);
+        
+        pageData.forEach((x, i) => { 
+            tb.innerHTML += '<tr><td style="text-align:center;">' + (start + i + 1) + '</td><td>' + escapeHTML(x.studentId) + '</td><td>' + escapeHTML(x.name) + '</td><td>' + escapeHTML(x.faculty) + '</td><td style="text-align:center;">' + escapeHTML(String(x.gpa)) + '</td><td style="text-align:center;">' + escapeHTML(String(x.credits)) + '</td><td style="text-align:center;">' + (x.status === 'Submitted' ? '<span style="color:green;font-weight:bold;">ยื่นแล้ว</span>' : '<span style="color:red;">ยังไม่ยื่น</span>') + '</td></tr>'; 
+        });
+        
+        const total = Math.ceil(loanFilteredData.length / loanRowsPerPage);
+        if(infoEl) infoEl.textContent = `หน้า ${loanCurrentPage} / ${total} (ทั้งหมด ${loanFilteredData.length} รายการ)`;
+        if(btnP) btnP.disabled = (loanCurrentPage === 1);
+        if(btnN) btnN.disabled = (loanCurrentPage === total);
+    }
 
 </script>
 </body>
