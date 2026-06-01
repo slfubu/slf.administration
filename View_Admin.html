@@ -3803,7 +3803,7 @@
         }
     };
 
-    window.uploadOverExcel = () => { 
+    window.uploadOverExcel = async () => { 
         const fileInput = document.getElementById('overExcelInput');
         if(!fileInput) return;
         const file = fileInput.files[0]; 
@@ -3817,9 +3817,28 @@
             return;
         }
         
+        const { value: formValues } = await Swal.fire({
+            title: 'ตั้งค่าเงื่อนไขการนำเข้า',
+            html:
+                '<p style="font-size: 14px; color: #555;">ระบุ 2 หลักแรกของรหัสนักศึกษาที่ <b>ไม่อนุญาต</b> ให้นำเข้า<br>เช่น 64,65 (หากไม่มีให้เว้นว่างไว้)</p>' +
+                '<input id="swal-input-over" class="swal2-input" placeholder="เช่น 64,65,68">',
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: 'อัปโหลดข้อมูล',
+            cancelButtonText: 'ยกเลิก',
+            confirmButtonColor: '#e65100',
+            preConfirm: () => {
+                const val = document.getElementById('swal-input-over').value;
+                if(!val) return [];
+                return val.split(',').map(s => s.trim()).filter(s => s.length === 2);
+            }
+        });
+
+        if (formValues === undefined) return; 
+        
         Swal.fire({
             title: 'กำลังนำเข้าข้อมูล', 
-            text: 'กรุณารอสักครู่...', 
+            text: 'กรุณารอสักครู่ ห้ามปิดหน้าต่างนี้...', 
             allowOutsideClick: false, 
             didOpen: () => {Swal.showLoading()}
         }); 
@@ -3831,6 +3850,7 @@
                     fileName: file.name,
                     mimeType: file.type || "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                     content: e.target.result.split(',')[1],
+                    blockedPrefixes: formValues,
                     adminId: adminId,
                     token: userToken
                 });
@@ -3839,7 +3859,7 @@
                     Swal.fire('สำเร็จ', x.message, 'success');
                     fileInput.value = '';
                 } else {
-                    Swal.fire('ผิดพลาด', x.message, 'error');
+                    Swal.fire('แจ้งเตือน', x.message, 'warning');
                 }
                 loadAdminOverLoanStats();
                 loadOverLoanAdminTable();
