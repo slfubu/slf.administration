@@ -158,14 +158,27 @@
                             </div>
                             <div id="resetStep2Area" style="display: none; animation: fadeIn 0.5s;">
                                 <hr style="margin: 20px 0; border: 0; border-top: 1px dashed #ccc;">
-                                <div class="modern-input-group">
-                                    <input type="password" id="resetNewPassword" class="modern-input" minlength="6" placeholder=" ">
+                                
+                                <div class="modern-input-group" style="position: relative;">
+                                    <input type="password" id="resetNewPassword" class="modern-input" minlength="6" placeholder=" " required style="padding-right: 40px;">
                                     <label for="resetNewPassword" class="modern-label">รหัสผ่านใหม่</label>
+                                    <i class="material-icons" 
+                                       onclick="togglePasswordVisibility('resetNewPassword', this)" 
+                                       style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #999; user-select: none; z-index: 10;">
+                                        visibility_off
+                                    </i>
                                 </div>
-                                <div class="modern-input-group">
-                                    <input type="password" id="resetConfirmPassword" class="modern-input" minlength="6" placeholder=" ">
+
+                                <div class="modern-input-group" style="position: relative;">
+                                    <input type="password" id="resetConfirmPassword" class="modern-input" minlength="6" placeholder=" " required style="padding-right: 40px;">
                                     <label for="resetConfirmPassword" class="modern-label">ยืนยันรหัสผ่านใหม่</label>
+                                    <i class="material-icons" 
+                                       onclick="togglePasswordVisibility('resetConfirmPassword', this)" 
+                                       style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #999; user-select: none; z-index: 10;">
+                                        visibility_off
+                                    </i>
                                 </div>
+
                                 <button type="submit" id="btnResetSubmit" class="btn-login-new" style="background: linear-gradient(135deg, #e65100 0%, #ff9800 100%); width:100%">ยืนยันการเปลี่ยนรหัสผ่าน</button>
                             </div>
                         </form>
@@ -201,6 +214,21 @@
         } catch (e) {
             clearTimeout(timeoutId);
             return "Unknown IP (Blocked/Timeout)"; 
+        }
+    }
+
+    function togglePasswordVisibility(inputId, iconElement) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            iconElement.textContent = 'visibility';
+            iconElement.style.color = 'var(--secondary-color)';
+        } else {
+            input.type = 'password';
+            iconElement.textContent = 'visibility_off';
+            iconElement.style.color = '#999';
         }
     }
 
