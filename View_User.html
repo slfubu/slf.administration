@@ -953,22 +953,20 @@
         const imgEl = document.getElementById('cardProfileImg');
         if (currentUser.profileImage && currentUser.profileImage !== 'undefined' && currentUser.profileImage !== "") {
             let imageId = currentUser.profileImage;
+            // ดึงเฉพาะ ID ของรูปออกมา
             if (imageId.includes('id=')) imageId = imageId.split('id=')[1].split('&')[0];
             else if (imageId.includes('/d/')) imageId = imageId.split('/d/')[1].split('/')[0];
         
-            imgEl.onerror = null;
-            imgEl.src = "https://lh3.googleusercontent.com/d/" + imageId;
+            imgEl.src = "https://drive.google.com/uc?export=view&id=" + imageId;
             imgEl.style.display = 'block';
             
             imgEl.onerror = function() {
                 this.onerror = null; 
-                this.src = "https://drive.google.com/uc?export=view&id=" + imageId;
+                this.src = "https://drive.google.com/thumbnail?id=" + imageId;
             };
         } else {
             imgEl.style.display = 'none'; 
         }
-        loadMyQueue();
-    }
 
     document.getElementById('uploadProfileInput').addEventListener('change', function() {
         const file = this.files[0];
