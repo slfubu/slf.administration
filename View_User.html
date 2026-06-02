@@ -1327,43 +1327,57 @@
         }
     }
 
-    // 13. ตรวจสอบสิทธิ์กู้ 2569
-    async function checkMyEligibility() {
-        showLoading('ระบบกำลังตรวจสอบสิทธิ์');
-        try {
-            const res = await callApi('checkStudentEligibility2569', {
-                studentId: currentUser.studentId,
-                token: userToken
-            });
-            hideLoading();
-            if (res.status === 'not_found') {
-                Swal.fire('ไม่พบสิทธิ์', 'ท่านไม่อยู่ในกลุ่มผู้มีสิทธิ์กู้ปกติ ปี 2569', 'error');
-            } else if (res.status === 'submitted') {
-                showLoanSummary(res.data); updateStepper(3, 'loan-step');
-            } else if (res.status === 'eligible_check') {
-                document.getElementById('loanStep1').style.display = 'none';
-                document.getElementById('loanStep2').style.display = 'block';
-                updateStepper(2, 'loan-step');
-                
-                document.getElementById('loanInfoCard').innerHTML = `
-                    <b>ข้อมูลสิทธิ์:</b> ${escapeHTML(res.studentInfo.name || (currentUser.prefix + currentUser.firstName + ' ' + currentUser.lastName))}<br>
-                    <span style="font-size: 13px; color: #555;">รหัส: ${escapeHTML(res.studentInfo.studentId || currentUser.studentId)} | คณะ: ${escapeHTML(res.studentInfo.faculty || currentUser.faculty || '-')}</span><br>
-                    <div style="margin-top:5px; border-top:1px dashed #ccc; padding-top:5px;">GPA: <b>${escapeHTML(res.studentInfo.gpa)}</b> | จิตอาสา: <b>${escapeHTML(res.studentInfo.credits)}</b></div>
-                `;
-
-                if (res.passed) {
-                    document.getElementById('loanFailMessage').style.display = 'none';
-                    document.getElementById('loanFormArea').style.display = 'block';
-                } else {
-                    document.getElementById('loanFailMessage').style.display = 'block';
-                    document.getElementById('loanFormArea').style.display = 'none';
+   async function checkMyEligibility() {
+    showLoading('ระบบกำลังตรวจสอบสิทธิ์');
+    try {
+        const res = await callApi('checkStudentEligibility2569', {
+            studentId: currentUser.studentId,
+            token: userToken
+        });
+        hideLoading();
+        if (res.status === 'not_found') {
+            Swal.fire('ไม่พบสิทธิ์', 'ท่านไม่อยู่ในกลุ่มผู้มีสิทธิ์กู้ปกติ ปี 2569', 'error');
+        } else if (res.status === 'submitted') {
+            showLoanSummary(res.data); updateStepper(3, 'loan-step');
+        } else if (res.status === 'no_profile') {
+            // ระบบแจ้งเตือนกรณีไม่มีประวัติ
+            Swal.fire({
+                icon: 'warning',
+                title: 'ไม่พบข้อมูลประวัติส่วนตัว',
+                text: 'ท่านยังไม่ได้บันทึกข้อมูลประวัติในระบบ ไม่สามารถทำรายการได้ กรุณายื่นคำร้อง "ขอปรับปรุงข้อมูลประวัติ" นอกรอบ',
+                showCancelButton: true,
+                confirmButtonText: 'ไปหน้ายื่นคำร้อง',
+                cancelButtonText: 'ปิด',
+                confirmButtonColor: '#1976D2'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    goToPetitionFromFail('1'); // ไปยื่นคำร้องหัวข้อที่ 1
                 }
+            });
+        } else if (res.status === 'eligible_check') {
+            document.getElementById('loanStep1').style.display = 'none';
+            document.getElementById('loanStep2').style.display = 'block';
+            updateStepper(2, 'loan-step');
+            
+            document.getElementById('loanInfoCard').innerHTML = `
+                <b>ข้อมูลสิทธิ์:</b> ${escapeHTML(res.studentInfo.name || (currentUser.prefix + currentUser.firstName + ' ' + currentUser.lastName))}<br>
+                <span style="font-size: 13px; color: #555;">รหัส: ${escapeHTML(res.studentInfo.studentId || currentUser.studentId)} | คณะ: ${escapeHTML(res.studentInfo.faculty || currentUser.faculty || '-')}</span><br>
+                <div style="margin-top:5px; border-top:1px dashed #ccc; padding-top:5px;">GPA: <b>${escapeHTML(res.studentInfo.gpa)}</b> | จิตอาสา: <b>${escapeHTML(res.studentInfo.credits)}</b></div>
+            `;
+
+            if (res.passed) {
+                document.getElementById('loanFailMessage').style.display = 'none';
+                document.getElementById('loanFormArea').style.display = 'block';
+            } else {
+                document.getElementById('loanFailMessage').style.display = 'block';
+                document.getElementById('loanFormArea').style.display = 'none';
             }
-        } catch (err) {
-            hideLoading();
-            showAlert(err.message, 'error');
         }
+    } catch (err) {
+        hideLoading();
+        showAlert(err.message, 'error');
     }
+}
 
     function goToPetitionFromFail(type) {
         showSection('userPetitionSection');
@@ -1461,38 +1475,52 @@
         updateStepper(1, 'over-step');
     }
 
-    // 15. เช็คสิทธิ์กู้เกิน
-    async function checkMyOverEligibility() {
-        showLoading('ระบบกำลังตรวจสอบสิทธิ์');
-        try {
-            const res = await callApi('checkStudentOverEligibility', {
-                studentId: currentUser.studentId,
-                token: userToken
-            });
-            hideLoading();
-            if(res.status === 'not_found') Swal.fire('ไม่พบสิทธิ์', res.message, 'error');
-            else if(res.status === 'submitted') {
-                showOverLoanSummary(res.data); updateStepper(3, 'over-step');
-            } else if (res.status === 'eligible_check') {
-                document.getElementById('overStep1').style.display = 'none';
-                document.getElementById('overStep2').style.display = 'block';
-                updateStepper(2, 'over-step');
-                
-                document.getElementById('overInfoBox').innerHTML = `<b>สิทธิ์กู้:</b> ${escapeHTML(res.studentInfo.name)}<br><span style="font-size: 13px; color: #555;">รหัส: ${escapeHTML(res.studentInfo.studentId)} | คณะ: ${escapeHTML(res.studentInfo.faculty)}</span><br><div style="margin-top:5px; border-top:1px dashed #ce93d8; padding-top:5px;">GPA: <b>${escapeHTML(res.studentInfo.gpa)}</b> | หน่วยกิตจิตอาสา: <b>${escapeHTML(res.studentInfo.credits)}</b></div>`;
-                
-                if(res.passed) {
-                    document.getElementById('overLoanFailMessage').style.display = 'none';
-                    document.getElementById('overLoanFormArea').style.display = 'block';
-                } else {
-                    document.getElementById('overLoanFailMessage').style.display = 'block';
-                    document.getElementById('overLoanFormArea').style.display = 'none';
+   async function checkMyOverEligibility() {
+    showLoading('ระบบกำลังตรวจสอบสิทธิ์');
+    try {
+        const res = await callApi('checkStudentOverEligibility', {
+            studentId: currentUser.studentId,
+            token: userToken
+        });
+        hideLoading();
+        if(res.status === 'not_found') Swal.fire('ไม่พบสิทธิ์', res.message, 'error');
+        else if(res.status === 'submitted') {
+            showOverLoanSummary(res.data); updateStepper(3, 'over-step');
+        } else if (res.status === 'no_profile') {
+            // ระบบแจ้งเตือนกรณีไม่มีประวัติ
+            Swal.fire({
+                icon: 'warning',
+                title: 'ไม่พบข้อมูลประวัติส่วนตัว',
+                text: 'ท่านยังไม่ได้บันทึกข้อมูลประวัติในระบบ ไม่สามารถทำรายการได้ กรุณายื่นคำร้อง "ขอปรับปรุงข้อมูลประวัติ" นอกรอบ',
+                showCancelButton: true,
+                confirmButtonText: 'ไปหน้ายื่นคำร้อง',
+                cancelButtonText: 'ปิด',
+                confirmButtonColor: '#7b1fa2' // สีม่วงของธีมกู้เกิน
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    goToPetitionFromFail('1'); // ไปยื่นคำร้องหัวข้อที่ 1
                 }
+            });
+        } else if (res.status === 'eligible_check') {
+            document.getElementById('overStep1').style.display = 'none';
+            document.getElementById('overStep2').style.display = 'block';
+            updateStepper(2, 'over-step');
+            
+            document.getElementById('overInfoBox').innerHTML = `<b>สิทธิ์กู้:</b> ${escapeHTML(res.studentInfo.name)}<br><span style="font-size: 13px; color: #555;">รหัส: ${escapeHTML(res.studentInfo.studentId)} | คณะ: ${escapeHTML(res.studentInfo.faculty)}</span><br><div style="margin-top:5px; border-top:1px dashed #ce93d8; padding-top:5px;">GPA: <b>${escapeHTML(res.studentInfo.gpa)}</b> | หน่วยกิตจิตอาสา: <b>${escapeHTML(res.studentInfo.credits)}</b></div>`;
+            
+            if(res.passed) {
+                document.getElementById('overLoanFailMessage').style.display = 'none';
+                document.getElementById('overLoanFormArea').style.display = 'block';
+            } else {
+                document.getElementById('overLoanFailMessage').style.display = 'block';
+                document.getElementById('overLoanFormArea').style.display = 'none';
             }
-        } catch (err) {
-            hideLoading();
-            showAlert(err.message, 'error');
         }
+    } catch (err) {
+        hideLoading();
+        showAlert(err.message, 'error');
     }
+}
 
     function toggleOverTuition() {
         const val = document.getElementById('overType').value;
