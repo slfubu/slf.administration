@@ -45,6 +45,9 @@
                         <i class="material-icons">settings_applications</i><span>จัดการเปิด-ปิด เมนูระบบ</span>
                     </a>
                 </li>
+                <a href="#" class="nav-link" onclick="switchAdminMenu('section-admin-verify', this)">
+                <i class="material-icons">manage_accounts</i> ยืนยันตัวตน/รีเซ็ตรหัส
+                </a>
                 <li class="nav-item admin-nav" style="display:block;">
                     <a href="#" id="navAdminSpecialAccess" class="nav-link">
                         <i class="material-icons">how_to_reg</i><span>จัดการสิทธิ์ประวัตินอกรอบ</span>
@@ -257,6 +260,65 @@
                         </div>
                     </div>
                 </div>
+
+                <div id="section-admin-verify" class="content-section" style="display: none;">
+    <div class="header-with-action">
+        <h2 class="section-title"><i class="material-icons" style="vertical-align: middle;">manage_accounts</i> บริการยืนยันตัวตนและรีเซ็ตรหัสผ่าน</h2>
+    </div>
+
+    <div class="card" style="max-width: 600px; margin: 0 auto;">
+        <div class="card-body">
+            <p style="color: #666; font-size: 14px; margin-bottom: 20px;">
+                สำหรับแอดมิน: กรอกรหัสนักศึกษาเพื่อตรวจสอบประวัติ และกรอกเลขบัตรประจำตัวประชาชนเพื่อยืนยันสิทธิ์และรีเซ็ตรหัสผ่านให้กับนักศึกษา
+            </p>
+            
+            <div id="adminVerifyStep1">
+                <div class="modern-input-group">
+                    <input type="text" id="adminCheckStudentId" class="modern-input" placeholder=" " required>
+                    <label for="adminCheckStudentId" class="modern-label">กรอกรหัสนักศึกษา 11 หลัก</label>
+                </div>
+                <button type="button" id="btnAdminCheckVerify" class="btn-primary" style="width: 100%; padding: 12px; font-size: 16px;">
+                    <i class="material-icons" style="vertical-align: middle; font-size: 18px;">search</i> ตรวจสอบข้อมูลในระบบ
+                </button>
+            </div>
+
+            <div id="adminVerifyStep2" style="display: none; animation: fadeIn 0.5s; margin-top: 25px;">
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid var(--secondary-color); margin-bottom: 20px; font-size: 14px; line-height: 1.6;">
+                    <div><b>ชื่อ-สกุล:</b> <span id="adm_ver_name">-</span></div>
+                    <div><b>รหัสนักศึกษา:</b> <span id="adm_ver_studentId">-</span></div>
+                    <hr style="border: 0; border-top: 1px dashed #ccc; margin: 10px 0;">
+                    <div><b>สถานะประวัติ กยศ.:</b> <span id="adm_ver_profileStatus">-</span></div>
+                    <div><b>ปรับปรุงล่าสุดเมื่อ:</b> <span id="adm_ver_updatedAt">-</span></div>
+                </div>
+                
+                <div id="admAlreadyVerifiedMessage" style="display: none; background: #e8f5e9; color: #2e7d32; padding: 15px; border-radius: 6px; text-align: center; font-weight: bold; margin-bottom: 15px; border: 1px solid #c8e6c9;">
+                    <i class="material-icons" style="vertical-align: middle; font-size: 24px; display: block; margin-bottom: 5px;">verified</i> 
+                    บัญชีนี้ได้รับการยืนยันตัวตนเรียบร้อยแล้ว
+                </div>
+
+                <form id="adminVerifyIdentityForm" style="display: none;">
+                    <div class="modern-input-group">
+                        <input type="text" id="adminVerifyIdCardInput" class="modern-input" maxlength="13" placeholder=" " required>
+                        <label for="adminVerifyIdCardInput" class="modern-label">กรอกเลขบัตรประจำตัวประชาชน 13 หลัก</label>
+                    </div>
+                    <button type="submit" id="btnAdminSubmitVerify" class="btn-success" style="width: 100%; padding: 12px; font-size: 16px;">
+                        <i class="material-icons" style="vertical-align: middle; font-size: 18px;">save</i> บันทึกยืนยันและรีเซ็ตรหัสผ่าน
+                    </button>
+                    <p style="font-size: 13px; color: #d32f2f; text-align: center; margin-top: 10px;">
+                        *ระบบจะทำการรีเซ็ตรหัสผ่านของนักศึกษาให้เป็น "เลขบัตร ปชช. 13 หลัก" ทันที
+                    </p>
+                </form>
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <button type="button" class="btn-danger" onclick="resetAdminVerifyForm()" style="padding: 8px 15px; font-size: 14px;">
+                        ยกเลิก / ค้นหาใหม่
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
 
                 <div id="adminManageProfilesSection" class="section">
                     <div class="card">
@@ -2025,7 +2087,7 @@
     }
     
     function showAlert(msg, type = 'success') { 
-        Swal.fire({ icon: type, title: type === 'success' ? 'สำเร็จ' : 'แจ้งเตือน', text: msg, confirmButtonColor: 'var(--secondary-color)' }); 
+        Swal.fire({ icon: type, title: type === 'success' ? 'ทำรายการสำเร็จ' : 'แจ้งเตือน', text: msg, confirmButtonColor: 'var(--secondary-color)' }); 
     }
     
     function maskString(str, type) {
@@ -2609,7 +2671,7 @@
             if(checkAuthError(res)) { hideLoading(); return; }
             hideLoading();
             if (res.success) { 
-                Swal.fire('สำเร็จ', res.message, 'success'); 
+                Swal.fire('ทำรายการสำเร็จ', res.message, 'success'); 
                 loadSuspendedUsers(); 
                 loadUsersForAdmin(true); 
             } else {
@@ -3055,7 +3117,7 @@
                 hideLoading(); 
                 
                 if (r.success) { 
-                    Swal.fire('สำเร็จ', '', 'success'); 
+                    Swal.fire('ทำรายการสำเร็จ', '', 'success'); 
                     const modal = document.getElementById('addActivityModal');
                     if(modal) modal.style.display = 'none'; 
                     loadActivitiesForAdmin(); 
@@ -3102,7 +3164,7 @@
                 hideLoading(); 
                 
                 if (r.success) { 
-                    Swal.fire('สำเร็จ', '', 'success'); 
+                    Swal.fire('ทำรายการสำเร็จ', '', 'success'); 
                     const modal = document.getElementById('editActivityModal');
                     if(modal) modal.style.display = 'none'; 
                     loadActivitiesForAdmin(); 
@@ -3589,7 +3651,7 @@
                 });
                 
                 if (r.success) {
-                    Swal.fire('สำเร็จ', r.message, 'success'); 
+                    Swal.fire('ทำรายการสำเร็จ', r.message, 'success'); 
                     loadAdminLoanStats();
                     fileInput.value = ''; 
                 } else {
@@ -3768,7 +3830,7 @@
             });
             if(checkAuthError(res)) { hideLoading(); return; }
             hideLoading(); 
-            Swal.fire('สำเร็จ', '', 'success'); 
+            Swal.fire('ทำรายการสำเร็จ', '', 'success'); 
         } catch(err) {
             hideLoading();
             Swal.fire('Error', err.message, 'error');
@@ -3907,7 +3969,7 @@
                 });
                 
                 if (x.success) {
-                    Swal.fire('สำเร็จ', x.message, 'success');
+                    Swal.fire('ทำรายการสำเร็จ', x.message, 'success');
                     fileInput.value = '';
                 } else {
                     Swal.fire('แจ้งเตือน', x.message, 'warning');
@@ -3955,7 +4017,7 @@
                 });
                 
                 if (x.success) {
-                    Swal.fire('สำเร็จ', `สำเร็จ ${x.updateCount} รายการ`, 'success');
+                    Swal.fire('ทำรายการสำเร็จ', `ทำรายการสำเร็จ ${x.updateCount} รายการ`, 'success');
                     fileInput.value = '';
                 } else {
                     Swal.fire('ผิดพลาด', x.message, 'error');
@@ -4107,7 +4169,7 @@
                     token: userToken
                 });
                 if (x.success) {
-                    Swal.fire('สำเร็จ', x.message, 'success'); 
+                    Swal.fire('ทำรายการสำเร็จ', x.message, 'success'); 
                     fileInput.value = '';
                 } else {
                     Swal.fire('ผิดพลาด', x.message, 'error');
@@ -4300,7 +4362,7 @@
             if(checkAuthError(res)) { hideLoading(); return; }
             hideLoading();
             
-            Swal.fire('สำเร็จ','อัปเดตเมนูเรียบร้อย','success');
+            Swal.fire('ทำรายการสำเร็จ','อัปเดตเมนูเรียบร้อย','success');
         } catch(err) {
             hideLoading();
             Swal.fire('Error', err.message, 'error');
@@ -4344,7 +4406,7 @@
             if(checkAuthError(res)) { hideLoading(); return; }
             hideLoading(); 
             
-            Swal.fire('สำเร็จ', '', 'success'); 
+            Swal.fire('ทำรายการสำเร็จ', '', 'success'); 
             loadSpecialAccessList(); 
             const resArea = document.getElementById('specialAccessResultArea');
             const saInput = document.getElementById('specialAccessSearchInput');
@@ -4642,6 +4704,106 @@
         if(btnP) btnP.disabled = (loanCurrentPage === 1);
         if(btnN) btnN.disabled = (loanCurrentPage === total);
     }
+    // ฟังก์ชันล้างฟอร์ม
+function resetAdminVerifyForm() {
+    document.getElementById('adminVerifyStep1').style.display = 'block';
+    document.getElementById('adminCheckStudentId').readOnly = false;
+    document.getElementById('adminCheckStudentId').value = '';
+    
+    document.getElementById('adminVerifyStep2').style.display = 'none';
+    document.getElementById('adminVerifyIdCardInput').value = '';
+}
+
+// ตรวจสอบข้อมูลโดย Admin
+document.getElementById('btnAdminCheckVerify').onclick = async () => {
+    const studentId = document.getElementById('adminCheckStudentId').value.trim();
+    if (!studentId) return showAlert('กรุณากรอกรหัสนักศึกษา', 'warning');
+    
+    showLoading('กำลังค้นหาข้อมูล...');
+    try {
+        const res = await callApi("checkStudentForVerification", { 
+            studentId: studentId,
+            adminId: currentUser.studentId,
+            token: userToken 
+        });
+        hideLoading();
+        
+        if (res.success) {
+            document.getElementById('adminVerifyStep1').style.display = 'none';
+            document.getElementById('adminVerifyStep2').style.display = 'block';
+            
+            document.getElementById('adm_ver_name').textContent = res.data.name;
+            document.getElementById('adm_ver_studentId').textContent = res.data.studentId;
+            
+            const pStatus = document.getElementById('adm_ver_profileStatus');
+            if (res.data.hasProfile) {
+                pStatus.innerHTML = '<span style="color: #2e7d32; font-weight:bold;">บันทึกข้อมูลแล้ว</span>';
+                document.getElementById('adm_ver_updatedAt').textContent = formatDate(res.data.updatedAt);
+            } else {
+                pStatus.innerHTML = '<span style="color: #d32f2f; font-weight:bold;">ยังไม่ได้บันทึกข้อมูล</span>';
+                document.getElementById('adm_ver_updatedAt').textContent = '-';
+            }
+            
+            if (res.isVerified) {
+                document.getElementById('admAlreadyVerifiedMessage').style.display = 'block';
+                document.getElementById('adminVerifyIdentityForm').style.display = 'none';
+            } else {
+                document.getElementById('admAlreadyVerifiedMessage').style.display = 'none';
+                document.getElementById('adminVerifyIdentityForm').style.display = 'block';
+            }
+        } else {
+            showAlert(res.message, 'error');
+        }
+    } catch (err) {
+        hideLoading();
+        showAlert(err.message, 'error');
+    }
+};
+
+// บันทึกยืนยันและรีเซ็ตรหัสโดย Admin
+document.getElementById('adminVerifyIdentityForm').onsubmit = async (e) => {
+    e.preventDefault();
+    const studentId = document.getElementById('adminCheckStudentId').value.trim();
+    const idCard = document.getElementById('adminVerifyIdCardInput').value.trim();
+    
+    // ตรวจสอบบัตร 13 หลัก
+    if (!/^[0-9]{13}$/.test(idCard)) {
+        return showAlert('กรุณากรอกเลขบัตรประชาชน 13 หลักให้ถูกต้อง', 'warning');
+    }
+    
+    Swal.fire({
+        title: 'ยืนยันการดำเนินการ?',
+        text: `ต้องการยืนยันตัวตนและรีเซ็ตรหัสผ่านให้นักศึกษารหัส ${studentId} ใช่หรือไม่?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'ใช่, ดำเนินการ',
+        cancelButtonText: 'ยกเลิก'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            showLoading('กำลังบันทึกและรีเซ็ตรหัสผ่าน...');
+            try {
+                const res = await callApi("submitIdentityVerification", { 
+                    studentId: studentId, 
+                    idCard: idCard,
+                    adminId: currentUser.studentId,
+                    token: userToken
+                });
+                hideLoading();
+                
+                if (res.success) {
+                    Swal.fire('ทำรายการสำเร็จ', res.message, 'success').then(() => {
+                        resetAdminVerifyForm();
+                    });
+                } else {
+                    showAlert(res.message, 'error');
+                }
+            } catch (err) {
+                hideLoading();
+                showAlert(err.message, 'error');
+            }
+        }
+    });
+};
 
 </script>
 </body>
