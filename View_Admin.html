@@ -50,7 +50,7 @@
                 
                 <li class="nav-item admin-nav" style="display:block;">
                 <a href="#" id="navAdminVerify" class="nav-link">
-                      <i class="material-icons">manage_accounts</i><span>ยืนยันตัวตน-รีเซ็ตรหัสผ่าน</span>
+                      <i class="material-icons">manage_accounts</i><span>ยืนยันตัวตนและรีเซ็ตรหัสผ่าน</span>
                    </a>
                 </li>
                 
@@ -68,7 +68,7 @@
                 </li>
                 <li class="nav-item admin-nav" style="display:block;">
                     <a href="#" id="navSuspendSystem" class="nav-link">
-                        <i class="material-icons">block</i><span>ตรวจสอบการระงับบัญชี</span>
+                        <i class="material-icons">block</i><span>ตรวจสอบระงับบัญชี</span>
                     </a>
                 </li>
                 <li class="nav-item admin-nav" style="display:block;">
@@ -3872,24 +3872,35 @@
     };
 
     window.downloadAdminReport = async () => { 
-        showLoading(); 
+        showLoading('กำลังประมวลผลรายงาน'); 
         const reportTypeEl = document.querySelector('input[name="reportType"]:checked');
         const facultyEl = document.getElementById('reportFaculty');
         if(!reportTypeEl || !facultyEl) { hideLoading(); return; }
         
         try {
-            const r = await callApi("getAdminReportCSV", { reportType: reportTypeEl.value, faculty: facultyEl.value, adminId: adminId, token: userToken });
+            const r = await callApi("getAdminReportCSV", { 
+                reportType: reportTypeEl.value, 
+                faculty: facultyEl.value, 
+                adminId: adminId, 
+                token: userToken 
+            });
+            
             if(checkAuthError(r)) { hideLoading(); return; }
             hideLoading(); 
             
             if (r.success) {
-                downloadCSV(r.csvData, 'Loan2569_Report.csv'); 
+                const fileNameMap = {
+                    'submitted': 'ผู้ยื่นคำร้องแล้ว_กยศ2569.csv',
+                    'ineligible': 'ผู้ขาดคุณสมบัติ_กยศ2569.csv',
+                    'not_submitted': 'ยังไม่ดำเนินการ_กยศ2569.csv'
+                };
+                downloadCSV(r.csvData, fileNameMap[reportTypeEl.value] || 'Loan2569_Report.csv'); 
             } else {
-                Swal.fire('Error', r.message, 'error');
+                Swal.fire('แจ้งเตือน', r.message, 'info');
             }
         } catch(err) {
             hideLoading();
-            Swal.fire('Error', err.message, 'error');
+            Swal.fire('ข้อผิดพลาด', err.message, 'error');
         }
     };
 
