@@ -1340,18 +1340,18 @@
         } else if (res.status === 'submitted') {
             showLoanSummary(res.data); updateStepper(3, 'loan-step');
         } else if (res.status === 'no_profile') {
-            // ระบบแจ้งเตือนกรณีไม่มีประวัติ
+            // ระบบแจ้งเตือนกรณีไม่มีประวัติ (ถ้อยคำทางการ)
             Swal.fire({
                 icon: 'warning',
-                title: 'ไม่พบข้อมูลประวัติส่วนตัว',
-                text: 'ท่านยังไม่ได้บันทึกข้อมูลประวัติในระบบ ไม่สามารถทำรายการได้ กรุณายื่นคำร้อง "ขอปรับปรุงข้อมูลประวัติ" นอกรอบ',
+                title: 'ไม่พบข้อมูลประวัติส่วนบุคคล',
+                text: 'ระบบไม่สามารถทำรายการได้ เนื่องจากไม่พบข้อมูลประวัติส่วนบุคคลของท่านในฐานข้อมูล กรุณาดำเนินการยื่นคำร้อง "ขอปรับปรุงข้อมูลประวัติ" ผ่านระบบคำร้องออนไลน์ เพื่อดำเนินการในขั้นตอนต่อไป',
                 showCancelButton: true,
                 confirmButtonText: 'ไปหน้ายื่นคำร้อง',
-                cancelButtonText: 'ปิด',
+                cancelButtonText: 'ปิดหน้าต่าง',
                 confirmButtonColor: '#1976D2'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    goToPetitionFromFail('1'); // ไปยื่นคำร้องหัวข้อที่ 1
+                    goToPetitionFromFail('1'); // ไปหน้ายื่นคำร้อง หัวข้อที่ 1
                 }
             });
         } else if (res.status === 'eligible_check') {
@@ -1487,18 +1487,18 @@
         else if(res.status === 'submitted') {
             showOverLoanSummary(res.data); updateStepper(3, 'over-step');
         } else if (res.status === 'no_profile') {
-            // ระบบแจ้งเตือนกรณีไม่มีประวัติ
+            // ระบบแจ้งเตือนกรณีไม่มีประวัติ (ถ้อยคำทางการ - สีปุ่มโทนม่วง)
             Swal.fire({
                 icon: 'warning',
-                title: 'ไม่พบข้อมูลประวัติส่วนตัว',
-                text: 'ท่านยังไม่ได้บันทึกข้อมูลประวัติในระบบ ไม่สามารถทำรายการได้ กรุณายื่นคำร้อง "ขอปรับปรุงข้อมูลประวัติ" นอกรอบ',
+                title: 'ไม่พบข้อมูลประวัติส่วนบุคคล',
+                text: 'ระบบไม่สามารถทำรายการได้ เนื่องจากไม่พบข้อมูลประวัติส่วนบุคคลของท่านในฐานข้อมูล กรุณาดำเนินการยื่นคำร้อง "ขอปรับปรุงข้อมูลประวัติ" ผ่านระบบคำร้องออนไลน์ เพื่อดำเนินการในขั้นตอนต่อไป',
                 showCancelButton: true,
                 confirmButtonText: 'ไปหน้ายื่นคำร้อง',
-                cancelButtonText: 'ปิด',
-                confirmButtonColor: '#7b1fa2' // สีม่วงของธีมกู้เกิน
+                cancelButtonText: 'ปิดหน้าต่าง',
+                confirmButtonColor: '#7b1fa2' 
             }).then((result) => {
                 if (result.isConfirmed) {
-                    goToPetitionFromFail('1'); // ไปยื่นคำร้องหัวข้อที่ 1
+                    goToPetitionFromFail('1'); // ไปหน้ายื่นคำร้อง หัวข้อที่ 1
                 }
             });
         } else if (res.status === 'eligible_check') {
