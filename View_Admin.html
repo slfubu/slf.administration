@@ -49,9 +49,9 @@
                 </li>
                 
                 <li class="nav-item admin-nav" style="display:block;">
-                    <a href="#" class="nav-link" onclick="switchAdminMenu('section-admin-verify', this)">
-                        <i class="material-icons">manage_accounts</i><span>ยืนยันตัวตน/รีเซ็ตรหัส</span>
-                    </a>
+                <a href="#" id="navAdminVerify" class="nav-link">
+                      <i class="material-icons">manage_accounts</i><span>ยืนยันตัวตน/รีเซ็ตรหัส</span>
+                   </a>
                 </li>
                 
                 <li class="nav-item admin-nav" style="display:block;">
@@ -267,7 +267,7 @@
                     </div>
                 </div>
 
-                <div id="section-admin-verify" class="content-section" style="display: none;">
+    <div id="section-admin-verify" class="section">
     <div class="header-with-action">
         <h2 class="section-title"><i class="material-icons" style="vertical-align: middle;">manage_accounts</i> บริการยืนยันตัวตนและรีเซ็ตรหัสผ่าน</h2>
     </div>
@@ -2242,6 +2242,7 @@
     setupNav('navAdminResignManage', 'adminResignManageSection');
     setupNav('navAdminMenuSettings', 'adminMenuSettingsSection');
     setupNav('navAdminOverLoan', 'adminOverLoanSection');
+    setupNav('navAdminVerify', 'section-admin-verify');
 
     document.querySelectorAll('.submenu-toggle').forEach(item => {
         item.addEventListener('click', function(e) {
@@ -4710,96 +4711,63 @@
         if(btnP) btnP.disabled = (loanCurrentPage === 1);
         if(btnN) btnN.disabled = (loanCurrentPage === total);
     }
+
     // ฟังก์ชันล้างฟอร์ม
 function resetAdminVerifyForm() {
     document.getElementById('adminVerifyStep1').style.display = 'block';
-    document.getElementById('adminCheckStudentId').readOnly = false;
-    document.getElementById('adminCheckStudentId').value = '';
+    const checkIdInput = document.getElementById('adminCheckStudentId');
+    if(checkIdInput) {
+        checkIdInput.readOnly = false;
+        checkIdInput.value = '';
+    }
     
     document.getElementById('adminVerifyStep2').style.display = 'none';
-    document.getElementById('adminVerifyIdCardInput').value = '';
+    const idCardInput = document.getElementById('adminVerifyIdCardInput');
+    if(idCardInput) idCardInput.value = '';
 }
 
-// ตรวจสอบข้อมูลโดย Admin
-document.getElementById('btnAdminCheckVerify').onclick = async () => {
-    const studentId = document.getElementById('adminCheckStudentId').value.trim();
-    if (!studentId) return showAlert('กรุณากรอกรหัสนักศึกษา', 'warning');
-    
-    showLoading('กำลังค้นหาข้อมูล...');
-    try {
-        const res = await callApi("checkStudentForVerification", { 
-            studentId: studentId,
-            adminId: currentUser.studentId,
-            token: userToken 
-        });
-        hideLoading();
-        
-        if (res.success) {
-            document.getElementById('adminVerifyStep1').style.display = 'none';
-            document.getElementById('adminVerifyStep2').style.display = 'block';
-            
-            document.getElementById('adm_ver_name').textContent = res.data.name;
-            document.getElementById('adm_ver_studentId').textContent = res.data.studentId;
-            
-            const pStatus = document.getElementById('adm_ver_profileStatus');
-            if (res.data.hasProfile) {
-                pStatus.innerHTML = '<span style="color: #2e7d32; font-weight:bold;">บันทึกข้อมูลแล้ว</span>';
-                document.getElementById('adm_ver_updatedAt').textContent = formatDate(res.data.updatedAt);
-            } else {
-                pStatus.innerHTML = '<span style="color: #d32f2f; font-weight:bold;">ยังไม่ได้บันทึกข้อมูล</span>';
-                document.getElementById('adm_ver_updatedAt').textContent = '-';
-            }
-            
-            if (res.isVerified) {
-                document.getElementById('admAlreadyVerifiedMessage').style.display = 'block';
-                document.getElementById('adminVerifyIdentityForm').style.display = 'none';
-            } else {
-                document.getElementById('admAlreadyVerifiedMessage').style.display = 'none';
-                document.getElementById('adminVerifyIdentityForm').style.display = 'block';
-            }
-        } else {
-            showAlert(res.message, 'error');
-        }
-    } catch (err) {
-        hideLoading();
-        showAlert(err.message, 'error');
-    }
-};
 
-// บันทึกยืนยันและรีเซ็ตรหัสโดย Admin
-document.getElementById('adminVerifyIdentityForm').onsubmit = async (e) => {
-    e.preventDefault();
-    const studentId = document.getElementById('adminCheckStudentId').value.trim();
-    const idCard = document.getElementById('adminVerifyIdCardInput').value.trim();
+document.addEventListener("DOMContentLoaded", () => {
     
-    // ตรวจสอบบัตร 13 หลัก
-    if (!/^[0-9]{13}$/.test(idCard)) {
-        return showAlert('กรุณากรอกเลขบัตรประชาชน 13 หลักให้ถูกต้อง', 'warning');
-    }
-    
-    Swal.fire({
-        title: 'ยืนยันการดำเนินการ?',
-        text: `ต้องการยืนยันตัวตนและรีเซ็ตรหัสผ่านให้นักศึกษารหัส ${studentId} ใช่หรือไม่?`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'ใช่, ดำเนินการ',
-        cancelButtonText: 'ยกเลิก'
-    }).then(async (result) => {
-        if (result.isConfirmed) {
-            showLoading('กำลังบันทึกและรีเซ็ตรหัสผ่าน...');
+
+    const btnCheckVerify = document.getElementById('btnAdminCheckVerify');
+    if (btnCheckVerify) {
+        btnCheckVerify.onclick = async () => {
+            const studentId = document.getElementById('adminCheckStudentId').value.trim();
+            if (!studentId) return showAlert('กรุณากรอกรหัสนักศึกษา', 'warning');
+            
+            showLoading('กำลังค้นหาข้อมูล...');
             try {
-                const res = await callApi("submitIdentityVerification", { 
-                    studentId: studentId, 
-                    idCard: idCard,
+                const res = await callApi("checkStudentForVerification", { 
+                    studentId: studentId,
                     adminId: currentUser.studentId,
-                    token: userToken
+                    token: userToken 
                 });
                 hideLoading();
                 
                 if (res.success) {
-                    Swal.fire('ทำรายการสำเร็จ', res.message, 'success').then(() => {
-                        resetAdminVerifyForm();
-                    });
+                    document.getElementById('adminVerifyStep1').style.display = 'none';
+                    document.getElementById('adminVerifyStep2').style.display = 'block';
+                    
+                    document.getElementById('adm_ver_name').textContent = res.data.name;
+                    document.getElementById('adm_ver_studentId').textContent = res.data.studentId;
+                    
+                    const pStatus = document.getElementById('adm_ver_profileStatus');
+                    if (res.data.hasProfile) {
+                        pStatus.innerHTML = '<span style="color: #2e7d32; font-weight:bold;">บันทึกข้อมูลแล้ว</span>';
+                        document.getElementById('adm_ver_updatedAt').textContent = formatDate(res.data.updatedAt);
+                    } else {
+                        pStatus.innerHTML = '<span style="color: #d32f2f; font-weight:bold;">ยังไม่ได้บันทึกข้อมูล</span>';
+                        document.getElementById('adm_ver_updatedAt').textContent = '-';
+                    }
+                    
+                    if (res.isVerified) {
+                        document.getElementById('admAlreadyVerifiedMessage').style.display = 'block';
+                        document.getElementById('adminVerifyIdentityForm').style.display = 'none';
+                    } else {
+                        document.getElementById('admAlreadyVerifiedMessage').style.display = 'none';
+                        document.getElementById('adminVerifyIdentityForm').style.display = 'block';
+                    }
                 } else {
                     showAlert(res.message, 'error');
                 }
@@ -4807,9 +4775,56 @@ document.getElementById('adminVerifyIdentityForm').onsubmit = async (e) => {
                 hideLoading();
                 showAlert(err.message, 'error');
             }
-        }
-    });
-};
+        };
+    }
+
+    const verifyIdentityForm = document.getElementById('adminVerifyIdentityForm');
+    if (verifyIdentityForm) {
+        verifyIdentityForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const studentId = document.getElementById('adminCheckStudentId').value.trim();
+            const idCard = document.getElementById('adminVerifyIdCardInput').value.trim();
+          
+            if (!/^[0-9]{13}$/.test(idCard)) {
+                return showAlert('กรุณากรอกเลขบัตรประชาชน 13 หลักให้ถูกต้อง', 'warning');
+            }
+            
+            Swal.fire({
+                title: 'ยืนยันการดำเนินการ?',
+                text: `ต้องการยืนยันตัวตนและรีเซ็ตรหัสผ่านให้นักศึกษารหัส ${studentId} ใช่หรือไม่?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'ใช่, ดำเนินการ',
+                cancelButtonText: 'ยกเลิก'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    showLoading('กำลังบันทึกและรีเซ็ตรหัสผ่าน...');
+                    try {
+                        const res = await callApi("submitIdentityVerification", { 
+                            studentId: studentId, 
+                            idCard: idCard,
+                            adminId: currentUser.studentId,
+                            token: userToken
+                        });
+                        hideLoading();
+                        
+                        if (res.success) {
+                            Swal.fire('ทำรายการสำเร็จ', res.message, 'success').then(() => {
+                                resetAdminVerifyForm();
+                            });
+                        } else {
+                            showAlert(res.message, 'error');
+                        }
+                    } catch (err) {
+                        hideLoading();
+                        showAlert(err.message, 'error');
+                    }
+                }
+            });
+        };
+    }
+});
+ 
 
 </script>
 </body>
