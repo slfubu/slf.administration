@@ -50,7 +50,7 @@
                 
                 <li class="nav-item admin-nav" style="display:block;">
                 <a href="#" id="navAdminVerify" class="nav-link">
-                      <i class="material-icons">manage_accounts</i><span>ยืนยันตัวตน/รีเซ็ตรหัส</span>
+                      <i class="material-icons">manage_accounts</i><span>ยืนยันตัวตนและรีเซ็ตรหัสผ่าน</span>
                    </a>
                 </li>
                 
@@ -275,7 +275,7 @@
     <div class="card" style="max-width: 600px; margin: 0 auto;">
         <div class="card-body">
             <p style="color: #666; font-size: 14px; margin-bottom: 20px;">
-                สำหรับแอดมิน: กรอกรหัสนักศึกษาเพื่อตรวจสอบประวัติ และกรอกเลขบัตรประจำตัวประชาชนเพื่อยืนยันสิทธิ์และรีเซ็ตรหัสผ่านให้กับนักศึกษา
+               กรอกรหัสนักศึกษาเพื่อตรวจสอบประวัติ และกรอกเลขบัตรประจำตัวประชาชนเพื่อยืนยันสิทธิ์และรีเซ็ตรหัสผ่านให้กับนักศึกษา
             </p>
             
             <div id="adminVerifyStep1">
@@ -4736,7 +4736,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const studentId = document.getElementById('adminCheckStudentId').value.trim();
             if (!studentId) return showAlert('กรุณากรอกรหัสนักศึกษา', 'warning');
             
-            showLoading('กำลังค้นหาข้อมูล...');
+            showLoading('กำลังตรวจสอบข้อมูลในระบบ');
             try {
                 const res = await callApi("checkStudentForVerification", { 
                     studentId: studentId,
