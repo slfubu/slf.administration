@@ -2924,8 +2924,22 @@
         const start = (imgCurrentPage - 1) * limit;
         
         currentFilteredImageReportData.slice(start, start + limit).forEach((i, idx) => {
-            const img = i.profileImage || 'https://placehold.co/150x150?text=NO+IMAGE';
-            const imgTag = '<img src="' + escapeHTML(img) + '" data-img="' + escapeHTML(img) + '" style="width:50px;height:60px;object-fit:cover;cursor:pointer;border-radius:4px;" onclick="openLightbox(this.getAttribute(\'data-img\'))">';
+            let imgTag = '';
+            // ตรวจสอบว่ามีรูปและดึง ID แปลงเป็นลิงก์ HTTPS 
+            if (i.profileImage && i.profileImage !== 'undefined' && i.profileImage !== "") {
+                let imageId = i.profileImage;
+                if (imageId.includes('id=')) imageId = imageId.split('id=')[1].split('&')[0];
+                else if (imageId.includes('/d/')) imageId = imageId.split('/d/')[1].split('/')[0];
+                else if (imageId.includes('picture/0')) imageId = imageId.split('picture/0')[1];
+
+                const driveSrc = `https://drive.google.com/uc?export=view&id=${imageId}`;
+                const fallbackSrc = `https://drive.google.com/thumbnail?id=${imageId}`;
+                
+                imgTag = `<img src="${driveSrc}" data-img="${driveSrc}" onerror="this.onerror=null; this.src='${fallbackSrc}'; this.setAttribute('data-img', '${fallbackSrc}');" style="width:50px;height:60px;object-fit:cover;cursor:pointer;border-radius:4px;" onclick="openLightbox(this.getAttribute('data-img'))">`;
+            } else {
+                imgTag = `<img src="https://placehold.co/150x150?text=NO+IMAGE" style="width:50px;height:60px;object-fit:cover;border-radius:4px;">`;
+            }
+
             const btnHistory = i.profileImage ? '<button class="btn btn-info btn-sm" onclick="viewImageHistory(\'' + escapeHTML(i.studentId) + '\')">ประวัติ</button>' : '<span style="color:#999;font-size:12px;">ไม่มีรูป</span>';
 
             tb.innerHTML += '<tr><td style="text-align:center;">' + (start + idx + 1) + '</td><td style="text-align:center;">' + imgTag + '</td><td style="font-weight:bold; color:var(--secondary-color);">' + escapeHTML(i.studentId) + '</td><td>' + escapeHTML(i.name) + '</td><td>' + escapeHTML(i.idCard || '-') + '</td><td>' + escapeHTML(i.faculty || '-') + '</td><td style="text-align:center;">' + btnHistory + '</td></tr>';
@@ -2978,9 +2992,24 @@
             const safeH = safeArray(h);
 
             if(!c) return;
-            c.innerHTML = safeH.length === 0 
-                ? '<div style="grid-column: 1/-1; text-align: center; color: #999;">ไม่พบประวัติ</div>' 
-                : safeH.map(x => '<div style="text-align:center; border:1px solid #eee; padding:10px; border-radius:8px;"><img src="' + escapeHTML(x.imageUrl) + '" data-img="' + escapeHTML(x.imageUrl) + '" style="width:100%;height:150px;object-fit:cover;cursor:pointer;border-radius:4px;" onclick="openLightbox(this.getAttribute(\'data-img\'))"><br><small style="color:#666;">' + escapeHTML(formatDate(x.timestamp)) + '</small></div>').join('');
+            if (safeH.length === 0) {
+                c.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #999;">ไม่พบประวัติ</div>';
+            } else {
+                c.innerHTML = safeH.map(x => {
+                    let imageId = x.imageUrl;
+                    if (imageId.includes('id=')) imageId = imageId.split('id=')[1].split('&')[0];
+                    else if (imageId.includes('/d/')) imageId = imageId.split('/d/')[1].split('/')[0];
+                    else if (imageId.includes('picture/0')) imageId = imageId.split('picture/0')[1];
+
+                    const driveSrc = `https://drive.google.com/uc?export=view&id=${imageId}`;
+                    const fallbackSrc = `https://drive.google.com/thumbnail?id=${imageId}`;
+
+                    return `<div style="text-align:center; border:1px solid #eee; padding:10px; border-radius:8px;">
+                        <img src="${driveSrc}" data-img="${driveSrc}" onerror="this.onerror=null; this.src='${fallbackSrc}'; this.setAttribute('data-img', '${fallbackSrc}');" style="width:100%;height:150px;object-fit:cover;cursor:pointer;border-radius:4px;" onclick="openLightbox(this.getAttribute('data-img'))">
+                        <br><small style="color:#666;">${escapeHTML(formatDate(x.timestamp))}</small>
+                    </div>`;
+                }).join('');
+            }
         } catch(err) {
             if(c) c.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: red;">เกิดข้อผิดพลาด</div>';
         }
