@@ -2084,7 +2084,18 @@
     }
 
     // --- 3. UI Helpers ---
-    window.Swal = Swal.mixin({ confirmButtonText: 'ตกลง', cancelButtonText: 'ยกเลิก' });
+    
+    // 1. บังคับให้ SweetAlert2 ทุกตัวในไฟล์นี้ใช้คลาส CSS ที่เราออกแบบไว้
+    window.Swal = Swal.mixin({ 
+        confirmButtonText: 'ตกลง', 
+        cancelButtonText: 'ยกเลิก',
+        reverseButtons: true, // สลับปุ่มยกเลิกไว้ซ้าย ปุ่มตกลงไว้ขวา (UI มาตรฐานสากล)
+        customClass: {
+            popup: 'custom-swal-popup',
+            title: 'custom-swal-title',
+            htmlContainer: 'custom-swal-html'
+        }
+    });
     
     function showLoading(msg) {
         const loaderText = document.getElementById('loaderText');
@@ -2098,8 +2109,32 @@
         if (customLoader) customLoader.style.display = 'none'; 
     }
     
+    // 2. ฟังก์ชันแจ้งเตือน showAlert โฉมใหม่ (ปรับสีตามประเภทอัตโนมัติ)
     function showAlert(msg, type = 'success') { 
-        Swal.fire({ icon: type, title: type === 'success' ? 'ทำรายการสำเร็จ' : 'แจ้งเตือน', text: msg, confirmButtonColor: 'var(--secondary-color)' }); 
+        let titleText = 'แจ้งเตือน';
+        let btnColor = 'var(--secondary-color)';
+        
+        if (type === 'success') {
+            titleText = 'ทำรายการสำเร็จ';
+            btnColor = '#28a745'; 
+        } else if (type === 'error') {
+            titleText = 'เกิดข้อผิดพลาด';
+            btnColor = '#dc3545'; 
+        } else if (type === 'warning') {
+            titleText = 'แจ้งเตือน';
+            btnColor = '#ff9800'; 
+        } else if (type === 'info') {
+            titleText = 'ข้อมูลระบบ';
+            btnColor = '#17a2b8'; 
+        }
+
+        Swal.fire({ 
+            icon: type, 
+            title: titleText, 
+            html: msg, // ใช้ html เพื่อรองรับการขึ้นบรรทัดใหม่
+            confirmButtonColor: btnColor,
+            confirmButtonText: 'ตกลง'
+        }); 
     }
     
     function maskString(str, type) {
