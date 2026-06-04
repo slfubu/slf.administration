@@ -289,14 +289,28 @@
             </div>
 
             <div id="adminVerifyStep2" style="display: none; animation: fadeIn 0.5s; margin-top: 25px;">
+                
                 <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid var(--secondary-color); margin-bottom: 20px; font-size: 14px; line-height: 1.6;">
-                    <div><b>ชื่อ-สกุล:</b> <span id="adm_ver_name">-</span></div>
-                    <div><b>รหัสนักศึกษา:</b> <span id="adm_ver_studentId">-</span></div>
-                    <div><b>เบอร์โทรศัพท์:</b> <span id="adm_ver_phone">-</span></div>
-                    <div><b>เลขประจำตัวประชาชน:</b> <span id="adm_ver_idCard">-</span></div>
-                    <hr style="border: 0; border-top: 1px dashed #ccc; margin: 10px 0;">
-                    <div><b>สถานะประวัติ กยศ.:</b> <span id="adm_ver_profileStatus">-</span></div>
-                    <div><b>ปรับปรุงล่าสุดเมื่อ:</b> <span id="adm_ver_updatedAt">-</span></div>
+                    <div style="display: flex; gap: 15px; align-items: flex-start;">
+                        <img id="adm_ver_profileImg" src="https://placehold.co/150x150?text=NO+IMAGE" style="width: 85px; height: 105px; object-fit: cover; border-radius: 6px; border: 1px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <div style="flex: 1;">
+                            <div><b>ชื่อ-สกุล:</b> <span id="adm_ver_name">-</span></div>
+                            <div><b>รหัสนักศึกษา:</b> <span id="adm_ver_studentId">-</span></div>
+                            <div><b>เบอร์โทรศัพท์:</b> <span id="adm_ver_phone">-</span></div>
+                            <div><b>เลขประจำตัวประชาชน:</b> <span id="adm_ver_idCard">-</span></div>
+                            <hr style="border: 0; border-top: 1px dashed #ccc; margin: 8px 0;">
+                            
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                <div><b>สถานะบัญชี:</b> <span id="adm_ver_accountStatus">-</span></div>
+                                <button type="button" id="btnAdminUnlockAccount" style="display: none; padding: 5px 12px; background: #28a745; color: white; border: none; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                    <i class="material-icons" style="font-size: 14px; vertical-align: middle;">lock_open</i> ปลดล็อกบัญชี
+                                </button>
+                            </div>
+
+                            <div><b>สถานะประวัติ กยศ.:</b> <span id="adm_ver_profileStatus">-</span></div>
+                            <div><b>ปรับปรุงล่าสุดเมื่อ:</b> <span id="adm_ver_updatedAt">-</span></div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div id="admAlreadyVerifiedMessage" style="display: none; background: #e8f5e9; color: #2e7d32; padding: 20px; border-radius: 6px; text-align: center; margin-bottom: 15px; border: 1px solid #c8e6c9;">
@@ -4826,6 +4840,36 @@ document.addEventListener("DOMContentLoaded", () => {
                     document.getElementById('adm_ver_studentId').textContent = res.data.studentId;            
                     document.getElementById('adm_ver_phone').textContent = res.data.phone;
 
+                    // --- 1. จัดการรูปโปรไฟล์นักศึกษา ---
+                    const imgVerEl = document.getElementById('adm_ver_profileImg');
+                    if (res.data.profileImage && res.data.profileImage !== 'undefined' && res.data.profileImage !== "") {
+                        let imageId = res.data.profileImage;
+                        if (imageId.includes('id=')) imageId = imageId.split('id=')[1].split('&')[0];
+                        else if (imageId.includes('/d/')) imageId = imageId.split('/d/')[1].split('/')[0];
+                        else if (imageId.includes('picture/0')) imageId = imageId.split('picture/0')[1];
+
+                        const driveSrc = `https://drive.google.com/uc?export=view&id=${imageId}`;
+                        const fallbackSrc = `https://drive.google.com/thumbnail?id=${imageId}&sz=w200`;
+                        
+                        if(imgVerEl) {
+                            imgVerEl.src = driveSrc;
+                            imgVerEl.onerror = function() { this.onerror = null; this.src = fallbackSrc; };
+                        }
+                    } else {
+                        if(imgVerEl) imgVerEl.src = "https://placehold.co/150x150?text=NO+IMAGE";
+                    }
+
+                    const accStatusEl = document.getElementById('adm_ver_accountStatus');
+                    const unlockBtn = document.getElementById('btnAdminUnlockAccount');
+                    
+                    if (res.data.status === 'suspended' || res.data.status === 'Suspended') {
+                        if(accStatusEl) accStatusEl.innerHTML = '<span style="color: #dc3545; font-weight: bold;"><i class="material-icons" style="font-size:14px; vertical-align:middle;">lock</i> ถูกระงับการใช้งาน</span>';
+                        if(unlockBtn) unlockBtn.style.display = 'block';
+                    } else {
+                        if(accStatusEl) accStatusEl.innerHTML = '<span style="color: #28a745; font-weight: bold;"><i class="material-icons" style="font-size:14px; vertical-align:middle;">check_circle</i> ใช้งานปกติ</span>';
+                        if(unlockBtn) unlockBtn.style.display = 'none';
+                    }
+
                     if (res.isVerified) {
                         document.getElementById('adm_ver_idCard').innerHTML = `<span style="color:#0d47a1; font-weight:bold;">${res.data.idCard}</span>`;
                     } else {
@@ -4851,10 +4895,44 @@ document.addEventListener("DOMContentLoaded", () => {
                 } else {
                     showAlert(res.message, 'error');
                 }
-            } catch (err) {
-                hideLoading();
-                showAlert(err.message, 'error');
-            }
+        };
+    }
+
+    const btnUnlockAcc = document.getElementById('btnAdminUnlockAccount');
+    if (btnUnlockAcc) {
+        btnUnlockAcc.onclick = async () => {
+            const studentId = document.getElementById('adminCheckStudentId').value.trim();
+            Swal.fire({
+                title: 'ยืนยันการปลดล็อกบัญชี',
+                text: `ต้องการปลดล็อกบัญชีของนักศึกษารหัส ${studentId} เพื่อให้เข้าใช้งานได้ปกติ ใช่หรือไม่?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745', 
+                confirmButtonText: 'ใช่ ปลดล็อกเลย'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    showLoading('กำลังดำเนินการปลดล็อก');
+                    try {
+                        const res = await callApi("adminUnlockAccount", { 
+                            studentId: studentId, 
+                            adminId: currentUser.studentId, 
+                            token: userToken
+                        });
+                        hideLoading();
+                        
+                        if (res.success) {
+                            Swal.fire('ปลดล็อกสำเร็จ', res.message, 'success').then(() => {
+                                document.getElementById('btnAdminCheckVerify').click(); 
+                            });
+                        } else {
+                            showAlert(res.message, 'error');
+                        }
+                    } catch (err) {
+                        hideLoading();
+                        showAlert(err.message, 'error');
+                    }
+                }
+            });
         };
     }
 
