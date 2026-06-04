@@ -399,9 +399,8 @@
                         confirmButtonColor: '#6c757d'
                     });
                 } else if (res.isQueueFull) {
-                    // --- แจ้งเตือนระบบคิว (ดีไซน์ใหม่ เรียบง่าย สวยงาม) ---
                     Swal.fire({
-                        title: 'ระบบกำลังจัดคิวเข้าใช้งาน',
+                        title: 'ระบบอยู่ระหว่างบริหารจัดการคิวการเข้าใช้งาน',
                         html: `
                             <div style="margin-top: 10px;">
                                 <p style="color: #d97706; font-size: 15px; margin-bottom: 20px; line-height: 1.5;">
@@ -409,7 +408,7 @@
                                 </p>
                                 <div style="background-color: #f8fafc; border-radius: 6px; padding: 12px; border: 1px solid #e2e8f0;">
                                     <p style="color: #64748b; font-size: 13px; margin: 0; line-height: 1.6;">
-                                        ระบบจะคืนโควตาผู้ใช้งานที่ออกจากระบบโดยอัตโนมัติ<br>กรุณารอสักครู่แล้วเข้าสู่ระบบใหม่อีกครั้ง
+                                        ระบบจะดำเนินการคืนสิทธิ์การเข้าใช้งานโดยอัตโนมัติเมื่อผู้ใช้งานออกจากระบบ หรือเมื่อสิ้นสุดระยะเวลาการใช้งานที่กำหนด<br>กรุณารอสักครู่แล้วเข้าสู่ระบบใหม่อีกครั้ง
                                     </p>
                                 </div>
                             </div>
