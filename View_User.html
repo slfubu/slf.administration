@@ -188,7 +188,7 @@
                                     <div class="form-col"><div class="form-group"><label>จำนวนสมาชิกในครอบครัว (คน)</label><input type="number" id="epFamilyMembers" placeholder="นับรวมตัวนักศึกษา" required></div></div>
                                     <div class="form-col"><div class="form-group"><label>รายได้รวมครัวเรือนต่อเดือน (บาท)</label><input type="number" id="epHouseholdIncome" placeholder="ระบุตัวเลขรายได้รวม" required></div></div>
                                 </div>
-                                <div class="form-group"><label>ภาระค่าใช้จ่าย / ภาระหนี้สิน</label><textarea id="epDebt" rows="2" placeholder="ระบุรายละเอียดภาระหนี้สิน หรือค่าใช้จ่ายของครอบครัว"></textarea></div>
+                                <div class="form-group"><label>ภาระค่าใช้จ่าย / ภาระหนี้สิน</label><textarea id="epDebt" rows="2" placeholder="ระบุรายจำนวนค่าใช้จ่ายประมาณการ"></textarea></div>
                             </div>
 
                             <div class="form-section-title">3. ที่อยู่ปัจจุบันตามทะเบียนบ้าน</div>
@@ -303,8 +303,8 @@
                             <div id="loanFailMessage" style="display:none; text-align:center; padding:40px; border-radius:12px; background:#fff5f5; border: 1px solid #ffcdd2;">
                                 <i class="material-icons" style="font-size: 64px; color: #d32f2f; margin-bottom: 10px;">gpp_bad</i>
                                 <h3 style="color: #c62828;">คุณสมบัติของท่านไม่ผ่านเกณฑ์การกู้ยืม</h3>
-                                <p>ระดับคะแนนเฉลี่ยสะสมต่ำกว่าเกณฑ์ 1.50 หรือ ชั่วโมงกิจกรรมจิตอาสาไม่ครบ 12 ชั่วโมง</p>
-                                <p style="color: #666; font-size: 14px;">ระบบไม่อนุญาตให้ดำเนินการต่อ หากท่านประสงค์ให้ตรวจสอบข้อมูลอีกครั้ง หรือมีเหตุผลความจำเป็น กรุณาดำเนินการยื่นคำร้องผ่านระบบคำร้องออนไลน์</p>
+                                <p>ระดับเกรดเฉลี่ยสะสมต่ำกว่าเกณฑ์ 1.50 หรือ ชั่วโมงกิจกรรมจิตอาสาไม่ครบ 12 หน่วยกิต</p>
+                                <p style="color: #666; font-size: 14px;">ระบบไม่อนุญาตให้ดำเนินการต่อ หากท่านประสงค์ให้ตรวจสอบข้อมูลประมวลผลอีกครั้ง รอบที่ 2 หรือมีเหตุผลความจำเป็น กรุณาดำเนินการยื่นคำร้องผ่านระบบคำร้องออนไลน์</p>
                                 <button class="btn btn-login-new" onclick="goToPetitionFromFail('2')" style="margin-top: 15px; border-radius: 30px; width: auto; padding: 10px 30px; background: linear-gradient(135deg, #d32f2f 0%, #e53e3e 100%);">
                                     <i class="material-icons" style="vertical-align: middle; margin-right: 5px;">rate_review</i> เข้าสู่หน้ายื่นคำร้องออนไลน์
                                 </button>
@@ -320,7 +320,7 @@
                                         <div class="icon-box"><i class="material-icons">restaurant_menu</i></div>
                                         <div class="loan-option-content">
                                             <h4>ค่าครองชีพ</h4>
-                                            <p>เดือนละ 3,000 บาท</p>
+                                            <p>เดือนละ 3,000 บาท จำนวน 6 เดือน</p>
                                             <span style="font-size: 12px; color: #1976D2; font-weight: bold;">รวม 18,000 บาท / ภาคการศึกษา</span>
                                         </div>
                                         <div style="margin-left: auto;">
@@ -333,7 +333,7 @@
                                         <div class="loan-option-content">
                                             <h4>ค่าเล่าเรียน (ค่าเทอม)</h4>
                                             <p>โอนเงินตรงเข้าบัญชีสถานศึกษา</p>
-                                            <span style="font-size: 12px; color: #f57c00; font-weight: bold;">ระบุยอดเงินตามใบแจ้งหนี้จริง</span>
+                                            <span style="font-size: 12px; color: #f57c00; font-weight: bold;">ระบุยอดค่าธรรมเนียมการศึกษาตามใบเเจ้งผลลงทะเบียน</span>
                                         </div>
                                         <div style="margin-left: auto;">
                                             <i class="material-icons check-icon" style="color: #ddd; font-size: 24px;">radio_button_unchecked</i>
@@ -373,7 +373,7 @@
                                 <div class="receipt-header" style="background: linear-gradient(135deg, #1976D2 0%, #42A5F5 100%);">
                                     <i class="material-icons" style="font-size: 50px;">verified</i>
                                     <p style="margin: 5px 0 0 0; opacity: 0.9;">การยื่นคำร้องขอกู้ยืมเสร็จสมบูรณ์</p>
-                                    <div class="status-tag" style="color: #1565C0;">รอสถานศึกษาตรวจสอบข้อมูล</div>
+                                    <div class="status-tag" style="color: #1565C0;">รอสถานศึกษาตรวจสอบข้อมูล เเละรับการเเจ้งเตือนรายงานสถานภาพการศึกษาต่อ</div>
                                 </div>
                                 <div class="receipt-body">
                                     <div style="text-align: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
@@ -403,7 +403,7 @@
                             <h2 style="border: none; justify-content: center; margin-bottom: 5px; font-weight: 700; color: var(--over-primary, #7b1fa2);">
                                 คำร้องขอกู้ยืมเงินเกินจำนวนปีที่กำหนดในหลักสูตร (ปีการศึกษา 2569)
                             </h2>
-                            <p style="color: #777; font-size: 15px; margin: 0;">สำหรับนักศึกษารหัส 65 ขึ้นไป ที่มีการลงทะเบียนเรียนเกินกว่าระยะเวลาที่กำหนดในหลักสูตร</p>
+                            <p style="color: #777; font-size: 15px; margin: 0;">สำหรับนักศึกษารหัส 65 ขึ้นไป (ยกเว้นสาขาเเพทยศาสตร์ หลักสูตร 6 ปี/เภสัชศาสตร์ หลักสูตร 6 ปี/ศิลปประยุกต์และสถาปัตยกรรมศาสตร์ หลักสูตร 5 ปี) ที่มีการลงทะเบียนเรียนเกินกว่าระยะเวลาที่กำหนดในหลักสูตร</p>
                         </div>
 
                         <div class="loan-stepper" id="overStepper">
@@ -431,8 +431,8 @@
                             <div id="overLoanFailMessage" style="display:none; text-align:center; padding:40px; border-radius:12px; background:#fff5f5; border: 1px solid #ffcdd2;">
                                 <i class="material-icons" style="font-size: 64px; color: #d32f2f; margin-bottom: 10px;">gpp_bad</i>
                                 <h3 style="color: #c62828;">คุณสมบัติของท่านไม่ผ่านเกณฑ์การกู้ยืม</h3>
-                                <p>ระดับคะแนนเฉลี่ยสะสมต่ำกว่าเกณฑ์ 2.00 หรือ ชั่วโมงกิจกรรมจิตอาสาไม่ครบ 12 ชั่วโมง</p>
-                                <p style="color: #666; font-size: 14px;">ระบบไม่อนุญาตให้ดำเนินการต่อ หากท่านประสงค์ให้ตรวจสอบข้อมูลอีกครั้ง หรือมีเหตุผลความจำเป็น กรุณาดำเนินการยื่นคำร้องผ่านระบบคำร้องออนไลน์</p>
+                                <p>ระดับเกรดเฉลี่ยสะสมต่ำกว่าเกณฑ์ 2.00 หรือ ชั่วโมงกิจกรรมจิตอาสาไม่ครบ 12 หน่วยกิต</p>
+                                <p style="color: #666; font-size: 14px;">ระบบไม่อนุญาตให้ดำเนินการต่อ หากท่านประสงค์ให้ตรวจสอบข้อมูลประมวลผลอีกครั้ง รอบ 2 หรือมีเหตุผลความจำเป็น กรุณาดำเนินการยื่นคำร้องผ่านระบบคำร้องออนไลน์</p>
                                 <button class="btn btn-login-new" onclick="goToPetitionFromFail('2')" style="margin-top: 15px; border-radius: 30px; width: auto; padding: 10px 30px; background: linear-gradient(135deg, #d32f2f 0%, #e53e3e 100%);">
                                     <i class="material-icons" style="vertical-align: middle; margin-right: 5px;">rate_review</i> เข้าสู่หน้ายื่นคำร้องออนไลน์
                                 </button>
@@ -705,7 +705,7 @@
                             <div style="font-weight:bold; margin-bottom:10px; color:#333;"><i class="material-icons" style="font-size:18px; vertical-align:text-bottom;">integration_instructions</i> ติดต่อผู้ดูแลระบบ (IT Support)</div>                  
                             <div class="contact-item">
                                 <i class="material-icons">support_agent</i>
-                                <div><span class="contact-label">หมายเลขโทรศัพท์ KPP</span><a href="tel:0924058084" class="contact-value" style="color: #d32f2f;">092-405-8084</a><span class="contact-sub">(ทุกวัน 09:30 - 20:00 น.)</span></div>
+                                <div><span class="contact-label">หมายเลขโทรศัพท์ KPP</span><a href="tel:0624740508" class="contact-value" style="color: #d32f2f;">062-474-0508</a><span class="contact-sub">(ทุกวัน 09:30 - 20:00 น.)</span></div>
                             </div>
                         </div>
                     </div>
@@ -1324,8 +1324,8 @@
             } else if (res.status === 'no_profile') {
                 Swal.fire({
                     icon: 'warning',
-                    title: 'ไม่พบข้อมูลประวัติส่วนบุคคล',
-                    text: 'ระบบไม่สามารถทำรายการได้ เนื่องจากไม่พบข้อมูลประวัติส่วนบุคคลของท่านในฐานข้อมูล กรุณาดำเนินการยื่นคำร้อง "ขอปรับปรุงข้อมูลประวัติ" ผ่านระบบคำร้องออนไลน์ เพื่อดำเนินการในขั้นตอนต่อไป',
+                    title: '403 Forbidden',
+                    text: 'ระบบไม่สามารถทำรายการได้ เนื่องจากไม่พบข้อมูลทะเบียนประวัติของท่านในฐานข้อมูลระบบ หากท่านยังไม่บันทึกข้อมูลทะเบียนประวัติในระบบตามที่สถานศึกษากำหนด 2-7 มิ.ย. 2569 กรุณาดำเนินการยื่นคำร้อง "ขอปรับปรุงข้อมูลประวัติ" ผ่านระบบคำร้องออนไลน์ เพื่อดำเนินการในขั้นตอนต่อไป ระบบจะอนุมัติ 3 วันทำการ',
                     showCancelButton: true,
                     confirmButtonText: 'ดำเนินการยื่นคำร้อง',
                     cancelButtonText: 'ปิดหน้าต่าง',
@@ -1336,23 +1336,28 @@
                     }
                 });
             } else if (res.status === 'eligible_check') {
-                document.getElementById('loanStep1').style.display = 'none';
-                document.getElementById('loanStep2').style.display = 'block';
-                updateStepper(2, 'loan-step');
-                
-                document.getElementById('loanInfoCard').innerHTML = `
-                    <b>ข้อมูลผู้มีสิทธิ์:</b> ${escapeHTML(res.studentInfo.name || (currentUser.prefix + currentUser.firstName + ' ' + currentUser.lastName))}<br>
-                    <span style="font-size: 13px; color: #555;">รหัสประจำตัว: ${escapeHTML(res.studentInfo.studentId || currentUser.studentId)} | คณะ/สังกัด: ${escapeHTML(res.studentInfo.faculty || currentUser.faculty || '-')}</span><br>
-                    <div style="margin-top:5px; border-top:1px dashed #ccc; padding-top:5px;">ระดับคะแนนเฉลี่ยสะสม (GPAX): <b>${escapeHTML(res.studentInfo.gpa)}</b> | ชั่วโมงกิจกรรมจิตอาสา: <b>${escapeHTML(res.studentInfo.credits)}</b> ชั่วโมง</div>
-                `;
 
-                if (res.passed) {
-                    document.getElementById('loanFailMessage').style.display = 'none';
-                    document.getElementById('loanFormArea').style.display = 'block';
-                } else {
-                    document.getElementById('loanFailMessage').style.display = 'block';
-                    document.getElementById('loanFormArea').style.display = 'none';
-                }
+document.getElementById('loanStep1').style.display = 'none';
+document.getElementById('loanStep2').style.display = 'block';
+updateStepper(2, 'loan-step');
+
+// เตรียมวันที่
+let updateDateStr = res.studentInfo.updatedAt ? formatDate(res.studentInfo.updatedAt) : 'ไม่ระบุ';
+
+document.getElementById('loanInfoCard').innerHTML = `
+    <b>ข้อมูลผู้มีสิทธิ์:</b> ${escapeHTML(res.studentInfo.name || (currentUser.prefix + currentUser.firstName + ' ' + currentUser.lastName))}<br>
+    <span style="font-size: 13px; color: #555;">รหัสประจำตัว: ${escapeHTML(res.studentInfo.studentId || currentUser.studentId)} | คณะ/สังกัด: ${escapeHTML(res.studentInfo.faculty || currentUser.faculty || '-')}</span><br>
+    <div style="margin-top:5px; border-top:1px dashed #ccc; padding-top:5px; margin-bottom:5px;">ระดับคะแนนเฉลี่ยสะสม (GPAX): <b>${escapeHTML(res.studentInfo.gpa)}</b> | ชั่วโมงกิจกรรมจิตอาสา: <b>${escapeHTML(res.studentInfo.credits)}</b> ชั่วโมง</div>
+    <div style="font-size: 13px; color: #1976D2;"><i class="material-icons" style="font-size: 14px; vertical-align: text-bottom;">info</i> รายงานจากฐานข้อมูล เมื่อ วันที่ ${updateDateStr}</div>
+`;
+
+if (res.passed) {
+    document.getElementById('loanFailMessage').style.display = 'none';
+    document.getElementById('loanFormArea').style.display = 'block';
+} else {
+    document.getElementById('loanFailMessage').style.display = 'block';
+    document.getElementById('loanFormArea').style.display = 'none';
+}
             }
         } catch (err) {
             hideLoading();
@@ -1470,8 +1475,8 @@
             } else if (res.status === 'no_profile') {
                 Swal.fire({
                     icon: 'warning',
-                    title: 'ไม่พบข้อมูลประวัติส่วนบุคคล',
-                    text: 'ระบบไม่สามารถทำรายการได้ เนื่องจากไม่พบข้อมูลประวัติส่วนบุคคลของท่านในฐานข้อมูล กรุณาดำเนินการยื่นคำร้อง "ขอปรับปรุงข้อมูลประวัติ" ผ่านระบบคำร้องออนไลน์ เพื่อดำเนินการในขั้นตอนต่อไป',
+                    title: '403 Forbidden',
+                    text: 'ระบบไม่สามารถทำรายการได้ เนื่องจากไม่พบข้อมูลทะเบียนประวัติของท่านในฐานข้อมูลระบบ หากท่านยังไม่บันทึกข้อมูลทะเบียนประวัติในระบบตามที่สถานศึกษากำหนด 2-7 มิ.ย. 2569 กรุณาดำเนินการยื่นคำร้อง "ขอปรับปรุงข้อมูลประวัติ" ผ่านระบบคำร้องออนไลน์ เพื่อดำเนินการในขั้นตอนต่อไป ระบบจะอนุมัติ 3 วันทำการ',
                     showCancelButton: true,
                     confirmButtonText: 'ดำเนินการยื่นคำร้อง',
                     cancelButtonText: 'ปิดหน้าต่าง',
@@ -1482,19 +1487,27 @@
                     }
                 });
             } else if (res.status === 'eligible_check') {
-                document.getElementById('overStep1').style.display = 'none';
-                document.getElementById('overStep2').style.display = 'block';
-                updateStepper(2, 'over-step');
-                
-                document.getElementById('overInfoBox').innerHTML = `<b>ข้อมูลผู้มีสิทธิ์ขอกู้:</b> ${escapeHTML(res.studentInfo.name)}<br><span style="font-size: 13px; color: #555;">รหัสประจำตัว: ${escapeHTML(res.studentInfo.studentId)} | คณะ/สังกัด: ${escapeHTML(res.studentInfo.faculty)}</span><br><div style="margin-top:5px; border-top:1px dashed #ce93d8; padding-top:5px;">ระดับคะแนนเฉลี่ยสะสม (GPAX): <b>${escapeHTML(res.studentInfo.gpa)}</b> | ชั่วโมงกิจกรรมจิตอาสา: <b>${escapeHTML(res.studentInfo.credits)}</b> ชั่วโมง</div>`;
-                
-                if(res.passed) {
-                    document.getElementById('overLoanFailMessage').style.display = 'none';
-                    document.getElementById('overLoanFormArea').style.display = 'block';
-                } else {
-                    document.getElementById('overLoanFailMessage').style.display = 'block';
-                    document.getElementById('overLoanFormArea').style.display = 'none';
-                }
+
+document.getElementById('overStep1').style.display = 'none';
+document.getElementById('overStep2').style.display = 'block';
+updateStepper(2, 'over-step');
+
+let updateDateStr = res.studentInfo.updatedAt ? formatDate(res.studentInfo.updatedAt) : 'ไม่ระบุ';
+
+document.getElementById('overInfoBox').innerHTML = `
+    <b>ข้อมูลผู้มีสิทธิ์ขอกู้:</b> ${escapeHTML(res.studentInfo.name)}<br>
+    <span style="font-size: 13px; color: #555;">รหัสประจำตัว: ${escapeHTML(res.studentInfo.studentId)} | คณะ/สังกัด: ${escapeHTML(res.studentInfo.faculty)}</span><br>
+    <div style="margin-top:5px; border-top:1px dashed #ce93d8; padding-top:5px; margin-bottom:5px;">ระดับคะแนนเฉลี่ยสะสม (GPAX): <b>${escapeHTML(res.studentInfo.gpa)}</b> | ชั่วโมงกิจกรรมจิตอาสา: <b>${escapeHTML(res.studentInfo.credits)}</b> ชั่วโมง</div>
+    <div style="font-size: 13px; color: var(--over-primary, #7b1fa2);"><i class="material-icons" style="font-size: 14px; vertical-align: text-bottom;">info</i> รายงานจากฐานข้อมูล เมื่อ วันที่ ${updateDateStr}</div>
+`;
+
+if (res.passed) {
+    document.getElementById('overLoanFailMessage').style.display = 'none';
+    document.getElementById('overLoanFormArea').style.display = 'block';
+} else {
+    document.getElementById('overLoanFailMessage').style.display = 'block';
+    document.getElementById('overLoanFormArea').style.display = 'none';
+}
             }
         } catch (err) {
             hideLoading();
