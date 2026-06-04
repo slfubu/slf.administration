@@ -331,6 +331,7 @@
         const id = document.getElementById('loginStudentId').value.trim();
         const pass = document.getElementById('loginPassword').value;
         const clientIp = await getClientIp(); 
+        
         try {
             const res = await callApi("login", { 
                 studentId: id, 
@@ -339,11 +340,13 @@
             });
             hideLoading();
             btnSubmit.disabled = false;
+            
             if (res.success) {
                 sessionStorage.setItem('ubu_student_id', res.user.studentId);
                 sessionStorage.setItem('ubu_token', res.user.token);
                 sessionStorage.setItem('ubu_role', res.user.role);
                 sessionStorage.setItem('ubu_user_data', JSON.stringify(res.user));
+                
                 Swal.fire({
                     icon: 'success',
                     title: 'เข้าสู่ระบบสำเร็จ',
@@ -394,6 +397,26 @@
                         `,
                         confirmButtonText: 'ปิดหน้าต่าง',
                         confirmButtonColor: '#6c757d'
+                    });
+                } else if (res.isQueueFull) {
+                    // --- แจ้งเตือนระบบคิว (ดีไซน์ใหม่ เรียบง่าย สวยงาม) ---
+                    Swal.fire({
+                        title: 'ระบบกำลังจัดคิวเข้าใช้งาน',
+                        html: `
+                            <div style="margin-top: 10px;">
+                                <p style="color: #d97706; font-size: 15px; margin-bottom: 20px; line-height: 1.5;">
+                                    ${escapeHTML(res.message)}
+                                </p>
+                                <div style="background-color: #f8fafc; border-radius: 6px; padding: 12px; border: 1px solid #e2e8f0;">
+                                    <p style="color: #64748b; font-size: 13px; margin: 0; line-height: 1.6;">
+                                        ระบบจะคืนโควตาผู้ใช้งานที่ออกจากระบบโดยอัตโนมัติ<br>กรุณารอสักครู่แล้วเข้าสู่ระบบใหม่อีกครั้ง
+                                    </p>
+                                </div>
+                            </div>
+                        `,
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#475569',
+                        padding: '1.5em'
                     });
                 } else {
                     showAlert(res.message, 'error');
