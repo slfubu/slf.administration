@@ -400,15 +400,18 @@
                     });
                 } else if (res.isQueueFull) {
                     Swal.fire({
-                        title: 'ระบบคิวออนไลน์สำหรับเข้าใช้งาน',
+                        title: 'คิวออนไลน์สำหรับเข้าใช้งาน',
                         html: `
                             <div style="margin-top: 10px;">
-                                <p style="color: #d97706; font-size: 15px; margin-bottom: 20px; line-height: 1.5;">
+                                <p style="color: #d97706; font-size: 15px; margin-bottom: 20px; line-height: 1.5; text-align: center;">
                                     ${escapeHTML(res.message)}
                                 </p>
-                                <div style="background-color: #f8fafc; border-radius: 6px; padding: 12px; border: 1px solid #e2e8f0;">
-                                    <p style="color: #64748b; font-size: 13px; margin: 0; line-height: 1.6;">
-                                        ระบบจะดำเนินการคืนสิทธิ์การเข้าใช้งานโดยอัตโนมัติ เมื่อผู้ใช้งานออกจากระบบหรือเมื่อสิ้นสุดระยะเวลาการใช้งานที่กำหนด<br>ทำให้ผู้ใช้งานลำดับถัดไปสามารถเข้าใช้งานระบบได้กรุณารอสักครู่แล้วเข้าสู่ระบบใหม่อีกครั้ง
+                                <div style="background-color: #f8fafc; border-radius: 6px; padding: 15px; border: 1px solid #e2e8f0; text-align: left;">
+                                    <p style="color: #64748b; font-size: 13px; margin: 0; line-height: 1.6; word-break: break-word;">
+                                        ระบบจะดำเนินการคืนสิทธิ์การเข้าใช้งานโดยอัตโนมัติ เมื่อผู้ใช้งานออกจากระบบหรือเมื่อสิ้นสุดระยะเวลาการใช้งานที่กำหนด
+                                    </p>
+                                    <p style="color: #64748b; font-size: 13px; margin: 8px 0 0 0; line-height: 1.6; word-break: break-word;">
+                                        ทำให้ผู้ใช้งานลำดับถัดไปสามารถเข้าใช้งานระบบได้ <b>กรุณารอสักครู่แล้วเข้าสู่ระบบใหม่อีกครั้ง</b>
                                     </p>
                                 </div>
                             </div>
