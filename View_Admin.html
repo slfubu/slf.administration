@@ -289,30 +289,16 @@
             </div>
 
             <div id="adminVerifyStep2" style="display: none; animation: fadeIn 0.5s; margin-top: 25px;">
-                
                 <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid var(--secondary-color); margin-bottom: 20px; font-size: 14px; line-height: 1.6;">
-                    <div style="display: flex; gap: 15px; align-items: flex-start;">
-                        <img id="adm_ver_profileImg" src="https://placehold.co/150x150?text=NO+IMAGE" style="width: 85px; height: 105px; object-fit: cover; border-radius: 6px; border: 1px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                        <div style="flex: 1;">
-                            <div><b>ชื่อ-สกุล:</b> <span id="adm_ver_name">-</span></div>
-                            <div><b>รหัสนักศึกษา:</b> <span id="adm_ver_studentId">-</span></div>
-                            <div><b>เบอร์โทรศัพท์:</b> <span id="adm_ver_phone">-</span></div>
-                            <div><b>เลขประจำตัวประชาชน:</b> <span id="adm_ver_idCard">-</span></div>
-                            <hr style="border: 0; border-top: 1px dashed #ccc; margin: 8px 0;">
-                            
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <div><b>สถานะบัญชี:</b> <span id="adm_ver_accountStatus">-</span></div>
-                                <button type="button" id="btnAdminUnlockAccount" style="display: none; padding: 5px 12px; background: #28a745; color: white; border: none; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                                    <i class="material-icons" style="font-size: 14px; vertical-align: middle;">lock_open</i> ปลดล็อกบัญชี
-                                </button>
-                            </div>
-
-                            <div><b>สถานะประวัติ กยศ.:</b> <span id="adm_ver_profileStatus">-</span></div>
-                            <div><b>ปรับปรุงล่าสุดเมื่อ:</b> <span id="adm_ver_updatedAt">-</span></div>
-                        </div>
-                    </div>
+                    <div><b>ชื่อ-สกุล:</b> <span id="adm_ver_name">-</span></div>
+                    <div><b>รหัสนักศึกษา:</b> <span id="adm_ver_studentId">-</span></div>
+                    <div><b>เบอร์โทรศัพท์:</b> <span id="adm_ver_phone">-</span></div>
+                    <div><b>เลขประจำตัวประชาชน:</b> <span id="adm_ver_idCard">-</span></div>
+                    <hr style="border: 0; border-top: 1px dashed #ccc; margin: 10px 0;">
+                    <div><b>สถานะประวัติ กยศ.:</b> <span id="adm_ver_profileStatus">-</span></div>
+                    <div><b>ปรับปรุงล่าสุดเมื่อ:</b> <span id="adm_ver_updatedAt">-</span></div>
                 </div>
-
+                
                 <div id="admAlreadyVerifiedMessage" style="display: none; background: #e8f5e9; color: #2e7d32; padding: 20px; border-radius: 6px; text-align: center; margin-bottom: 15px; border: 1px solid #c8e6c9;">
                     <i class="material-icons" style="vertical-align: middle; font-size: 28px; display: block; margin-bottom: 10px;">verified</i> 
                     <b style="font-size: 16px;">บัญชีนี้ได้รับการยืนยันตัวตนเรียบร้อยแล้ว</b>
@@ -327,7 +313,7 @@
                         <input type="text" id="adminVerifyIdCardInput" class="modern-input" maxlength="13" placeholder=" " required>
                         <label for="adminVerifyIdCardInput" class="modern-label">กรอกเลขบัตรประจำตัวประชาชน 13 หลัก</label>
                     </div>
-                    <button type="submit" id="btnAdminSubmitVerify" class="btn-login-new" style="background: #1976D2; width: 100%; padding: 12px; font-size: 16px;">
+                    <button type="submit" id="btnAdminSubmitVerify" class="btn-success" style="width: 100%; padding: 12px; font-size: 16px;">
                         <i class="material-icons" style="vertical-align: middle; font-size: 18px;">save</i> บันทึกยืนยันและรีเซ็ตรหัสผ่าน
                     </button>
                     <p style="font-size: 13px; color: #d32f2f; text-align: center; margin-top: 10px;">
@@ -336,11 +322,13 @@
                 </form>
 
                 <div style="text-align: center; margin-top: 20px;">
-                    <button type="button" class="btn" onclick="resetAdminVerifyForm()" style="background: #e2e8f0; color: #4a5568; padding: 8px 15px; font-size: 14px; border-radius: 6px; font-weight:bold;">
+                    <button type="button" class="btn-danger" onclick="resetAdminVerifyForm()" style="padding: 8px 15px; font-size: 14px;">
                         ยกเลิก / ค้นหาใหม่
                     </button>
                 </div>
             </div>
+
+        </div>
     </div>
 </div>
 
@@ -4838,38 +4826,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     document.getElementById('adm_ver_studentId').textContent = res.data.studentId;            
                     document.getElementById('adm_ver_phone').textContent = res.data.phone;
 
-                    // --- จัดการรูปโปรไฟล์ ---
-                    const imgVerEl = document.getElementById('adm_ver_profileImg');
-                    if (res.data.profileImage && res.data.profileImage !== 'undefined' && res.data.profileImage !== "") {
-                        let imageId = res.data.profileImage;
-                        if (imageId.includes('id=')) imageId = imageId.split('id=')[1].split('&')[0];
-                        else if (imageId.includes('/d/')) imageId = imageId.split('/d/')[1].split('/')[0];
-                        else if (imageId.includes('picture/0')) imageId = imageId.split('picture/0')[1];
-
-                        const driveSrc = `https://drive.google.com/uc?export=view&id=${imageId}`;
-                        const fallbackSrc = `https://drive.google.com/thumbnail?id=${imageId}&sz=w200`;
-                        
-                        if(imgVerEl) {
-                            imgVerEl.src = driveSrc;
-                            imgVerEl.onerror = function() { this.onerror = null; this.src = fallbackSrc; };
-                        }
-                    } else {
-                        if(imgVerEl) imgVerEl.src = "https://placehold.co/150x150?text=NO+IMAGE";
-                    }
-
-                    // --- จัดการแสดงสถานะบัญชีและปุ่มปลดล็อก ---
-                    const accStatusEl = document.getElementById('adm_ver_accountStatus');
-                    const unlockBtn = document.getElementById('btnAdminUnlockAccount');
-                    
-                    if (res.data.status === 'suspended') {
-                        if(accStatusEl) accStatusEl.innerHTML = '<span style="color: #dc3545; font-weight: bold;"><i class="material-icons" style="font-size:14px; vertical-align:middle;">lock</i> ถูกระงับการใช้งาน</span>';
-                        if(unlockBtn) unlockBtn.style.display = 'block';
-                    } else {
-                        if(accStatusEl) accStatusEl.innerHTML = '<span style="color: #28a745; font-weight: bold;"><i class="material-icons" style="font-size:14px; vertical-align:middle;">check_circle</i> ใช้งานปกติ</span>';
-                        if(unlockBtn) unlockBtn.style.display = 'none';
-                    }
-
-                    // --- ข้อมูลสถานะ กยศ. ---
                     if (res.isVerified) {
                         document.getElementById('adm_ver_idCard').innerHTML = `<span style="color:#0d47a1; font-weight:bold;">${res.data.idCard}</span>`;
                     } else {
@@ -4885,16 +4841,12 @@ document.addEventListener("DOMContentLoaded", () => {
                         document.getElementById('adm_ver_updatedAt').textContent = '-';
                     }
                     
-                    // --- สลับการแสดงผลกล่องและฟอร์ม ---
-                    const msgEl = document.getElementById('admAlreadyVerifiedMessage');
-                    const formEl = document.getElementById('adminVerifyIdentityForm');
-                    
                     if (res.isVerified) {
-                        if(msgEl) msgEl.style.display = 'block';
-                        if(formEl) formEl.style.display = 'none';
+                        document.getElementById('admAlreadyVerifiedMessage').style.display = 'block';
+                        document.getElementById('adminVerifyIdentityForm').style.display = 'none';
                     } else {
-                        if(msgEl) msgEl.style.display = 'none';
-                        if(formEl) formEl.style.display = 'block';
+                        document.getElementById('admAlreadyVerifiedMessage').style.display = 'none';
+                        document.getElementById('adminVerifyIdentityForm').style.display = 'block';
                     }
                 } else {
                     showAlert(res.message, 'error');
@@ -4906,7 +4858,6 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     }
 
-    // 2. คำสั่งปุ่ม "บังคับรีเซ็ตรหัสผ่านเป็นเลขบัตร ปชช."
     const btnForceReset = document.getElementById('btnAdminForceReset');
     if (btnForceReset) {
         btnForceReset.onclick = async () => {
@@ -4924,30 +4875,38 @@ document.addEventListener("DOMContentLoaded", () => {
                     showLoading('ระบบกำลังรีเซ็ตรหัสผ่าน');
                     try {
                         const res = await callApi("adminForceResetPassword", { 
-                            studentId: studentId, adminId: currentUser.studentId, token: userToken
+                            studentId: studentId,
+                            adminId: currentUser.studentId,
+                            token: userToken
                         });
                         hideLoading();
+                        
                         if (res.success) {
-                            Swal.fire('รีเซ็ตรหัสผ่านสำเร็จ', res.message, 'success').then(() => { resetAdminVerifyForm(); });
+                            Swal.fire('รีเซ็ตรหัสผ่านสำเร็จ', res.message, 'success').then(() => {
+                                resetAdminVerifyForm();
+                            });
                         } else {
                             showAlert(res.message, 'error');
                         }
                     } catch (err) {
-                        hideLoading(); showAlert(err.message, 'error');
+                        hideLoading();
+                        showAlert(err.message, 'error');
                     }
                 }
             });
         };
     }
 
-    // 3. ฟอร์มยืนยันตัวตน (ครั้งแรก)
     const verifyForm = document.getElementById('adminVerifyIdentityForm');
     if (verifyForm) {
         verifyForm.onsubmit = async (e) => {
             e.preventDefault();
             const studentId = document.getElementById('adminCheckStudentId').value.trim();
             const idCard = document.getElementById('adminVerifyIdCardInput').value.trim();
-            if (!/^[0-9]{13}$/.test(idCard)) return showAlert('กรุณากรอกเลขบัตรประชาชน 13 หลักให้ถูกต้อง', 'warning');
+            
+            if (!/^[0-9]{13}$/.test(idCard)) {
+                return showAlert('กรุณากรอกเลขบัตรประชาชน 13 หลักให้ถูกต้อง', 'warning');
+            }
             
             Swal.fire({
                 title: 'ยืนยันการดำเนินการ',
@@ -4961,85 +4920,16 @@ document.addEventListener("DOMContentLoaded", () => {
                     showLoading('กำลังบันทึกและรีเซ็ตรหัสผ่าน');
                     try {
                         const res = await callApi("submitIdentityVerification", { 
-                            studentId: studentId, idCard: idCard, adminId: currentUser.studentId, token: userToken
-                        });
-                        hideLoading();
-                        if (res.success) {
-                            Swal.fire('ทำรายการสำเร็จ', res.message, 'success').then(() => { resetAdminVerifyForm(); });
-                        } else {
-                            showAlert(res.message, 'error');
-                        }
-                    } catch (err) {
-                        hideLoading(); showAlert(err.message, 'error');
-                    }
-                }
-            });
-        };
-    }
-
-    // 4. คำสั่งสำหรับปุ่ม "ปลดล็อกบัญชี"
-    const btnUnlockAcc = document.getElementById('btnAdminUnlockAccount');
-    if (btnUnlockAcc) {
-        btnUnlockAcc.onclick = async () => {
-            const studentId = document.getElementById('adminCheckStudentId').value.trim();
-            Swal.fire({
-                title: 'ยืนยันการปลดล็อกบัญชี',
-                text: `ต้องการปลดล็อกบัญชีของนักศึกษารหัส ${studentId} เพื่อให้เข้าใช้งานได้ปกติ ใช่หรือไม่?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#28a745', 
-                confirmButtonText: 'ใช่ ปลดล็อกเลย'
-            }).then(async (result) => {
-                if (result.isConfirmed) {
-                    showLoading('กำลังดำเนินการปลดล็อก...');
-                    try {
-                        const res = await callApi("adminUnlockAccount", { 
-                            studentId: studentId, adminId: currentUser.studentId, token: userToken
-                        });
-                        hideLoading();
-                        if (res.success) {
-                            Swal.fire('ปลดล็อกสำเร็จ', res.message, 'success').then(() => {
-                                document.getElementById('btnAdminCheckVerify').click(); 
-                            });
-                        } else {
-                            showAlert(res.message, 'error');
-                        }
-                    } catch (err) {
-                        hideLoading(); showAlert(err.message, 'error');
-                    }
-                }
-            });
-        };
-    }
-
-}); 
-  // 3. คำสั่งสำหรับปุ่ม "ปลดล็อกบัญชี"
-    const btnUnlockAcc = document.getElementById('btnAdminUnlockAccount');
-    if (btnUnlockAcc) {
-        btnUnlockAcc.onclick = async () => {
-            const studentId = document.getElementById('adminCheckStudentId').value.trim();
-            Swal.fire({
-                title: 'ยืนยันการปลดล็อกบัญชี',
-                text: `ต้องการปลดล็อกบัญชีของนักศึกษารหัส ${studentId} เพื่อให้เข้าใช้งานได้ปกติ ใช่หรือไม่?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#28a745', // สีเขียว
-                confirmButtonText: 'ใช่ ปลดล็อกเลย'
-            }).then(async (result) => {
-                if (result.isConfirmed) {
-                    showLoading('กำลังดำเนินการปลดล็อก...');
-                    try {
-                        const res = await callApi("adminUnlockAccount", { 
-                            studentId: studentId,
+                            studentId: studentId, 
+                            idCard: idCard,
                             adminId: currentUser.studentId,
                             token: userToken
                         });
                         hideLoading();
                         
                         if (res.success) {
-                            Swal.fire('ปลดล็อกสำเร็จ', res.message, 'success').then(() => {
-                                // โหลดข้อมูลใหม่เพื่ออัปเดตหน้าจอทันที
-                                document.getElementById('btnAdminCheckVerify').click(); 
+                            Swal.fire('ทำรายการสำเร็จ', res.message, 'success').then(() => {
+                                resetAdminVerifyForm();
                             });
                         } else {
                             showAlert(res.message, 'error');
@@ -5052,6 +4942,8 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         };
     }
+
+}); 
 </script>
 </body>
 </html>
