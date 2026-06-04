@@ -3752,7 +3752,7 @@
         reader.readAsDataURL(file);
     };
 
-    window.uploadGPAExcelFile = () => {
+   window.uploadGPAExcelFile = () => {
         const fileInput = document.getElementById('gpaExcelFileInput');
         if(!fileInput) return;
         const file = fileInput.files[0]; 
@@ -3776,10 +3776,20 @@
         const reader = new FileReader();
         reader.onload = async e => {
             try {
+       
+                const base64Content = e.target.result.split(',')[1];
+                if (!base64Content) {
+                    Swal.fire('ผิดพลาด', 'ไม่สามารถอ่านเนื้อหาไฟล์ได้', 'error');
+                    return;
+                }
+                
+                // (สำหรับตรวจสอบใน Console ฝั่งหน้าเว็บ)
+                console.log("ส่งไฟล์ขนาด:", base64Content.length, "bytes"); 
+
                 const r = await callApi("uploadAndImportGPACredits", {
                     fileName: file.name, 
                     mimeType: file.type || "application/vnd.ms-excel", 
-                    content: e.target.result.split(',')[1],
+                    content: base64Content, 
                     adminId: adminId,
                     token: userToken
                 });
@@ -3800,7 +3810,7 @@
             }
         };
         reader.onerror = () => Swal.fire('ผิดพลาด', 'ไม่สามารถอ่านไฟล์ได้', 'error');
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(file); 
     };
     
     let currentAdminLoanData = null;
@@ -4106,10 +4116,17 @@
         const reader = new FileReader(); 
         reader.onload = async e => {
             try {
+                // --- เพิ่มการสกัด Base64 แบบชัวร์ๆ ---
+                const base64Content = e.target.result.split(',')[1];
+                if (!base64Content) {
+                    Swal.fire('ผิดพลาด', 'ไม่สามารถอ่านเนื้อหาไฟล์ได้', 'error');
+                    return;
+                }
+
                 const x = await callApi("uploadAndImportOverGPACredits", {
                     fileName: file.name,
                     mimeType: file.type || "application/vnd.ms-excel",
-                    content: e.target.result.split(',')[1],
+                    content: base64Content, // <--- ส่งค่า content ให้ API ตรงนี้
                     adminId: adminId,
                     token: userToken
                 });
