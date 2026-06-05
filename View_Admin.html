@@ -5101,9 +5101,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 }); 
-// ==========================================
-    // ระบบจัดการสิทธิ์ยื่นกู้นอกรอบ
-    // ==========================================
+
     let currentSpecialLoanStudent = null;
 
     window.searchForSpecialLoan = async () => { 
@@ -5112,7 +5110,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if(!slInput) return;
         
         try {
-            // ใช้ API เดิมในการค้นหาชื่อนักศึกษาได้เลย
             const r = await callApi("searchStudentForSpecialAccess", { studentId: slInput.value.trim(), adminId: adminId, token: userToken });
             if(checkAuthError(r)) { hideLoading(); return; }
             hideLoading(); 
@@ -5168,7 +5165,15 @@ document.addEventListener("DOMContentLoaded", () => {
             } 
             
             safeL.forEach((x, i) => { 
-                tb.innerHTML += '<tr><td style="text-align:center;">' + (i + 1) + '</td><td style="font-weight:bold; color:#f57c00;">' + escapeHTML(x.studentId) + '</td><td>' + escapeHTML(x.name) + '</td><td>' + escapeHTML(formatDate(x.timestamp)) + '</td><td style="text-align:center;"><button class="btn btn-danger btn-sm" style="border-radius:20px;" onclick="revokeSpecialLoanAccess(\\'' + escapeHTML(x.studentId) + '\\')">ลบสิทธิ์</button></td></tr>'; 
+                tb.innerHTML += `<tr>
+                    <td style="text-align:center;">${i + 1}</td>
+                    <td style="font-weight:bold; color:#f57c00;">${escapeHTML(x.studentId)}</td>
+                    <td>${escapeHTML(x.name)}</td>
+                    <td>${escapeHTML(formatDate(x.timestamp))}</td>
+                    <td style="text-align:center;">
+                        <button class="btn btn-danger btn-sm" style="border-radius:20px;" onclick="revokeSpecialLoanAccess('${escapeHTML(x.studentId)}')">ลบสิทธิ์</button>
+                    </td>
+                </tr>`; 
             }); 
         } catch(err) {
             console.error(err);
