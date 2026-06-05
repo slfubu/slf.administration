@@ -2101,7 +2101,6 @@
             .replace(/'/g, '&#39;');
     }
 
-    // --- 1. ระบบยืนยันตัวตน (Authentication) ---
     const userDataString = sessionStorage.getItem('ubu_user_data');
     const userToken = sessionStorage.getItem('ubu_token');
     let currentUser = null;
@@ -2110,7 +2109,10 @@
     
     if (!currentUser || !userToken || currentUser.role !== 'admin') {
         sessionStorage.clear();
-        document.body.style.display = 'none'; 
+        
+        const appLayout = document.getElementById('appLayout');
+        if (appLayout) appLayout.style.display = 'none'; 
+        
         Swal.fire({
             icon: 'error',
             title: 'ปฏิเสธการเข้าถึง',
@@ -2126,7 +2128,7 @@
 
     const adminId = currentUser.studentId;
 
-    // --- 2. ระบบรักษาความปลอดภัย: ตัวดักจับข้อผิดพลาด API ---
+
     function checkAuthError(res) {
         if (!res) return false;
         if (res.success === false) {
@@ -2279,7 +2281,6 @@
                 hideMenuByText('ระบบยื่นคำร้องกู้ปี 2569');
             }
             
-            // กลุ่ม: ลาออกพ้นสภาพ
             if (!hasAny(['navAdminResign', 'navAdminResignManage'])) {
                 hideMenuByText('ระบบแจ้งลาออกพ้นสภาพ');
             }
@@ -2453,7 +2454,18 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     sessionStorage.clear();
-                    window.location.replace("index.html");
+                    
+                    // เพิ่มกล่องข้อความแจ้งเตือนความสำเร็จ
+                    Swal.fire({
+                        title: 'ออกจากระบบสำเร็จ',
+                        text: 'ระบบกำลังพากลับไปยังหน้าเข้าสู่ระบบ',
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false,
+                        allowOutsideClick: false
+                    }).then(() => {
+                        window.location.replace("index.html");
+                    });
                 }
             });
         };
