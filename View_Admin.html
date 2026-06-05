@@ -2240,9 +2240,14 @@
                 }
             });
             document.querySelectorAll('.nav-header').forEach(header => {
-               if(header.innerText.includes('เมนูการจัดการควบคุมระบบ')) header.style.display = 'none';
+               if(header.innerText.includes('เมนูการจัดการควบคุมระบบ')) {
+                   if(!allowedList.includes('navManageUsers') && !allowedList.includes('navAdminMenuSettings') && !allowedList.includes('navAdminVerify') && !allowedList.includes('navAdminSpecialAccess') && !allowedList.includes('navAdminSpecialLoanAccess')){
+                       header.style.display = 'none';
+                   }
+               }
             });
         }
+
 
         showPage('adminDashboardSection'); 
     });
