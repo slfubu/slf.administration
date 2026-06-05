@@ -583,9 +583,10 @@
                         </div>
                     </div>
                 </div>
+                <!-- หน้าจัดการสิทธิ์ยื่นกู้นอกรอบ -->
                 <div id="adminSpecialLoanAccessSection" class="section">
                     <div class="card">
-                        <h2><i class="material-icons" style="color: #f57c00;">vpn_key</i> อนุญาตให้สิทธิ์ยื่นคำร้องขอกู้นอกรอบ ปี 2569</h2>
+                        <h2><i class="material-icons" style="color: #f57c00;">vpn_key</i> อนุญาตให้สิทธิ์ยื่นคำร้องขอกู้นอกรอบ</h2>
                         <div class="admin-search-box" style="margin-bottom: 20px;">
                             <div class="search-wrapper">
                                 <div class="modern-input-group" style="margin-bottom: 0; flex: 1;">
@@ -598,16 +599,22 @@
                             </div>
                         </div>
 
-                        <div id="specialLoanResultArea" style="display: none; background: #fff3e0; padding: 20px; border-radius: 8px; border: 1px solid #ffe0b2; margin-bottom: 30px; justify-content: space-between; align-items: center;">
+                        <div id="specialLoanResultArea" style="display: none; background: #fff3e0; padding: 20px; border-radius: 8px; border: 1px solid #ffe0b2; margin-bottom: 30px; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
                             <div>
                                 <div style="font-weight: bold; font-size: 18px; color: #e65100;" id="slo_name">-</div>
                                 <div style="color: #555; margin-top: 5px;">
                                     รหัสนักศึกษา: <span id="slo_id" style="font-weight:bold;">-</span> | คณะ: <span id="slo_faculty">-</span>
                                 </div>
                             </div>
-                            <button class="btn btn-success" onclick="grantSpecialLoanAccess()" style="height: 40px; border-radius: 20px; background: #f57c00; border: none;">
-                                <i class="material-icons" style="margin-right: 5px;">verified</i> ให้สิทธิ์ยื่นกู้
-                            </button>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <select id="slo_loanType" class="modern-input" style="background: white; min-width: 200px; margin-bottom: 0; height: 40px; padding: 0 10px; border-radius: 6px;">
+                                    <option value="normal">เปิดให้กู้ปกติ (ปี 2569)</option>
+                                    <option value="over">เปิดให้กู้เกินหลักสูตร</option>
+                                </select>
+                                <button class="btn btn-success" onclick="grantSpecialLoanAccess()" style="height: 40px; border-radius: 20px; background: #f57c00; border: none; white-space: nowrap;">
+                                    <i class="material-icons" style="margin-right: 5px;">verified</i> ให้สิทธิ์ยื่นกู้
+                                </button>
+                            </div>
                         </div>
 
                         <hr style="border: 0; border-top: 1px dashed #ddd; margin: 30px 0;">
@@ -620,14 +627,15 @@
                                 <thead>
                                     <tr>
                                         <th style="width: 10%; text-align: center;">ลำดับ</th>
-                                        <th style="width: 20%;">รหัสนักศึกษา</th>
-                                        <th style="width: 30%;">ชื่อ-สกุล</th>
-                                        <th style="width: 20%;">วันที่ให้สิทธิ์</th>
-                                        <th style="width: 20%; text-align: center;">จัดการ</th>
+                                        <th style="width: 15%;">รหัสนักศึกษา</th>
+                                        <th style="width: 25%;">ชื่อ-สกุล</th>
+                                        <th style="width: 20%; text-align: center;">ระบบที่ให้สิทธิ์</th>
+                                        <th style="width: 15%;">วันที่ให้สิทธิ์</th>
+                                        <th style="width: 15%; text-align: center;">จัดการ</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr><td colspan="5" style="text-align:center; padding: 20px; color: #999;">กำลังโหลด</td></tr>
+                                    <tr><td colspan="6" style="text-align:center; padding: 20px; color: #999;">กำลังโหลด</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -5133,16 +5141,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
     window.grantSpecialLoanAccess = async () => { 
         if(!currentSpecialLoanStudent) return;
+        const typeSelected = document.getElementById('slo_loanType').value;
         showLoading(); 
         try {
-            const res = await callApi("grantSpecialLoanAccess", { studentId: currentSpecialLoanStudent.studentId, adminId: adminId, token: userToken });
+            const res = await callApi("grantSpecialLoanAccess", { studentId: currentSpecialLoanStudent.studentId, loanType: typeSelected, adminId: adminId, token: userToken });
             if(checkAuthError(res)) { hideLoading(); return; }
             hideLoading(); 
             
-            Swal.fire('ทำรายการสำเร็จ', 'ให้สิทธิ์ยื่นกู้นอกรอบเรียบร้อย', 'success'); 
-            loadSpecialLoanList(); 
-            document.getElementById('specialLoanResultArea').style.display = 'none'; 
-            document.getElementById('specialLoanSearchInput').value = ''; 
+            if(res.success) {
+                Swal.fire('ทำรายการสำเร็จ', 'ให้สิทธิ์ยื่นกู้นอกรอบเรียบร้อย', 'success'); 
+                loadSpecialLoanList(); 
+                document.getElementById('specialLoanResultArea').style.display = 'none'; 
+                document.getElementById('specialLoanSearchInput').value = ''; 
+            } else {
+                Swal.fire('ผิดพลาด', res.message, 'error');
+            }
         } catch(err) {
             hideLoading();
             Swal.fire('Error', err.message, 'error');
@@ -5160,18 +5173,23 @@ document.addEventListener("DOMContentLoaded", () => {
             
             const safeL = safeArray(l);
             if (safeL.length === 0) { 
-                tb.innerHTML = '<tr><td colspan="5" style="text-align:center;">ไม่มีผู้ได้รับสิทธิ์</td></tr>'; 
+                tb.innerHTML = '<tr><td colspan="6" style="text-align:center;">ไม่มีผู้ได้รับสิทธิ์</td></tr>'; 
                 return;
             } 
             
             safeL.forEach((x, i) => { 
+                const typeLabel = x.loanType === 'over' 
+                    ? '<span style="color:#d32f2f; background:#ffebee; padding:4px 8px; border-radius:4px;">เกินหลักสูตร</span>' 
+                    : '<span style="color:#1976d2; background:#e3f2fd; padding:4px 8px; border-radius:4px;">ปกติ (ปี 2569)</span>';
+                    
                 tb.innerHTML += `<tr>
                     <td style="text-align:center;">${i + 1}</td>
                     <td style="font-weight:bold; color:#f57c00;">${escapeHTML(x.studentId)}</td>
                     <td>${escapeHTML(x.name)}</td>
+                    <td style="text-align:center; font-weight:bold;">${typeLabel}</td>
                     <td>${escapeHTML(formatDate(x.timestamp))}</td>
                     <td style="text-align:center;">
-                        <button class="btn btn-danger btn-sm" style="border-radius:20px;" onclick="revokeSpecialLoanAccess('${escapeHTML(x.studentId)}')">ลบสิทธิ์</button>
+                        <button class="btn btn-danger btn-sm" style="border-radius:20px;" onclick="revokeSpecialLoanAccess('${escapeHTML(x.studentId)}', '${escapeHTML(x.loanType)}')">ลบสิทธิ์</button>
                     </td>
                 </tr>`; 
             }); 
@@ -5180,7 +5198,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    window.revokeSpecialLoanAccess = (id) => { 
+    window.revokeSpecialLoanAccess = (id, type) => { 
         Swal.fire({
             title: 'ยืนยันลบสิทธิ์',
             icon: 'warning',
@@ -5191,7 +5209,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (r.isConfirmed) { 
                 showLoading(); 
                 try {
-                    const res = await callApi("revokeSpecialLoanAccess", { studentId: id, adminId: adminId, token: userToken });
+                    const res = await callApi("revokeSpecialLoanAccess", { studentId: id, loanType: type, adminId: adminId, token: userToken });
                     if(checkAuthError(res)) { hideLoading(); return; }
                     hideLoading(); 
                     
