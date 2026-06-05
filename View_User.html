@@ -768,7 +768,9 @@
     
     if (!currentUser || !userToken || currentUser.role !== 'user') {
         sessionStorage.clear();
-        document.body.style.display = 'none'; 
+        const appLayout = document.getElementById('appLayout');
+        if (appLayout) appLayout.style.display = 'none'; 
+        
         Swal.fire({
             icon: 'error',
             title: 'ข้อความแจ้งเตือนจากระบบ',
@@ -886,7 +888,16 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 sessionStorage.clear();
-                window.top.location.href = "index.html"; 
+                Swal.fire({
+                    title: 'ออกจากระบบสำเร็จ',
+                    text: 'ระบบกำลังพากลับไปยังหน้าเข้าสู่ระบบ...',
+                    icon: 'success',
+                    timer: 1500,
+                    showConfirmButton: false,
+                    allowOutsideClick: false
+                }).then(() => {
+                    window.top.location.href = "index.html"; 
+                });
             }
         });
     };
