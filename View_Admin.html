@@ -5110,6 +5110,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 }); 
 
+
     let currentSpecialLoanStudent = null;
 
     window.searchForSpecialLoan = async () => { 
@@ -5141,21 +5142,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     window.grantSpecialLoanAccess = async () => { 
         if(!currentSpecialLoanStudent) return;
-        const typeSelected = document.getElementById('slo_loanType').value;
         showLoading(); 
         try {
-            const res = await callApi("grantSpecialLoanAccess", { studentId: currentSpecialLoanStudent.studentId, loanType: typeSelected, adminId: adminId, token: userToken });
+            const res = await callApi("grantSpecialLoanAccess", { studentId: currentSpecialLoanStudent.studentId, adminId: adminId, token: userToken });
             if(checkAuthError(res)) { hideLoading(); return; }
             hideLoading(); 
             
-            if(res.success) {
-                Swal.fire('ทำรายการสำเร็จ', 'ให้สิทธิ์ยื่นกู้นอกรอบเรียบร้อย', 'success'); 
-                loadSpecialLoanList(); 
-                document.getElementById('specialLoanResultArea').style.display = 'none'; 
-                document.getElementById('specialLoanSearchInput').value = ''; 
-            } else {
-                Swal.fire('ผิดพลาด', res.message, 'error');
-            }
+            Swal.fire('ทำรายการสำเร็จ', 'ให้สิทธิ์ยื่นกู้นอกรอบเรียบร้อย', 'success'); 
+            loadSpecialLoanList(); 
+            document.getElementById('specialLoanResultArea').style.display = 'none'; 
+            document.getElementById('specialLoanSearchInput').value = ''; 
         } catch(err) {
             hideLoading();
             Swal.fire('Error', err.message, 'error');
@@ -5173,23 +5169,18 @@ document.addEventListener("DOMContentLoaded", () => {
             
             const safeL = safeArray(l);
             if (safeL.length === 0) { 
-                tb.innerHTML = '<tr><td colspan="6" style="text-align:center;">ไม่มีผู้ได้รับสิทธิ์</td></tr>'; 
+                tb.innerHTML = '<tr><td colspan="5" style="text-align:center;">ไม่มีผู้ได้รับสิทธิ์</td></tr>'; 
                 return;
             } 
             
             safeL.forEach((x, i) => { 
-                const typeLabel = x.loanType === 'over' 
-                    ? '<span style="color:#d32f2f; background:#ffebee; padding:4px 8px; border-radius:4px;">เกินหลักสูตร</span>' 
-                    : '<span style="color:#1976d2; background:#e3f2fd; padding:4px 8px; border-radius:4px;">ปกติ (ปี 2569)</span>';
-                    
                 tb.innerHTML += `<tr>
                     <td style="text-align:center;">${i + 1}</td>
                     <td style="font-weight:bold; color:#f57c00;">${escapeHTML(x.studentId)}</td>
                     <td>${escapeHTML(x.name)}</td>
-                    <td style="text-align:center; font-weight:bold;">${typeLabel}</td>
                     <td>${escapeHTML(formatDate(x.timestamp))}</td>
                     <td style="text-align:center;">
-                        <button class="btn btn-danger btn-sm" style="border-radius:20px;" onclick="revokeSpecialLoanAccess('${escapeHTML(x.studentId)}', '${escapeHTML(x.loanType)}')">ลบสิทธิ์</button>
+                        <button class="btn btn-danger btn-sm" style="border-radius:20px;" onclick="revokeSpecialLoanAccess('${escapeHTML(x.studentId)}')">ลบสิทธิ์</button>
                     </td>
                 </tr>`; 
             }); 
@@ -5198,7 +5189,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    window.revokeSpecialLoanAccess = (id, type) => { 
+    window.revokeSpecialLoanAccess = (id) => { 
         Swal.fire({
             title: 'ยืนยันลบสิทธิ์',
             icon: 'warning',
@@ -5209,7 +5200,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (r.isConfirmed) { 
                 showLoading(); 
                 try {
-                    const res = await callApi("revokeSpecialLoanAccess", { studentId: id, loanType: type, adminId: adminId, token: userToken });
+                    const res = await callApi("revokeSpecialLoanAccess", { studentId: id, adminId: adminId, token: userToken });
                     if(checkAuthError(res)) { hideLoading(); return; }
                     hideLoading(); 
                     
