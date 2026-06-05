@@ -2225,10 +2225,25 @@
     
     function getRoleDisplay(role) { return role === 'admin' ? 'ผู้ทำรายการสถานศึกษา' : (role === 'user' ? 'นักศึกษาผู้กู้ยืม' : role); }
 
-    // --- 4. การจัดการหน้าจอเบื้องต้น ---
     document.addEventListener('DOMContentLoaded', () => {
         const adminNameEl = document.getElementById('topbarAdminName') || document.getElementById('topbarUserName');
         if (adminNameEl) adminNameEl.textContent = escapeHTML(currentUser.firstName) + ' ' + escapeHTML(currentUser.lastName);
+        
+        if (currentUser.allowedMenus) {
+            const allowedList = currentUser.allowedMenus.split(',');
+            document.querySelectorAll('li.admin-nav').forEach(navLi => {
+                const link = navLi.querySelector('a.nav-link');
+                if (link && link.id) {
+                    if (!allowedList.includes(link.id) && link.id !== 'navDashboard') {
+                        navLi.style.display = 'none'; 
+                    }
+                }
+            });
+            document.querySelectorAll('.nav-header').forEach(header => {
+               if(header.innerText.includes('เมนูการจัดการควบคุมระบบ')) header.style.display = 'none';
+            });
+        }
+
         showPage('adminDashboardSection'); 
     });
 
