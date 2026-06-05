@@ -2229,8 +2229,12 @@
         const adminNameEl = document.getElementById('topbarAdminName') || document.getElementById('topbarUserName');
         if (adminNameEl) adminNameEl.textContent = escapeHTML(currentUser.firstName) + ' ' + escapeHTML(currentUser.lastName);
         
+        // --- เริ่มบล็อกจัดการสิทธิ์เมนู ---
         if (currentUser.allowedMenus) {
             const allowedList = currentUser.allowedMenus.split(',');
+            const hasAny = (menuIds) => menuIds.some(id => allowedList.includes(id));
+            
+            // 1. ซ่อนเมนูย่อย (ตัวลิงก์) ที่ไม่ได้รับสิทธิ์
             document.querySelectorAll('li.admin-nav').forEach(navLi => {
                 const link = navLi.querySelector('a.nav-link');
                 if (link && link.id) {
@@ -2239,15 +2243,35 @@
                     }
                 }
             });
-            document.querySelectorAll('.nav-header').forEach(header => {
-               if(header.innerText.includes('เมนูการจัดการควบคุมระบบ')) {
-                   if(!allowedList.includes('navManageUsers') && !allowedList.includes('navAdminMenuSettings') && !allowedList.includes('navAdminVerify') && !allowedList.includes('navAdminSpecialAccess') && !allowedList.includes('navAdminSpecialLoanAccess')){
-                       header.style.display = 'none';
-                   }
-               }
+
+            // 2. ซ่อนกลุ่มเมนู Dropdown (ที่มีลูกศร) ถ้าเมนูย่อยข้างในถูกซ่อนไปหมดแล้ว
+            document.querySelectorAll('#sidebar li').forEach(parentLi => {
+                const subMenu = parentLi.querySelector('ul'); // มองหาซับเมนูที่อยู่ข้างใน
+                if (subMenu) {
+                    // นับว่ามีเมนูย่อยตัวไหนที่ยังแสดงอยู่ไหม (ไม่โดนซ่อน)
+                    const visibleItems = Array.from(subMenu.querySelectorAll('li.admin-nav')).filter(li => li.style.display !== 'none');
+                    
+                    // ถ้าไม่มีเมนูย่อยรอดเลย (เหลือ 0) ให้ซ่อนตัว Dropdown แม่ทิ้งไปด้วย
+                    if (visibleItems.length === 0) {
+                        parentLi.style.display = 'none';
+                    }
+                }
+            });
+
+            // 3. ซ่อนหัวข้อหมวดหมู่ที่เป็นตัวหนังสือเฉยๆ (Header)
+            document.querySelectorAll('#sidebar .nav-header').forEach(header => {
+                const text = header.innerText || '';
+                // หมวดควบคุมระบบ
+                if (text.includes('เมนูการจัดการควบคุมระบบ') && !hasAny(['navManageUsers', 'navAdminMenuSettings', 'navAdminVerify', 'navAdminSpecialAccess', 'navAdminSpecialLoanAccess'])) {
+                    header.style.display = 'none';
+                }
+                // หมวดตรวจสอบข้อมูล
+                if (text.includes('เมนูการทำงานการตรวจสอบข้อมูล') && !hasAny(['navAdminManagePetition', 'navSuspendSystem', 'navAdminProfiles', 'navAdminImageReport'])) {
+                    header.style.display = 'none';
+                }
             });
         }
-
+        // --- จบบล็อกจัดการสิทธิ์เมนู ---
 
         showPage('adminDashboardSection'); 
     });
