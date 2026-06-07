@@ -2389,8 +2389,7 @@
             };
 
             if (!hasAny(['navManageUsers', 'navAdminMenuSettings', 'navAdminVerify', 'navAdminSpecialAccess', 'navAdminSpecialLoanAccess', 'navAdminAnnouncement'])) {
-    hideMenuByText('เมนูการทำงานการจัดการระบบ');
-}
+                hideMenuByText('เมนูการทำงานการจัดการระบบ');
                 hideMenuByText('เมนูการจัดการควบคุมระบบ'); 
             }
             
@@ -2413,7 +2412,6 @@
             if (!hasAny(['navAdminResign', 'navAdminResignManage'])) {
                 hideMenuByText('ระบบแจ้งลาออกพ้นสภาพ');
             }
-            
         }
 
         showPage('adminDashboardSection'); 
