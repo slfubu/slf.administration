@@ -579,6 +579,31 @@
         sessionStorage.removeItem('ubu_role');
         sessionStorage.removeItem('ubu_user_data');
     });
+    
+    document.addEventListener("DOMContentLoaded", async function() {
+        try {
+            const res = await callApi("getPublicAnnouncement", {});
+            
+            if(res && res.success && res.data.show === 'true') {
+                const formattedContent = res.data.content.replace(/\n/g, '<br>');
+                
+                Swal.fire({
+                    title: `<strong>${res.data.title}</strong>`,
+                    html: `<div style="text-align: left; padding: 10px; background: #f8fafc; border-radius: 8px; font-size: 15px; color: #4a5568;">
+                               ${formattedContent}
+                           </div>`,
+                    icon: 'info',
+                    iconColor: '#1976D2',
+                    confirmButtonText: 'รับทราบ',
+                    confirmButtonColor: '#1976D2',
+                    allowOutsideClick: false, 
+                    width: '600px'
+                });
+            }
+        } catch(e) {
+            console.error("ไม่สามารถดึงประกาศได้:", e);
+        }
+    });
 </script>
 </body>
 </html>
