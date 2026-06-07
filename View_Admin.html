@@ -1403,11 +1403,12 @@
                                 <div style="flex: 1; min-width: 200px;">
                                     <label style="font-weight: bold; font-size: 14px; margin-bottom: 5px; display: block;">ประเภทคำร้อง</label>
                                     <select id="filterPetType" class="modern-input" onchange="resetPetPage()">
-                                        <option value="all">-- ทุกประเภท --</option>
-                                        <option value="ขอลงทะเบียนปรับปรุงข้อมูลประวัติ (ไม่อยู่ในช่วงระยะเวลาที่กำหนด)">ขอลงทะเบียนปรับปรุงข้อมูลประวัติ</option>
-                                        <option value="ขอประมวลผลเกรดเฉลี่ยเเละหน่วยกิตจิตอาสาเพิ่มเติม (กรณีรอบ 1 ไม่ผ่าน)">ขอประมวลผลเกรด/หน่วยกิตเพิ่มเติม</option>
-                                        <option value="ยื่นคำร้องเรื่องอื่นๆผ่านระบบ">ยื่นคำร้องเรื่องอื่นๆผ่านระบบ</option>
-                                    </select>
+                                    <option value="all">-- ทุกประเภท --</option>
+                                    <option value="ขอลงทะเบียนปรับปรุงข้อมูลประวัติ (ไม่อยู่ในช่วงระยะเวลาที่กำหนด)">ขอลงทะเบียนปรับปรุงข้อมูลประวัติ</option>
+                                    <option value="ขอประมวลผลเกรดเฉลี่ยเเละหน่วยกิตจิตอาสาเพิ่มเติม (กรณีรอบ 1 ไม่ผ่าน)">ขอประมวลผลเกรด/หน่วยกิตเพิ่มเติม</option>
+                                    <option value="ยื่นคำร้องเรื่องอื่นๆ ผ่านระบบ">ยื่นคำร้องเรื่องอื่นๆ ผ่านระบบ</option>
+                                    <option value="ขอลงทะเบียนเพิ่มชื่อกู้ยืม กรณีไม่พบชื่อ/ไม่ได้กู้ยืมต่อเนื่อง">ขอลงทะเบียนเพิ่มชื่อกู้ยืม</option>
+                                 </select>
                                 </div>
                                 <div style="flex: 1; min-width: 180px;">
                                     <label style="font-weight: bold; font-size: 14px; margin-bottom: 5px; display: block;">สถานะดำเนินการ</label>
@@ -1595,17 +1596,17 @@
                             </div>
 
                             <div class="toggle-row" style="border-bottom: none;">
-                                <div class="toggle-label">
-                                    <div class="toggle-icon" style="background: #f3e5f5; color: #0277bd;"><i class="material-icons">more_horiz</i></div>
-                                    <div>
-                                        <div>รับคำร้อง: เรื่องอื่นๆ ผ่านระบบ</div>
-                                    </div>
-                                </div>
-                                <label class="switch">
-                                    <input type="checkbox" id="setting_pet_type3_open">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
+                             <div class="toggle-label">
+                             <div class="toggle-icon" style="background: #e8f5e9; color: #2e7d32;"><i class="material-icons">person_add</i></div>
+                             <div>
+                             <div>รับคำร้อง: เพิ่มชื่อกู้ยืม (ไม่พบชื่อ/ไม่ต่อเนื่อง)</div>
+                             </div>
+                             </div>
+                          <label class="switch">
+                           <input type="checkbox" id="setting_pet_type4_open">
+                          <span class="slider"></span>
+                         </label>
+                          </div>
                         </div>
                     </div>
                 </div>
@@ -2549,10 +2550,6 @@
         window.onload=resetTimer; document.onmousemove=resetTimer; document.onkeypress=resetTimer; document.ontouchstart=resetTimer; document.onclick=resetTimer; document.onscroll=resetTimer;
     };
     autoLogout();
-
-    // ==========================================
-    // 5. โหลดข้อมูล API และนำข้อมูลใส่ตาราง
-    // ==========================================
 
     async function loadAdminDashboardStats() {
         showLoading();
@@ -4646,12 +4643,34 @@
             ['userProfile','userActivity','userQueue','loan2569','userResign','userPetition','overLoan'].forEach(k => {
                 if (document.getElementById('setting_menu_' + k)) document.getElementById('setting_menu_' + k).checked = (s['menu_' + k] === 'true');
             }); 
-            ['type1','type2','type3'].forEach(k => {
+            ['type1','type2','type3','type4'].forEach(k => {
                 if (document.getElementById('setting_pet_' + k + '_open')) document.getElementById('setting_pet_' + k + '_open').checked = (s['pet_' + k + '_open'] === 'true');
             }); 
         } catch(err) {
             hideLoading();
             console.error(err);
+        }
+    };
+
+    window.saveAdminMenuSettings = async () => { 
+        showLoading(); 
+        const s = {}; 
+        ['userProfile','userActivity','userQueue','loan2569','userResign','userPetition','overLoan'].forEach(k => {
+            if (document.getElementById('setting_menu_' + k)) s['menu_' + k] = document.getElementById('setting_menu_' + k).checked.toString();
+        }); 
+        ['type1','type2','type3','type4'].forEach(k => {
+            if (document.getElementById('setting_pet_' + k + '_open')) s['pet_' + k + '_open'] = document.getElementById('setting_pet_' + k + '_open').checked.toString();
+        }); 
+        
+        try {
+            const res = await callApi("saveSystemMenuSettings", { settings: s, adminId: adminId, token: userToken });
+            if(checkAuthError(res)) { hideLoading(); return; }
+            hideLoading();
+            
+            Swal.fire('ทำรายการสำเร็จ','อัปเดตเมนูเรียบร้อย','success');
+        } catch(err) {
+            hideLoading();
+            Swal.fire('Error', err.message, 'error');
         }
     };
 
