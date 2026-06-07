@@ -2360,16 +2360,14 @@
                 hideMenuByText('ระบบจองคิวส่งเอกสาร');
             }
             
-            if (!hasAny(['navAdminLoan2569', 'navAdminOverLoan', 'navAdminLoanManage', 'navAdminReports'])) {
+            if (!hasAny(['navAdminLoan2569', 'navAdminOverLoan', 'navAdminLoanManage', 'navAdminReports', 'navAdminAddMissingStudent'])) {
                 hideMenuByText('ระบบยื่นคำร้องกู้ปี 2569');
             }
             
             if (!hasAny(['navAdminResign', 'navAdminResignManage'])) {
                 hideMenuByText('ระบบแจ้งลาออกพ้นสภาพ');
             }
-            if (!hasAny(['navAdminLoan2569', 'navAdminOverLoan', 'navAdminLoanManage', 'navAdminReports', 'navAdminAddMissingStudent'])) {
-                hideMenuByText('ระบบยื่นคำร้องกู้ปี 2569');
-            }
+            
         }
 
         showPage('adminDashboardSection'); 
