@@ -1668,7 +1668,39 @@
                 </div>
             </div> 
             
-            <footer class="app-footer">
+            <div id="adminAnnouncementSection" class="section">
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                            <div>
+                                <h2 style="margin: 0;"><i class="material-icons" style="color: #f6ad55; vertical-align: bottom;">history_edu</i> ประวัติและจัดการประกาศ</h2>
+                                <p style="color: #718096; margin: 5px 0 0 0;">สร้างประกาศ กำหนดวันสิ้นสุด และดูประวัติประกาศย้อนหลัง</p>
+                            </div>
+                            <button class="btn btn-login-new" onclick="openAnnModal()" style="background: #1976D2; color: white; padding: 10px 20px; border-radius: 8px;">
+                                <i class="material-icons" style="vertical-align: middle;">add_circle</i> สร้างประกาศใหม่
+                            </button>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="clean-table">
+                                <thead>
+                                    <tr>
+                                        <th>วันที่สร้าง</th>
+                                        <th>หัวข้อประกาศ</th>
+                                        <th>แสดงถึงวันที่</th>
+                                        <th>สถานะ</th>
+                                        <th>จัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="annTableBody">
+                                    <tr><td colspan="5" style="text-align:center;">กำลังโหลดข้อมูล...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                </div> 
+                
+                <footer class="app-footer">
                 <div class="footer-container">
                     <div class="footer-col">
                         <div class="logo-section">
@@ -1887,71 +1919,6 @@
             </form>
         </div>
     </div>
-        <div id="adminAnnouncementSection" class="section">
-    <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
-            <div>
-                <h2 style="margin: 0;"><i class="material-icons" style="color: #f6ad55; vertical-align: bottom;">history_edu</i> ประวัติและจัดการประกาศ</h2>
-                <p style="color: #718096; margin: 5px 0 0 0;">สร้างประกาศ กำหนดวันสิ้นสุด และดูประวัติประกาศย้อนหลัง</p>
-            </div>
-            <button class="btn btn-login-new" onclick="openAnnModal()" style="background: #1976D2; color: white; padding: 10px 20px; border-radius: 8px;">
-                <i class="material-icons" style="vertical-align: middle;">add_circle</i> สร้างประกาศใหม่
-            </button>
-        </div>
-        
-        <div class="table-responsive">
-            <table class="modern-table">
-                <thead>
-                    <tr>
-                        <th>วันที่สร้าง</th>
-                        <th>หัวข้อประกาศ</th>
-                        <th>แสดงถึงวันที่</th>
-                        <th>สถานะ</th>
-                        <th>จัดการ</th>
-                    </tr>
-                </thead>
-                <tbody id="annTableBody">
-                    <tr><td colspan="5" style="text-align:center;">กำลังโหลดข้อมูล...</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<div id="annModal" class="modal">
-    <div class="modal-content modern-admin-modal" style="max-width: 600px; border-radius: 12px;">
-        <div class="admin-modal-header" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); padding: 15px 20px;">
-            <h3 style="color: white; margin: 0; font-size: 18px;"><i class="material-icons" style="vertical-align: text-bottom;">campaign</i> <span id="annModalTitle">สร้างประกาศใหม่</span></h3>
-            <span class="close-button" onclick="document.getElementById('annModal').style.display='none'" style="color:white; top:15px;">&times;</span>
-        </div>
-        <div class="admin-modal-body" style="padding: 20px; background: #f8fafc;">
-            <input type="hidden" id="annID">
-            <div class="form-group">
-                <label style="font-weight: bold;">หัวข้อประกาศ <span style="color:red;">*</span></label>
-                <input type="text" id="annTitle" class="modern-input" placeholder="เช่น แจ้งปิดปรับปรุงระบบ..." required>
-            </div>
-            <div class="form-group">
-                <label style="font-weight: bold;">เนื้อหาประกาศ <span style="color:red;">*</span></label>
-                <textarea id="annContent" class="modern-input" rows="5" placeholder="รายละเอียด..." required></textarea>
-            </div>
-            <div class="form-group">
-                <label style="font-weight: bold;">แสดงผลถึงวันที่ <span style="color:red;">*</span></label>
-                <input type="date" id="annEndDate" class="modern-input" required>
-            </div>
-            <div class="form-group" style="margin-bottom: 0;">
-                <label style="font-weight: bold;">สถานะ</label>
-                <select id="annStatus" class="modern-input" style="font-weight:bold; color:#1976D2;">
-                    <option value="เปิดใช้งาน">🟢 เปิดใช้งาน (แสดงที่หน้าล็อกอิน)</option>
-                    <option value="ปิดใช้งาน">🔴 ปิดใช้งาน (เก็บไว้เป็นประวัติเฉยๆ)</option>
-                </select>
-            </div>
-        </div>
-        <div class="admin-modal-footer" style="padding: 15px 20px; text-align: right; background: white; border-top: 1px solid #e2e8f0;">
-            <button class="btn" onclick="document.getElementById('annModal').style.display='none'" style="background: #e2e8f0; color: #4a5568; margin-right: 10px;">ยกเลิก</button>
-            <button class="btn btn-success" onclick="saveAnnData()"><i class="material-icons" style="vertical-align: middle; font-size:18px;">save</i> บันทึกข้อมูล</button>
-        </div>
-    </div>
-</div>
 
     <div id="petitionUpdateModal" class="modal">
         <div class="modal-content modern-admin-modal" style="max-width: 650px; width: 95%; border-radius: 16px; overflow: hidden; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: flex; flex-direction: column; max-height: 90vh;">
@@ -2239,6 +2206,40 @@
             </div>
             <div class="admin-modal-footer">
                 <button type="button" class="btn" onclick="document.getElementById('imageHistoryModal').style.display='none'" style="background: #e2e8f0; color: #4a5568; padding: 10px 25px; border-radius: 8px; font-weight: bold; margin: 0 auto;">ปิดหน้าต่าง</button>
+            </div>
+        </div>
+    </div>
+    <div id="annModal" class="modal">
+        <div class="modal-content modern-admin-modal" style="max-width: 600px; border-radius: 12px;">
+            <div class="admin-modal-header" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); padding: 15px 20px;">
+                <h3 style="color: white; margin: 0; font-size: 18px;"><i class="material-icons" style="vertical-align: text-bottom;">campaign</i> <span id="annModalTitle">สร้างประกาศใหม่</span></h3>
+                <span class="close-button" onclick="document.getElementById('annModal').style.display='none'" style="color:white; top:15px;">&times;</span>
+            </div>
+            <div class="admin-modal-body" style="padding: 20px; background: #f8fafc;">
+                <input type="hidden" id="annID">
+                <div class="form-group">
+                    <label style="font-weight: bold;">หัวข้อประกาศ <span style="color:red;">*</span></label>
+                    <input type="text" id="annTitle" class="modern-input" placeholder="เช่น แจ้งปิดปรับปรุงระบบ..." required>
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: bold;">เนื้อหาประกาศ <span style="color:red;">*</span></label>
+                    <textarea id="annContent" class="modern-input" rows="5" placeholder="รายละเอียด..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: bold;">แสดงผลถึงวันที่ <span style="color:red;">*</span></label>
+                    <input type="date" id="annEndDate" class="modern-input" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label style="font-weight: bold;">สถานะ</label>
+                    <select id="annStatus" class="modern-input" style="font-weight:bold; color:#1976D2;">
+                        <option value="เปิดใช้งาน">🟢 เปิดใช้งาน</option>
+                        <option value="ปิดใช้งาน">🔴 ปิดใช้งาน</option>
+                    </select>
+                </div>
+            </div>
+            <div class="admin-modal-footer" style="padding: 15px 20px; text-align: right; background: white; border-top: 1px solid #e2e8f0;">
+                <button class="btn" onclick="document.getElementById('annModal').style.display='none'" style="background: #e2e8f0; color: #4a5568; margin-right: 10px;">ยกเลิก</button>
+                <button class="btn btn-success" onclick="saveAnnData()"><i class="material-icons" style="vertical-align: middle; font-size:18px;">save</i> บันทึกข้อมูล</button>
             </div>
         </div>
     </div>
