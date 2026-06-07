@@ -584,20 +584,67 @@
         try {
             const res = await callApi("getPublicAnnouncement", {});
             
-            if(res && res.success && res.data.show === 'true') {
-                const formattedContent = res.data.content.replace(/\n/g, '<br>');
+            if(res && res.success && res.data && res.data.length > 0) {
                 
+                let combinedHtml = ''; 
+                
+                const accentColors = ['#1976D2', '#f6ad55', '#38a169', '#e53e3e', '#805ad5'];
+                
+                res.data.forEach((ann, index) => {
+                    const formattedContent = ann.content.replace(/\n/g, '<br>');
+                    const themeColor = accentColors[index % accentColors.length];
+                    
+                    combinedHtml += `
+                        <div style="background: white; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-left: 5px solid ${themeColor}; text-align: left; position: relative;">
+                            
+                            <div style="position: absolute; top: 15px; right: 15px; background: ${themeColor}15; color: ${themeColor}; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold;">
+                                ข่าวสารใหม่
+                            </div>
+                            
+                            <h4 style="margin-top: 0; color: #2d3748; border-bottom: 1px dashed #e2e8f0; padding-bottom: 12px; margin-bottom: 12px; font-size: 17px; display: flex; align-items: center; gap: 8px; padding-right: 70px;">
+                                <i class="material-icons" style="color: ${themeColor};">campaign</i> ${ann.title}
+                            </h4>
+                            
+                            <div style="font-size: 14.5px; color: #4a5568; line-height: 1.7;">
+                                ${formattedContent}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                const finalHtml = `
+                    <div style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 35px 20px; text-align: center;">
+                        <i class="material-icons" style="font-size: 50px; background: rgba(255,255,255,0.15); padding: 15px; border-radius: 50%; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">notifications_active</i>
+                        <h2 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: 0.5px;">ประกาศแจ้งเตือนจากระบบ</h2>
+                        <p style="margin: 8px 0 0 0; font-size: 14px; opacity: 0.85;">กองทุนเงินให้กู้ยืมเพื่อการศึกษา มหาวิทยาลัยอุบลราชธานี</p>
+                    </div>
+                    <div style="background: #f1f5f9; padding: 20px; max-height: 50vh; overflow-y: auto;">
+                        ${combinedHtml}
+                    </div>
+                `;
+
+                const style = document.createElement('style');
+                style.innerHTML = `
+                    .swal-ann-popup { border-radius: 16px !important; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.3) !important; border: none !important; }
+                    .swal-ann-btn { font-size: 16px !important; padding: 12px 35px !important; border-radius: 30px !important; font-weight: bold !important; box-shadow: 0 4px 15px rgba(25,118,210,0.3) !important; margin-bottom: 20px !important; transition: all 0.3s !important; }
+                    .swal-ann-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(25,118,210,0.5) !important; }
+                    .swal2-html-container { margin: 0 !important; overflow: hidden !important; padding: 0 !important; }
+                `;
+                document.head.appendChild(style);
+
                 Swal.fire({
-                    title: `<strong>${res.data.title}</strong>`,
-                    html: `<div style="text-align: left; padding: 10px; background: #f8fafc; border-radius: 8px; font-size: 15px; color: #4a5568;">
-                               ${formattedContent}
-                           </div>`,
-                    icon: 'info',
-                    iconColor: '#1976D2',
-                    confirmButtonText: 'ปิดหน้านี้',
+                    html: finalHtml,
+                    showConfirmButton: true,
+                    confirmButtonText: '<i class="material-icons" style="vertical-align: middle; margin-right: 5px;">login</i> รับทราบและเข้าสู่ระบบ',
                     confirmButtonColor: '#1976D2',
                     allowOutsideClick: false, 
-                    width: '600px'
+                    width: '650px', 
+                    padding: '0', 
+                    background: '#fff',
+                    customClass: {
+                        popup: 'swal-ann-popup',
+                        confirmButton: 'swal-ann-btn'
+                    }
                 });
             }
         } catch(e) {
