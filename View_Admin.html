@@ -1884,16 +1884,19 @@
     </div>
 
     <div id="petitionUpdateModal" class="modal">
-        <div class="modal-content modern-admin-modal" style="max-width: 650px; width: 95%; border-radius: 16px; overflow: hidden; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
-            <div class="admin-modal-header" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); padding: 20px 25px;">
+        <div class="modal-content modern-admin-modal" style="max-width: 650px; width: 95%; border-radius: 16px; overflow: hidden; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: flex; flex-direction: column; max-height: 90vh;">
+            
+            <div class="admin-modal-header" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); padding: 20px 25px; flex-shrink: 0;">
                 <h3 style="margin: 0; display: flex; align-items: center; gap: 12px; font-size: 22px; font-weight: 600; color: white;">
                     <i class="material-icons" style="font-size: 28px; background: rgba(255,255,255,0.2); padding: 8px; border-radius: 10px;">rate_review</i> 
                     พิจารณาและอัปเดตสถานะคำร้อง
                 </h3>
                 <span class="close-button" onclick="document.getElementById('petitionUpdateModal').style.display='none'" style="position: relative; top: auto; right: auto; color: white; opacity: 0.8; font-size: 28px; cursor: pointer; transition: 0.3s;">×</span>
             </div>
-            <form id="petitionUpdateForm" style="margin: 0; background: #f8fafc;">
-                <div class="admin-modal-body" style="padding: 25px;">
+            
+            <form id="petitionUpdateForm" style="margin: 0; background: #f8fafc; display: flex; flex-direction: column; overflow: hidden;">
+                
+                <div class="admin-modal-body" style="padding: 25px; overflow-y: auto;">
                     <input type="hidden" id="modalPetRowIndex">
                     
                     <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #e2e8f0; box-shadow: 0 2px 10px rgba(0,0,0,0.02);">
@@ -1946,7 +1949,7 @@
                     </div>
                 </div>
                 
-                <div class="admin-modal-footer" style="background: white; border-top: 1px solid #edf2f7; padding: 20px 25px; display: flex; justify-content: flex-end; gap: 10px;">
+                <div class="admin-modal-footer" style="background: white; border-top: 1px solid #edf2f7; padding: 20px 25px; display: flex; justify-content: flex-end; gap: 10px; flex-shrink: 0;">
                     <button type="button" class="btn" onclick="document.getElementById('petitionUpdateModal').style.display='none'" style="background: #edf2f7; color: #4a5568; padding: 12px 25px; border-radius: 8px; font-weight: bold; transition: 0.3s;">ยกเลิก</button>
                     <button type="submit" class="btn btn-login-new" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); width: auto; padding: 12px 35px; border-radius: 8px; box-shadow: 0 4px 15px rgba(42, 82, 152, 0.3); font-size: 16px;">
                         <i class="material-icons" style="font-size: 20px; margin-right: 8px;">save_as</i> บันทึกข้อมูล
