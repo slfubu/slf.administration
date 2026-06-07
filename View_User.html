@@ -634,10 +634,11 @@
                                 <div class="form-group">
                                     <label style="color:#d32f2f; font-weight:bold;">ประเภทของคำร้อง <span style="color:red;">*</span></label>
                                     <select id="petType" class="modern-input" style="font-weight:bold; color:#1976D2;" required>
-                                        <option value="">-- กรุณาเลือกประเภทของคำร้อง --</option>
-                                        <option value="1">1. ขออนุญาตดำเนินการปรับปรุงข้อมูลประวัติ (กรณีพ้นระยะเวลาที่กำหนด)</option>
-                                        <option value="2">2. ขอประมวลผลระดับคะแนนเฉลี่ยสะสมและชั่วโมงจิตอาสาใหม่ (กรณีรอบที่ 1 ไม่ผ่านเกณฑ์)</option>
-                                        <option value="3">3. ยื่นคำร้องขอรับความช่วยเหลือหรือแจ้งปัญหาอื่นๆ ทั่วไป</option>
+                                    <option value="">-- กรุณาเลือกประเภทของคำร้อง --</option>
+                                    <option value="1">1. ขอลงทะเบียนปรับปรุงข้อมูลประวัติ (ไม่อยู่ในช่วงระยะเวลาที่กำหนด)</option>
+                                    <option value="2">2. ขอประมวลผลเกรดเฉลี่ยเเละหน่วยกิตจิตอาสาเพิ่มเติม (กรณีรอบ 1 ไม่ผ่าน)</option>
+                                    <option value="3">3. ยื่นคำร้องเรื่องอื่นๆ ผ่านระบบ</option>
+                                    <option value="4">4. ขอลงทะเบียนเพิ่มชื่อกู้ยืม กรณีไม่พบชื่อ/ไม่ได้กู้ยืมต่อเนื่อง</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -890,7 +891,7 @@
                 sessionStorage.clear();
                 Swal.fire({
                     title: 'ออกจากระบบสำเร็จ',
-                    text: 'ระบบกำลังพากลับไปยังหน้าเข้าสู่ระบบ...',
+                    text: 'ระบบกำลังพากลับไปยังหน้าเข้าสู่ระบบ',
                     icon: 'success',
                     timer: 1500,
                     showConfirmButton: false,
@@ -1674,7 +1675,10 @@ if (res.passed) {
         const val = this.value;
         if(!val) return;
         const set = window.currentSystemSettings;
-        if ((val==="1" && set['pet_type1_open']==='false') || (val==="2" && set['pet_type2_open']==='false') || (val==="3" && set['pet_type3_open']==='false')) {
+        if ((val==="1" && set['pet_type1_open']==='false') || 
+            (val==="2" && set['pet_type2_open']==='false') || 
+            (val==="3" && set['pet_type3_open']==='false') || 
+            (val==="4" && set['pet_type4_open']==='false')) {
             Swal.fire({ icon:'error', title:'ระบบปิดรับคำร้องประเภทนี้', text:'ไม่อยู่ในช่วงระยะเวลาที่กำหนดให้ยื่นคำร้อง' });
             this.value = "";
         }
