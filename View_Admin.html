@@ -593,7 +593,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- หน้าจัดการสิทธิ์ยื่นกู้นอกรอบ -->
                 <div id="adminSpecialLoanAccessSection" class="section">
                     <div class="card">
                         <h2><i class="material-icons" style="color: #f57c00;">vpn_key</i> อนุญาตให้สิทธิ์ยื่นคำร้องขอกู้นอกรอบ</h2>
@@ -922,7 +921,7 @@
                         </div>
                     </div>
                 </div>
-                <div id="adminAddMissingStudentSection" class="section">
+    <div id="adminAddMissingStudentSection" class="section">
     <div class="card">
         <h2><i class="material-icons" style="color: #1976D2;">person_add_alt_1</i> ลงทะเบียนเพิ่มชื่อ (กรณีไม่พบรายชื่อ/กู้ยืมไม่ต่อเนื่อง)</h2>
         <div class="admin-search-box" style="margin-bottom: 20px;">
@@ -1409,40 +1408,6 @@
                         </div>
                     </div>
                 </div>
-          <div id="annModal" class="modal">
-        <div class="modal-content modern-admin-modal" style="max-width: 600px; border-radius: 12px;">
-            <div class="admin-modal-header" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); padding: 15px 20px;">
-                <h3 style="color: white; margin: 0; font-size: 18px;"><i class="material-icons" style="vertical-align: text-bottom;">campaign</i> <span id="annModalTitle">สร้างประกาศใหม่</span></h3>
-                <span class="close-button" onclick="document.getElementById('annModal').style.display='none'" style="color:white; top:15px;">&times;</span>
-            </div>
-            <div class="admin-modal-body" style="padding: 20px; background: #f8fafc;">
-                <input type="hidden" id="annID">
-                <div class="form-group">
-                    <label style="font-weight: bold;">หัวข้อประกาศ <span style="color:red;">*</span></label>
-                    <input type="text" id="annTitle" class="modern-input" placeholder="เช่น แจ้งปิดปรับปรุงระบบ..." required>
-                </div>
-                <div class="form-group">
-                    <label style="font-weight: bold;">เนื้อหาประกาศ <span style="color:red;">*</span></label>
-                    <textarea id="annContent" class="modern-input" rows="5" placeholder="รายละเอียด..." required></textarea>
-                </div>
-                <div class="form-group">
-                    <label style="font-weight: bold;">แสดงผลถึงวันที่ <span style="color:red;">*</span></label>
-                    <input type="date" id="annEndDate" class="modern-input" required>
-                </div>
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label style="font-weight: bold;">สถานะ</label>
-                    <select id="annStatus" class="modern-input" style="font-weight:bold; color:#1976D2;">
-                        <option value="เปิดใช้งาน">🟢 เปิดใช้งาน</option>
-                        <option value="ปิดใช้งาน">🔴 ปิดใช้งาน</option>
-                    </select>
-                </div>
-            </div>
-            <div class="admin-modal-footer" style="padding: 15px 20px; text-align: right; background: white; border-top: 1px solid #e2e8f0;">
-                <button class="btn" onclick="document.getElementById('annModal').style.display='none'" style="background: #e2e8f0; color: #4a5568; margin-right: 10px;">ยกเลิก</button>
-                <button class="btn btn-success" onclick="saveAnnData()"><i class="material-icons" style="vertical-align: middle; font-size:18px;">save</i> บันทึกข้อมูล</button>
-            </div>
-        </div>
-    </div>
 
                 <div id="adminManagePetitionSection" class="section">
                     <div class="card">
@@ -1547,6 +1512,9 @@
                                     <tr><td colspan="7" style="text-align: center; padding: 30px; color: #999;">กำลังโหลดข้อมูล</td></tr>
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+                </div>
 
                 <div id="adminMenuSettingsSection" class="section">
                     <div class="card">
@@ -1683,7 +1651,7 @@
                           <label class="switch">
                            <input type="checkbox" id="setting_pet_type4_open">
                           <span class="slider"></span>
-                         </label>
+                          </label>
                           </div>
                         </div>
                     </div>
@@ -1740,7 +1708,7 @@
                     </div>
                 </div>
 
-               <footer class="app-footer">
+            </div> <footer class="app-footer">
                 <div class="footer-container">
                     <div class="footer-col">
                         <div class="logo-section">
@@ -1772,6 +1740,41 @@
                 </div>
             </footer>
         </div> 
+    </div>
+
+    <div id="annModal" class="modal">
+        <div class="modal-content modern-admin-modal" style="max-width: 600px; border-radius: 12px;">
+            <div class="admin-modal-header" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); padding: 15px 20px;">
+                <h3 style="color: white; margin: 0; font-size: 18px;"><i class="material-icons" style="vertical-align: text-bottom;">campaign</i> <span id="annModalTitle">สร้างประกาศใหม่</span></h3>
+                <span class="close-button" onclick="document.getElementById('annModal').style.display='none'" style="color:white; top:15px;">&times;</span>
+            </div>
+            <div class="admin-modal-body" style="padding: 20px; background: #f8fafc;">
+                <input type="hidden" id="annID">
+                <div class="form-group">
+                    <label style="font-weight: bold;">หัวข้อประกาศ <span style="color:red;">*</span></label>
+                    <input type="text" id="annTitle" class="modern-input" placeholder="เช่น แจ้งปิดปรับปรุงระบบ..." required>
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: bold;">เนื้อหาประกาศ <span style="color:red;">*</span></label>
+                    <textarea id="annContent" class="modern-input" rows="5" placeholder="รายละเอียด..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: bold;">แสดงผลถึงวันที่ <span style="color:red;">*</span></label>
+                    <input type="date" id="annEndDate" class="modern-input" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label style="font-weight: bold;">สถานะ</label>
+                    <select id="annStatus" class="modern-input" style="font-weight:bold; color:#1976D2;">
+                        <option value="เปิดใช้งาน">🟢 เปิดใช้งาน</option>
+                        <option value="ปิดใช้งาน">🔴 ปิดใช้งาน</option>
+                    </select>
+                </div>
+            </div>
+            <div class="admin-modal-footer" style="padding: 15px 20px; text-align: right; background: white; border-top: 1px solid #e2e8f0;">
+                <button class="btn" onclick="document.getElementById('annModal').style.display='none'" style="background: #e2e8f0; color: #4a5568; margin-right: 10px;">ยกเลิก</button>
+                <button class="btn btn-success" onclick="saveAnnData()"><i class="material-icons" style="vertical-align: middle; font-size:18px;">save</i> บันทึกข้อมูล</button>
+            </div>
+        </div>
     </div>
 
     <div id="userModal" class="modal">
@@ -2278,6 +2281,7 @@
             </div>
         </div>
     </div>
+</body>
 
 <script>
     function escapeHTML(str) {
@@ -5017,15 +5021,16 @@
         const bNext = document.getElementById('btnPetNext');
         
         if (lastFilteredPetitions.length === 0) { 
-            // แก้ไข colspan เป็น 7 เพื่อให้พอดีกับตารางใหม่
             tb.innerHTML = '<tr><td colspan="7" style="text-align:center;">ไม่พบข้อมูลตามตัวกรองที่เลือก</td></tr>'; 
             if(infoEl) infoEl.textContent = 'หน้า 0 / 0'; 
             return; 
         }
         
+        const rowsPerPageEl = document.getElementById('petRowsPerPage');
+        const petRowsPerPage = rowsPerPageEl ? parseInt(rowsPerPageEl.value, 10) : 20;
+        
         const start = (petCurrentPage - 1) * petRowsPerPage;
         lastFilteredPetitions.slice(start, start + petRowsPerPage).forEach(p => { 
-            // แทรก td ของ checkbox ไว้ด้านหน้าสุด (ดึงค่า _rowIndex มาเป็น Value)
             tb.innerHTML += '<tr>' +
                 '<td style="text-align: center;"><input type="checkbox" class="pet-checkbox" value="' + escapeHTML(String(p._rowIndex)) + '" onclick="updateSelectedPetCount()" style="transform: scale(1.3); cursor: pointer;"></td>' +
                 '<td><div style="font-weight:bold; color:var(--secondary-color);">' + escapeHTML(formatDate(p['วันที่ยื่นคำร้อง'])) + '</div></td>' +
@@ -5038,17 +5043,14 @@
         });
         
         const total = Math.ceil(lastFilteredPetitions.length / petRowsPerPage);
-        if(infoEl) infoEl.textContent = `หน้า ${petCurrentPage} / ${total} (ทั้งหมด ${lastFilteredPetitions.length} รายการ)`;
+        if(infoEl) infoEl.textContent = 'หน้า ' + petCurrentPage + ' / ' + total + ' (ทั้งหมด ' + lastFilteredPetitions.length + ' รายการ)';
         if(bPrev) bPrev.disabled = (petCurrentPage === 1); 
         if(bNext) bNext.disabled = (petCurrentPage === total || total === 0);
 
-        // รีเซ็ตปุ่มติ๊กถูกทั้งหมดบนหัวตาราง (ถ้าเปลี่ยนหน้า)
         const selectAllCb = document.getElementById('selectAllPetitions');
         if(selectAllCb) selectAllCb.checked = false;
         updateSelectedPetCount(); 
     };
-
-    // --- 🟢 ฟังก์ชันสำหรับจัดการคำร้องแบบกลุ่ม 🟢 ---
 
     window.toggleAllPetitions = (source) => {
         const checkboxes = document.querySelectorAll('.pet-checkbox');
@@ -5061,7 +5063,6 @@
         const countLabel = document.getElementById('selectedPetCount');
         if(countLabel) countLabel.innerText = count;
         
-        // เช็คว่าเลือกครบทุกอันในหน้าไหม เพื่อติ๊กถูกที่หัวตารางอัตโนมัติ
         const totalCheckboxes = document.querySelectorAll('.pet-checkbox').length;
         const selectAllCb = document.getElementById('selectAllPetitions');
         if(selectAllCb && totalCheckboxes > 0) {
