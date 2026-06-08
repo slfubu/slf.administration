@@ -1744,7 +1744,7 @@
                     </div>
                 </div>
 
-               <footer class="app-footer">
+            </div> <footer class="app-footer">
                 <div class="footer-container">
                     <div class="footer-col">
                         <div class="logo-section">
@@ -1775,10 +1775,8 @@
                     </div>
                 </div>
             </footer>
-        </div> 
-    </div>
 
-    <div id="userModal" class="modal">
+        </div> </div> <div id="userModal" class="modal">
         <div class="modal-content modern-admin-modal" style="max-width: 700px; width: 95%;">
             <div class="admin-modal-header">
                 <h3 id="userModalTitle" style="margin: 0; display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 600;">
@@ -2007,12 +2005,12 @@
                                 <i class="material-icons" style="color: #f6ad55; font-size: 20px;">edit_attributes</i> เปลี่ยนสถานะคำร้อง <span style="color:red;">*</span>
                             </label>
                             <select id="modalPetStatus" class="modern-input" required onchange="togglePetitionNoteRequirement()" style="font-weight: bold; font-size: 15px; height: 50px; border: 2px solid #cbd5e0; cursor: pointer; transition: 0.3s; color: #2b6cb0;">
-                                <option value="รับคำร้อง">🔵 รับคำร้อง</option>
-                                <option value="อยู่ระหว่างตรวจสอบ">🟡 อยู่ระหว่างตรวจสอบ</option>
-                                <option value="ตรวจสอบเเล้วอยู่ระหว่างพิจารณา">🟠 ตรวจสอบเเล้วอยู่ระหว่างพิจารณา</option>
-                                <option value="อนุมัติดำเนินการเรียบร้อย">🟢 อนุมัติดำเนินการเรียบร้อย</option>
-                                <option value="ยื่นคำร้องไม่สำเร็จ">🔴 ยื่นคำร้องไม่สำเร็จ</option>
-                                <option value="ไม่อนุมัติ">🔴 ไม่อนุมัติ (ต้องระบุหมายเหตุ)</option>
+                                <option value="รับคำร้อง">รับคำร้อง</option>
+                                <option value="อยู่ระหว่างตรวจสอบ">อยู่ระหว่างตรวจสอบ</option>
+                                <option value="ตรวจสอบเเล้วอยู่ระหว่างพิจารณา">ตรวจสอบเเล้วอยู่ระหว่างพิจารณา</option>
+                                <option value="อนุมัติดำเนินการเรียบร้อย">อนุมัติดำเนินการเรียบร้อย</option>
+                                <option value="ยื่นคำร้องไม่สำเร็จ">ยื่นคำร้องไม่สำเร็จ</option>
+                                <option value="ไม่อนุมัติ">ไม่อนุมัติ (ต้องระบุหมายเหตุ)</option>
                             </select>
                         </div>
                         
@@ -2049,12 +2047,12 @@
             <div class="form-group">
                 <label style="font-weight: bold;">เปลี่ยนสถานะทั้งหมดเป็น</label>
                 <select id="bulkPetStatus" class="modern-input" style="font-weight:bold; height:45px;">
-                    <option value="รับคำร้อง">🔵 รับคำร้อง</option>
-                    <option value="อยู่ระหว่างตรวจสอบ">🟡 อยู่ระหว่างตรวจสอบ</option>
-                    <option value="ตรวจสอบเเล้วอยู่ระหว่างพิจารณา">🟠 ตรวจสอบเเล้วอยู่ระหว่างพิจารณา</option>
-                    <option value="อนุมัติดำเนินการเรียบร้อย">🟢 อนุมัติดำเนินการเรียบร้อย</option>
-                    <option value="ยื่นคำร้องไม่สำเร็จ">🔴 ยื่นคำร้องไม่สำเร็จ</option>
-                    <option value="ไม่อนุมัติ">🔴 ไม่อนุมัติ</option>
+                    <option value="รับคำร้อง">รับคำร้อง</option>
+                    <option value="อยู่ระหว่างตรวจสอบ">อยู่ระหว่างตรวจสอบ</option>
+                    <option value="ตรวจสอบเเล้วอยู่ระหว่างพิจารณา">ตรวจสอบเเล้วอยู่ระหว่างพิจารณา</option>
+                    <option value="อนุมัติดำเนินการเรียบร้อย">อนุมัติดำเนินการเรียบร้อย</option>
+                    <option value="ยื่นคำร้องไม่สำเร็จ">ยื่นคำร้องไม่สำเร็จ</option>
+                    <option value="ไม่อนุมัติ">ไม่อนุมัติ</option>
                 </select>
             </div>
             <div class="form-group">
@@ -5007,7 +5005,6 @@
         
         const start = (petCurrentPage - 1) * petRowsPerPage;
         lastFilteredPetitions.slice(start, start + petRowsPerPage).forEach(p => { 
-            // แทรก td ของ checkbox ไว้ด้านหน้าสุด (ดึงค่า _rowIndex มาเป็น Value)
             tb.innerHTML += '<tr>' +
                 '<td style="text-align: center;"><input type="checkbox" class="pet-checkbox" value="' + escapeHTML(String(p._rowIndex)) + '" onclick="updateSelectedPetCount()" style="transform: scale(1.3); cursor: pointer;"></td>' +
                 '<td><div style="font-weight:bold; color:var(--secondary-color);">' + escapeHTML(formatDate(p['วันที่ยื่นคำร้อง'])) + '</div></td>' +
@@ -5024,13 +5021,11 @@
         if(bPrev) bPrev.disabled = (petCurrentPage === 1); 
         if(bNext) bNext.disabled = (petCurrentPage === total || total === 0);
 
-        // รีเซ็ตปุ่มติ๊กถูกทั้งหมดบนหัวตาราง (ถ้าเปลี่ยนหน้า)
         const selectAllCb = document.getElementById('selectAllPetitions');
         if(selectAllCb) selectAllCb.checked = false;
         updateSelectedPetCount(); 
     };
 
-    // --- 🟢 ฟังก์ชันสำหรับจัดการคำร้องแบบกลุ่ม 🟢 ---
 
     window.toggleAllPetitions = (source) => {
         const checkboxes = document.querySelectorAll('.pet-checkbox');
@@ -5061,36 +5056,63 @@
         document.getElementById('bulkPetitionUpdateModal').style.display = 'block';
     };
 
-    window.submitBulkPetitionUpdate = async () => {
-        const selected = Array.from(document.querySelectorAll('.pet-checkbox:checked')).map(cb => cb.value);
-        const status = document.getElementById('bulkPetStatus').value;
-        const note = document.getElementById('bulkPetNote').value.trim();
+   window.submitBulkPetitionUpdate = async () => {
+    const selected = Array.from(document.querySelectorAll('.pet-checkbox:checked')).map(cb => cb.value);
+    const status = document.getElementById('bulkPetStatus').value;
+    const note = document.getElementById('bulkPetNote').value.trim();
 
-        if(selected.length === 0) return;
+    if(selected.length === 0) return;
 
-        Swal.fire({
-            title: 'ยืนยันการทำรายการ',
-            text: `ระบบจะเปลี่ยนสถานะคำร้องทั้ง ${selected.length} รายการเป็น "${status}" ยืนยันหรือไม่`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#dd6b20'
-        }).then(async r => {
-            if(r.isConfirmed) {
-                showLoading('กำลังอัปเดตข้อมูล');
-                try {
-                    const res = await callApi("bulkUpdatePetitionStatus", { rows: selected, status: status, note: note, adminId: adminId, token: userToken });
+    Swal.fire({
+        title: 'ยืนยันการทำรายการ',
+        text: `ระบบจะเปลี่ยนสถานะคำร้องทั้ง ${selected.length} รายการเป็น "${status}" ยืนยันหรือไม่`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dd6b20'
+    }).then(async r => {
+        if(r.isConfirmed) {
+            showLoading('กำลังอัปเดตข้อมูลและเปิดสิทธิ์ (อาจใช้เวลาสักครู่)'); 
+            try {
+                const res = await callApi("bulkUpdatePetitionStatus", { rows: selected, status: status, note: note, adminId: adminId, token: userToken });
+                
+                if(res.success) {
+                    if (status === 'อนุมัติดำเนินการเรียบร้อย') {
+                        const approvedPetitions = adminPetitionsCache.filter(p => selected.includes(String(p._rowIndex)));
+                        const needSpecialAccess = approvedPetitions.filter(p => 
+                            p['ประเภทคำร้อง'] === 'ขอลงทะเบียนปรับปรุงข้อมูลประวัติ (ไม่อยู่ในช่วงระยะเวลาที่กำหนด)'
+                        );
+
+                        if (needSpecialAccess.length > 0) {
+                            for (const pet of needSpecialAccess) {
+                                const studentId = pet['รหัสนักศึกษา'];
+                                if (studentId) {
+                                    await callApi("grantSpecialMenuAccess", { 
+                                        studentId: studentId, 
+                                        adminId: adminId, 
+                                        token: userToken 
+                                    });
+                                }
+                            }
+                        }
+                    }
+
                     hideLoading();
-                    if(res.success) {
-                        Swal.fire('สำเร็จ', 'อัปเดตสถานะคำร้องทั้งหมดเรียบร้อยแล้ว', 'success');
-                        document.getElementById('bulkPetitionUpdateModal').style.display = 'none';
-                        if(document.getElementById('selectAllPetitions')) document.getElementById('selectAllPetitions').checked = false;
-                        updateSelectedPetCount();
-                        loadAdminPetitions(); // รีเฟรชตารางคำร้องใหม่
-                    } else Swal.fire('Error', res.message, 'error');
-                } catch(e) { hideLoading(); Swal.fire('Error', e.message, 'error'); }
+                    Swal.fire('สำเร็จ', 'อัปเดตสถานะคำร้อง และจัดการสิทธิ์เรียบร้อยแล้ว', 'success');
+                    document.getElementById('bulkPetitionUpdateModal').style.display = 'none';
+                    if(document.getElementById('selectAllPetitions')) document.getElementById('selectAllPetitions').checked = false;
+                    updateSelectedPetCount();
+                    if(typeof loadAdminPetitions === 'function') loadAdminPetitions(); 
+                } else {
+                    hideLoading();
+                    Swal.fire('Error', res.message, 'error');
+                }
+            } catch(e) { 
+                hideLoading(); 
+                Swal.fire('Error', e.message, 'error'); 
             }
-        });
-    };
+        }
+    });
+};
 
     window.openPetModal = (rowIndex) => { 
         const p = adminPetitionsCache.find(x => x._rowIndex == rowIndex);
@@ -5133,35 +5155,52 @@
     };
 
     const petitionUpdateFormEl = document.getElementById('petitionUpdateForm');
-    if(petitionUpdateFormEl) {
-        petitionUpdateFormEl.onsubmit = async (e) => { 
-            e.preventDefault(); 
-            showLoading('กำลังบันทึกสถานะ'); 
-            try {
-                const r = await callApi("updatePetitionStatus", {
-                    rowIndex: document.getElementById('modalPetRowIndex').value, 
-                    status: document.getElementById('modalPetStatus').value, 
-                    note: document.getElementById('modalPetNote').value, 
-                    adminId: adminId, 
-                    token: userToken
-                });
-                if(checkAuthError(r)) { hideLoading(); return; }
-                hideLoading(); 
-                
-                if(r && r.success) {
-                    Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', showConfirmButton: false, timer: 1500 });
-                    const mod = document.getElementById('petitionUpdateModal');
-                    if(mod) mod.style.display = 'none'; 
-                    loadAdminPetitions();
-                } else {
-                    Swal.fire('ผิดพลาด', r ? r.message : 'ไม่สามารถบันทึกได้', 'error');
+if(petitionUpdateFormEl) {
+    petitionUpdateFormEl.onsubmit = async (e) => { 
+        e.preventDefault(); 
+        showLoading('กำลังบันทึกสถานะและจัดการสิทธิ์'); 
+        try {
+            const rowIndex = document.getElementById('modalPetRowIndex').value;
+            const status = document.getElementById('modalPetStatus').value;
+            
+            const r = await callApi("updatePetitionStatus", {
+                rowIndex: rowIndex, 
+                status: status, 
+                note: document.getElementById('modalPetNote').value, 
+                adminId: adminId, 
+                token: userToken
+            });
+            
+            if(r && r.success) {
+                if (status === 'อนุมัติดำเนินการเรียบร้อย') {
+                    const p = adminPetitionsCache.find(x => String(x._rowIndex) === String(rowIndex));
+                    if (p && p['ประเภทคำร้อง'] === 'ขอลงทะเบียนปรับปรุงข้อมูลประวัติ (ไม่อยู่ในช่วงระยะเวลาที่กำหนด)') {
+                        const studentId = p['รหัสนักศึกษา'];
+                        if (studentId) {
+                            await callApi("grantSpecialMenuAccess", { 
+                                studentId: studentId, 
+                                adminId: adminId, 
+                                token: userToken 
+                            });
+                        }
+                    }
                 }
-            } catch(err) {
+
+                hideLoading(); 
+                Swal.fire({ icon: 'success', title: 'บันทึกและจัดการสิทธิ์สำเร็จ', showConfirmButton: false, timer: 1500 });
+                const mod = document.getElementById('petitionUpdateModal');
+                if(mod) mod.style.display = 'none'; 
+                loadAdminPetitions();
+            } else {
                 hideLoading();
-                Swal.fire('ข้อผิดพลาด', err.message, 'error');
+                Swal.fire('ผิดพลาด', r ? r.message : 'ไม่สามารถบันทึกได้', 'error');
             }
-        };
-    }
+        } catch(err) {
+            hideLoading();
+            Swal.fire('ข้อผิดพลาด', err.message, 'error');
+        }
+    };
+}
 
     window.downloadFilteredPetitions = () => {
     if (lastFilteredPetitions.length === 0) {
