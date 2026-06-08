@@ -150,8 +150,13 @@
                     </a>
                     <ul class="submenu-list" style="display: none; list-style: none; padding: 0; background-color: rgba(0,0,0,0.2);">
                         <li>
+                        <a href="#" onclick="showSection('adminLoan2569DashboardSection'); loadLoan2569Stats();" class="nav-link"  style="padding-left: 50px;">
+                        <i class="material-icons" style="font-size: 18px;">analytics</i><span style="font-size: 14px;">สถิติขอยื่นกู้รายคณะ</span>
+                        </a>
+                       </li>
+                        <li>
                             <a href="#" id="navAdminLoan2569" class="nav-link" style="padding-left: 50px;">
-                                <i class="material-icons" style="font-size: 18px;">cloud_upload</i><span style="font-size: 14px;">นำเข้าข้อมูลรายเก่า</span>
+                                <i class="material-icons" style="font-size: 18px;">cloud_upload</i><span style="font-size: 14px;">ระบบผู้กู้รายเก่าชั้นปี</span>
                             </a>
                         </li>
                          <li>
@@ -166,7 +171,7 @@
                         </li>
                         <li>
                         <a href="#" id="navAdminAddMissingStudent" class="nav-link" style="padding-left: 50px;">
-                        <i class="material-icons" style="font-size: 18px;">person_add_alt_1</i><span style="font-size: 14px;">ลงทะเบียนเพิ่มชื่อนักศึกษา</span>
+                        <i class="material-icons" style="font-size: 18px;">person_add_alt_1</i><span style="font-size: 14px;">ขอลงทะเบียนเพิ่มชื่อ</span>
                         </a>
                         </li>
                         <li>
@@ -1244,6 +1249,14 @@
                     </div>
                 </div>
 
+                <div id="adminLoan2569DashboardSection" class="section" style="display:none;">
+    <div class="card">
+        <h2><i class="material-icons">analytics</i> สถิติการยื่นคำร้องกู้ยืม ปี 2569 (แยกรายคณะ)</h2>
+        <div id="facultyStatsContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-top: 20px;">
+        </div>
+    </div>
+</div>
+
                 <div id="adminResignSection" class="section">
                     <div class="card">
                         <h2><i class="material-icons" style="color:#d32f2f;">assignment_return</i> นำเข้าข้อมูลผู้มีสิทธิ์แจ้งลาออก</h2>
@@ -2296,6 +2309,10 @@
     </div>
 
 <script>
+  function toggleSubMenu(id) {
+    const el = document.getElementById(id);
+    el.style.display = (el.style.display === 'none') ? 'block' : 'none';
+}
     function escapeHTML(str) {
         if (str === null || str === undefined) return '';
         return String(str)
@@ -5857,7 +5874,7 @@ window.submitBulkPetitionUpdate = async () => {
 
     Swal.fire({
         title: 'ยืนยันการทำรายการ',
-        text: `ระบบจะเปลี่ยนสถานะคำร้องทั้ง ${selected.length} รายการเป็น "${status}" ยืนยันหรือไม่?`,
+        text: `ระบบจะเปลี่ยนสถานะคำร้องทั้ง ${selected.length} รายการเป็น "${status}" ยืนยันหรือไม่`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#dd6b20'
@@ -5877,6 +5894,35 @@ window.submitBulkPetitionUpdate = async () => {
             } catch(e) { hideLoading(); Swal.fire('Error', e.message, 'error'); }
         }
     });
+};
+window.loadLoan2569Stats = async () => {
+    showLoading('กำลังโหลดข้อมูลสถิติ');
+    try {
+        const res = await callApi("getLoanDashboardStatsWithFaculty2569", { adminId, token: userToken });
+        const container = document.getElementById('facultyStatsContainer');
+        container.innerHTML = '';
+        
+        let grandTotal = 0; let grandSubmitted = 0;
+        for (let faculty in res.stats) {
+            const data = res.stats[faculty];
+            const percent = data.total > 0 ? ((data.submitted / data.total) * 100).toFixed(1) : 0;
+            grandTotal += data.total; grandSubmitted += data.submitted;
+
+            container.innerHTML += `
+                <div style="background:#fff; padding:20px; border-radius:12px; border:1px solid #e2e8f0; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
+                    <h4 style="margin:0 0 10px 0;">${faculty}</h4>
+                    <div style="font-size:24px; font-weight:700; color:#2b6cb0;">${data.submitted} / ${data.total}</div>
+                    <div style="height:8px; background:#edf2f7; border-radius:4px; margin:10px 0;"><div style="width:${percent}%; background:#4299e1; height:100%; border-radius:4px;"></div></div>
+                    <small>ยื่นแล้ว ${percent}%</small>
+                </div>`;
+        }
+        
+        const totalPercent = grandTotal > 0 ? ((grandSubmitted / grandTotal) * 100).toFixed(1) : 0;
+        container.insertAdjacentHTML('afterbegin', `
+            <div style="grid-column:1/-1; background:#ebf8ff; padding:20px; border-radius:12px; border-left:5px solid #3182ce;">
+                <h3>ภาพรวมทั้งหมด: ${grandSubmitted} / ${grandTotal} (${totalPercent}%)</h3>
+            </div>`);
+    } catch(e) { Swal.fire('Error', e.message, 'error'); } finally { hideLoading(); }
 };
 
 </script>
