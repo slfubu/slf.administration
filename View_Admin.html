@@ -1125,10 +1125,11 @@
                                 </div>
                             </label>
                         </div>
-                        <div class="filter-section">
-                            <div class="filter-group">
-                                <label class="filter-label">กรองข้อมูลรายคณะ</label>
-                                <div class="custom-select-wrapper">
+                        
+                        <div class="filter-section" style="display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end; background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-top: 20px;">
+                            <div class="filter-group" style="flex: 2; min-width: 250px; margin: 0;">
+                                <label class="filter-label" style="font-weight: bold; margin-bottom: 5px; display: block;">กรองข้อมูลรายคณะ</label>
+                                <div class="custom-select-wrapper" style="margin: 0;">
                                     <i class="material-icons">school</i>
                                     <select id="reportFaculty" class="custom-select">
                                         <option value="all">-- แสดงข้อมูลทุกคณะ --</option>
@@ -1147,10 +1148,23 @@
                                     </select>
                                 </div>
                             </div>
-                            <button class="btn-download-large" onclick="downloadAdminReport()">
-                                <span>ดาวน์โหลดข้อมูล</span><i class="material-icons">download</i>
-                            </button>
+                            
+                            <div class="filter-group" style="flex: 1; min-width: 150px; margin: 0;">
+                                <label class="filter-label" style="font-weight: bold; margin-bottom: 5px; display: block; color: #1976D2;">ตั้งแต่วันที่ยื่นคำร้อง</label>
+                                <input type="date" id="reportStartDate" class="modern-input" style="margin: 0; height: 50px; border: 1px solid #cbd5e0; border-radius: 8px;">
+                            </div>
+                            <div class="filter-group" style="flex: 1; min-width: 150px; margin: 0;">
+                                <label class="filter-label" style="font-weight: bold; margin-bottom: 5px; display: block; color: #1976D2;">ถึงวันที่</label>
+                                <input type="date" id="reportEndDate" class="modern-input" style="margin: 0; height: 50px; border: 1px solid #cbd5e0; border-radius: 8px;">
+                            </div>
+
+                            <div style="flex: 1 1 100%; margin-top: 15px;">
+                                <button class="btn-download-large" onclick="downloadAdminReport()" style="width: 100%; justify-content: center; height: 55px; border-radius: 12px;">
+                                    <span>ดาวน์โหลดข้อมูลรายงาน</span><i class="material-icons">download</i>
+                                </button>
+                            </div>
                         </div>
+
                     </div>
                 </div>
 
@@ -4324,15 +4338,23 @@
         showLoading('ระบบกำลังประมวลผลรายงาน'); 
         const reportTypeEl = document.querySelector('input[name="reportType"]:checked');
         const facultyEl = document.getElementById('reportFaculty');
+        const startDateEl = document.getElementById('reportStartDate');
+        const endDateEl = document.getElementById('reportEndDate');
+        
         if(!reportTypeEl || !facultyEl) { hideLoading(); return; }
         
+        const requestData = {
+            reportType: reportTypeEl.value, 
+            faculty: facultyEl.value, 
+            adminId: adminId, 
+            token: userToken 
+        };
+
+        if (startDateEl && startDateEl.value) requestData.startDate = startDateEl.value;
+        if (endDateEl && endDateEl.value) requestData.endDate = endDateEl.value;
+        
         try {
-            const r = await callApi("getAdminReportCSV", { 
-                reportType: reportTypeEl.value, 
-                faculty: facultyEl.value, 
-                adminId: adminId, 
-                token: userToken 
-            });
+            const r = await callApi("getAdminReportCSV", requestData);
             
             if(checkAuthError(r)) { hideLoading(); return; }
             hideLoading(); 
@@ -4343,7 +4365,13 @@
                     'ineligible': 'ผู้ขาดคุณสมบัติ_กยศ2569.csv',
                     'not_submitted': 'ยังไม่ดำเนินการ_กยศ2569.csv'
                 };
-                downloadCSV(r.csvData, fileNameMap[reportTypeEl.value] || 'Loan2569_Report.csv'); 
+                
+                let downloadName = fileNameMap[reportTypeEl.value] || 'Loan2569_Report.csv';
+                if (requestData.startDate && requestData.startDate === requestData.endDate) {
+                    downloadName = `(วันที่_${requestData.startDate})_` + downloadName;
+                }
+                
+                downloadCSV(r.csvData, downloadName); 
             } else {
                 Swal.fire('แจ้งเตือน', r.message, 'info');
             }
