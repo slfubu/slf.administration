@@ -1359,7 +1359,7 @@ let updateDateStr = res.studentInfo.updatedAt ? formatDate(res.studentInfo.updat
 document.getElementById('loanInfoCard').innerHTML = `
     <b>ข้อมูลผู้มีสิทธิ์:</b> ${escapeHTML(res.studentInfo.name || (currentUser.prefix + currentUser.firstName + ' ' + currentUser.lastName))}<br>
     <span style="font-size: 13px; color: #555;">รหัสประจำตัว: ${escapeHTML(res.studentInfo.studentId || currentUser.studentId)} | คณะ/สังกัด: ${escapeHTML(res.studentInfo.faculty || currentUser.faculty || '-')}</span><br>
-    <div style="margin-top:5px; border-top:1px dashed #ccc; padding-top:5px; margin-bottom:5px;">ระดับคะแนนเฉลี่ยสะสม (GPAX): <b>${escapeHTML(res.studentInfo.gpa)}</b> | ชั่วโมงกิจกรรมจิตอาสา: <b>${escapeHTML(res.studentInfo.credits)}</b> ชั่วโมง</div>
+    <div style="margin-top:5px; border-top:1px dashed #ccc; padding-top:5px; margin-bottom:5px;">ระดับคะแนนเฉลี่ยสะสม (GPAX): <b>${escapeHTML(res.studentInfo.gpa)}</b> | หน่วยกิตกิจกรรมจิตอาสา: <b>${escapeHTML(res.studentInfo.credits)}</b> ชั่วโมง</div>
     <div style="font-size: 13px; color: #1976D2;"><i class="material-icons" style="font-size: 14px; vertical-align: text-bottom;">info</i> รายงานจากฐานข้อมูล เมื่อ วันที่ ${updateDateStr}</div>
 `;
 
@@ -1509,7 +1509,7 @@ let updateDateStr = res.studentInfo.updatedAt ? formatDate(res.studentInfo.updat
 document.getElementById('overInfoBox').innerHTML = `
     <b>ข้อมูลผู้มีสิทธิ์ขอกู้:</b> ${escapeHTML(res.studentInfo.name)}<br>
     <span style="font-size: 13px; color: #555;">รหัสประจำตัว: ${escapeHTML(res.studentInfo.studentId)} | คณะ/สังกัด: ${escapeHTML(res.studentInfo.faculty)}</span><br>
-    <div style="margin-top:5px; border-top:1px dashed #ce93d8; padding-top:5px; margin-bottom:5px;">ระดับคะแนนเฉลี่ยสะสม (GPAX): <b>${escapeHTML(res.studentInfo.gpa)}</b> | ชั่วโมงกิจกรรมจิตอาสา: <b>${escapeHTML(res.studentInfo.credits)}</b> ชั่วโมง</div>
+    <div style="margin-top:5px; border-top:1px dashed #ce93d8; padding-top:5px; margin-bottom:5px;">เกรดเฉลี่ยสะสม (GPAX): <b>${escapeHTML(res.studentInfo.gpa)}</b> | หน่วยกิตกิจกรรมจิตอาสา: <b>${escapeHTML(res.studentInfo.credits)}</b> ชั่วโมง</div>
     <div style="font-size: 13px; color: var(--over-primary, #7b1fa2);"><i class="material-icons" style="font-size: 14px; vertical-align: text-bottom;">info</i> รายงานจากฐานข้อมูล เมื่อ วันที่ ${updateDateStr}</div>
 `;
 
