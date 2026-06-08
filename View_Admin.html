@@ -5181,19 +5181,17 @@
         };
     }
 
-    window.downloadFilteredPetitions = () => {
-    if (lastFilteredPetitions.length === 0) {
-        Swal.fire('แจ้งเตือน', 'ไม่มีข้อมูลคำร้องให้ดาวน์โหลด', 'warning');
-        return;
-    }
-    
-    const csv = "\uFEFFวันที่ยื่นคำร้อง,รหัสนักศึกษา,ชื่อ-สกุล,อีเมล,ประเภทคำร้อง,เหตุผลประกอบ,สถานะ,หมายเหตุเจ้าหน้าที่\n" + 
-    lastFilteredPetitions.map(p => 
-        `"${p['วันที่ยื่นคำร้อง'] || ''}","${p['รหัสนักศึกษา'] || ''}","${p['ชื่อ-สกุล'] || ''}","${p['อีเมล'] || ''}","${p['ประเภทคำร้อง'] || ''}","${(p['เหตุผลประกอบ'] || '').replace(/\n/g,' ')}","${p['สถานะ'] || 'รอดำเนินการ'}","${(p['หมายเหตุเจ้าหน้าที่'] || '').replace(/\n/g,' ')}"`
-    ).join("\n");
-    
-    downloadCSV(csv, "petitions.csv");
-};
+    window.downloadFilteredPetitions = () => { 
+        if (lastFilteredPetitions.length === 0) {
+            Swal.fire('แจ้งเตือน', 'ไม่มีข้อมูลคำร้องให้ดาวน์โหลด', 'warning');
+            return;
+        }
+        
+        const csv = "\uFEFFวันที่ยื่นคำร้อง,รหัสนักศึกษา,ชื่อ-สกุล,ประเภทคำร้อง,เหตุผลประกอบ,สถานะ,หมายเหตุเจ้าหน้าที่\n" + 
+            lastFilteredPetitions.map(p => `"${p['วันที่ยื่นคำร้อง'] || ''}","${p['รหัสนักศึกษา'] || ''}","${p['ชื่อ-สกุล'] || ''}","${p['ประเภทคำร้อง'] || ''}","${(p['เหตุผลประกอบ'] || '').replace(/\n/g,' ')}","${p['สถานะ'] || 'รอดำเนินการ'}","${(p['หมายเหตุเจ้าหน้าที่'] || '').replace(/\n/g,' ')}"`).join("\n"); 
+        
+        downloadCSV(csv, "petitions.csv"); 
+    };
   let loanAllData = [];
     let loanFilteredData = [];
     let loanCurrentPage = 1;
