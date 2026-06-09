@@ -1528,14 +1528,17 @@
                 <option value="100">100</option>
             </select>
         </div>
-        <div style="flex: 0 0 180px; display: flex; gap: 8px;">
-            <button class="btn btn-success" style="flex: 1; height: 45px;" onclick="downloadFilteredPetitions()">
-                <i class="material-icons">download</i> โหลดตามกรอง
-            </button>
-            <button class="btn btn-secondary" style="width: 45px; height: 45px;" onclick="loadAdminPetitions()">
-                <i class="material-icons">refresh</i>
-            </button>
-        </div>
+        <div style="display: flex; gap: 8px;">
+    <button class="btn btn-success" style="height: 45px; white-space: nowrap;" onclick="downloadFilteredPetitions()">
+        <i class="material-icons">download</i> โหลดตามกรอง
+    </button>
+    <button class="btn btn-warning" style="height: 45px; background-color: #ff9800; color: white; white-space: nowrap;" onclick="downloadSpecialAccessImportFile()">
+        <i class="material-icons">file_download</i> โหลดไฟล์ไปให้สิทธิ์นอกรอบ
+    </button>
+    <button class="btn btn-secondary" style="width: 45px; height: 45px;" onclick="loadAdminPetitions()">
+        <i class="material-icons">refresh</i>
+    </button>
+</div>
     </div>
                             
     <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px; padding-top: 15px; border-top: 1px dashed #e2e8f0;">
@@ -1721,55 +1724,72 @@
 </div>
 
                 <div id="adminSpecialAccessSection" class="section">
-                    <div class="card">
-                        <h2><i class="material-icons" style="color: var(--secondary-color);">how_to_reg</i> อนุญาตให้บันทึกประวัตินอกรอบเพื่อขอยื่นกู้ ปี 2569</h2>
-                        <div class="admin-search-box" style="margin-bottom: 20px;">
-                            <div class="search-wrapper">
-                                <div class="modern-input-group" style="margin-bottom: 0; flex: 1;">
-                                    <input type="text" id="specialAccessSearchInput" class="modern-input" placeholder=" ">
-                                    <label class="modern-label">ระบุรหัสนักศึกษา 11 หลัก</label>
-                                </div>
-                                <button class="btn btn-primary" onclick="searchForSpecialAccess()" style="height: 50px; padding: 0 30px; border-radius: 8px;">
-                                    <i class="material-icons" style="margin-right: 5px;">search</i> ค้นหา
-                                </button>
-                            </div>
-                        </div>
-
-                        <div id="specialAccessResultArea" style="display: none; background: #e8f5e9; padding: 20px; border-radius: 8px; border: 1px solid #c8e6c9; margin-bottom: 30px; justify-content: space-between; align-items: center;">
-                            <div>
-                                <div style="font-weight: bold; font-size: 18px; color: #2e7d32;" id="sa_name">-</div>
-                                <div style="color: #555; margin-top: 5px;">
-                                    รหัสนักศึกษา: <span id="sa_id" style="font-weight:bold;">-</span> | คณะ: <span id="sa_faculty">-</span>
-                                </div>
-                            </div>
-                            <button class="btn btn-success" id="btnGrantAccess" onclick="grantSpecialAccess()" style="height: 40px; border-radius: 20px; box-shadow: 0 2px 8px rgba(46,125,50,0.3);">
-                                <i class="material-icons" style="margin-right: 5px;">verified</i> อนุญาตให้สิทธิ์
-                            </button>
-                        </div>
-
-                        <hr style="border: 0; border-top: 1px dashed #ddd; margin: 30px 0;">
-
-                        <h3 style="color: #333; margin-bottom: 15px; font-size: 18px;">
-                            <i class="material-icons" style="vertical-align: text-bottom; font-size: 20px;">format_list_bulleted</i> รายชื่อนักศึกษาที่ได้รับสิทธิ์เพิ่มชื่อในระบบให้ลงทะเบียนประวัติ
-                        </h3>
-                        <div class="table-container">
-                            <table class="clean-table" id="specialAccessTable">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 10%; text-align: center;">ลำดับ</th>
-                                        <th style="width: 20%;">รหัสนักศึกษา</th>
-                                        <th style="width: 30%;">ชื่อ-สกุล</th>
-                                        <th style="width: 20%;">วันที่ให้สิทธิ์</th>
-                                        <th style="width: 20%; text-align: center;">จัดการ</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr><td colspan="5" style="text-align:center; padding: 20px; color: #999;">กำลังโหลด</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+    <div class="card">
+        <h2><i class="material-icons" style="color: var(--secondary-color);">how_to_reg</i> อนุญาตให้บันทึกประวัตินอกรอบเพื่อขอยื่นกู้ ปี 2569</h2>
+        
+        <div class="admin-search-box" style="margin-bottom: 20px;">
+            <div class="search-wrapper">
+                <div class="modern-input-group" style="margin-bottom: 0; flex: 1;">
+                    <input type="text" id="specialAccessSearchInput" class="modern-input" placeholder=" ">
+                    <label class="modern-label">ระบุรหัสนักศึกษา 11 หลัก</label>
                 </div>
+                <button class="btn btn-primary" onclick="searchForSpecialAccess()" style="height: 50px; padding: 0 30px; border-radius: 8px;">
+                    <i class="material-icons" style="margin-right: 5px;">search</i> ค้นหา
+                </button>
+            </div>
+        </div>
+
+        <div id="specialAccessResultArea" style="display: none; background: #e8f5e9; padding: 20px; border-radius: 8px; border: 1px solid #c8e6c9; margin-bottom: 30px; justify-content: space-between; align-items: center;">
+            <div>
+                <div style="font-weight: bold; font-size: 18px; color: #2e7d32;" id="sa_name">-</div>
+                <div style="color: #555; margin-top: 5px;">
+                    รหัสนักศึกษา: <span id="sa_id" style="font-weight:bold;">-</span> | คณะ: <span id="sa_faculty">-</span>
+                </div>
+            </div>
+            <button class="btn btn-success" id="btnGrantAccess" onclick="grantSpecialAccess()" style="height: 40px; border-radius: 20px; box-shadow: 0 2px 8px rgba(46,125,50,0.3);">
+                <i class="material-icons" style="margin-right: 5px;">verified</i> อนุญาตให้สิทธิ์
+            </button>
+        </div>
+
+        <hr style="border: 0; border-top: 1px dashed #ddd; margin: 30px 0;">
+
+        <div style="background: #f1f3f5; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #dee2e6;">
+            <label style="font-weight:bold; font-size:16px; color:#333; display: flex; align-items: center; gap: 5px;">
+                <i class="material-icons" style="color: var(--secondary-color);">upload_file</i> 
+                นำเข้าไฟล์รายชื่อผู้ได้รับสิทธิ์บันทึกประวัตินอกรอบแบบกลุ่ม (.csv หรือ .xlsx)
+            </label>
+            <div style="display:flex; gap:10px; align-items:center; margin-top:15px; flex-wrap: wrap;">
+                <input type="file" id="specialAccessExcelInput" accept=".xlsx, .csv" class="modern-input" style="background:white; padding:10px; flex: 1; min-width: 250px; margin-bottom: 0;">
+                <button class="btn btn-success" onclick="uploadSpecialAccessFile()" style="height: 45px; white-space: nowrap; background-color: #2e7d32;">
+                    <i class="material-icons">cloud_upload</i> อัปโหลดรายชื่อทั้งหมด
+                </button>
+            </div>
+            <small style="color: #666; display: block; margin-top: 5px;">* รองรับไฟล์ Excel หรือ CSV ที่มีคอลัมน์ "รหัสนักศึกษา" และ "ชื่อ-สกุล"</small>
+        </div>
+
+        <hr style="border: 0; border-top: 1px dashed #ddd; margin: 30px 0;">
+
+        <h3 style="color: #333; margin-bottom: 15px; font-size: 18px;">
+            <i class="material-icons" style="vertical-align: text-bottom; font-size: 20px;">format_list_bulleted</i> รายชื่อนักศึกษาที่ได้รับสิทธิ์เพิ่มชื่อในระบบให้ลงทะเบียนประวัติ
+        </h3>
+        <div class="table-container">
+            <table class="clean-table" id="specialAccessTable">
+                <thead>
+                    <tr>
+                        <th style="width: 10%; text-align: center;">ลำดับ</th>
+                        <th style="width: 20%;">รหัสนักศึกษา</th>
+                        <th style="width: 30%;">ชื่อ-สกุล</th>
+                        <th style="width: 20%;">วันที่ให้สิทธิ์</th>
+                        <th style="width: 20%; text-align: center;">จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="5" style="text-align:center; padding: 20px; color: #999;">กำลังโหลด</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
             </div> <footer class="app-footer">
                 <div class="footer-container">
@@ -5923,6 +5943,87 @@ window.loadLoan2569Stats = async () => {
                 <h3>ภาพรวมทั้งหมด: ${grandSubmitted} / ${grandTotal} (${totalPercent}%)</h3>
             </div>`);
     } catch(e) { Swal.fire('Error', e.message, 'error'); } finally { hideLoading(); }
+};
+
+window.downloadSpecialAccessImportFile = () => {
+    if (typeof lastFilteredPetitions === 'undefined' || lastFilteredPetitions.length === 0) {
+        Swal.fire('แจ้งเตือน', 'ไม่มีข้อมูลคำร้องให้ประมวลผล ให้ใช้ตัวกรองเพื่อดึงข้อมูลก่อนครับ', 'warning');
+        return;
+    }
+    
+    const targets = lastFilteredPetitions.filter(p => String(p['ประเภทคำร้อง']).includes('ปรับปรุงข้อมูลประวัติ'));
+    if (targets.length === 0) {
+        Swal.fire('แจ้งเตือน', 'ไม่พบคำร้อง "ขอลงทะเบียนปรับปรุงข้อมูลประวัติ" ในตารางที่แสดงอยู่', 'warning');
+        return;
+    }
+    
+    const csv = "\uFEFFรหัสนักศึกษา,ชื่อ-สกุล\n" + 
+    targets.map(p => `"${p['รหัสนักศึกษา'] || ''}","${p['ชื่อ-สกุล'] || ''}"`).join("\n");
+    
+    downloadCSV(csv, "รายชื่อให้สิทธิ์นอกรอบ_สำหรับนำเข้า.csv");
+};
+
+window.uploadSpecialAccessFile = function() {
+    const fileInput = document.getElementById('specialAccessExcelInput');
+    if (!fileInput.files || fileInput.files.length === 0) {
+        Swal.fire('แจ้งเตือน', 'กรุณาเลือกไฟล์ที่ดาวน์โหลดมาจากหน้าระบบคำร้อง', 'warning');
+        return;
+    }
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+    showLoading('กำลังอ่านไฟล์...');
+
+    reader.onload = async function(e) {
+        try {
+            let studentList = [];
+            if (file.name.endsWith('.csv')) {
+                const text = e.target.result;
+                const lines = text.split('\n');
+                const headers = lines[0].replace(/["\r]/g, '').split(',');
+                const idIdx = headers.findIndex(h => h.includes('รหัส'));
+                const nameIdx = headers.findIndex(h => h.includes('ชื่อ'));
+                
+                for (let i = 1; i < lines.length; i++) {
+                    if (!lines[i].trim()) continue;
+                    const cols = lines[i].split(',').map(c => c.replace(/["\r]/g, '').trim());
+                    if (cols[idIdx]) studentList.push({ studentId: cols[idIdx], name: cols[nameIdx] || '' });
+                }
+            } else if (typeof XLSX !== 'undefined') { 
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+                
+                jsonData.forEach(row => {
+                    const studentId = row['รหัสนักศึกษา'] || Object.values(row)[0];
+                    const name = row['ชื่อ-สกุล'] || row['ชื่อ'] || Object.values(row)[1] || '';
+                    if (studentId) studentList.push({ studentId: String(studentId).trim(), name: String(name).trim() });
+                });
+            } else {
+                hideLoading();
+                Swal.fire('ผิดพลาด', 'ระบบไม่รองรับไฟล์ Excel กรุณาแปลงเป็น .csv', 'error');
+                return;
+            }
+
+            if (studentList.length === 0) {
+                hideLoading(); Swal.fire('ผิดพลาด', 'ไม่พบรายชื่อในไฟล์', 'error'); return;
+            }
+
+            showLoading(`กำลังบันทึก ${studentList.length} รายการเข้าสู่ฐานข้อมูล`);
+            const res = await callApi("bulkGrantSpecialAccess", { list: studentList, adminId: adminId, token: userToken });
+            hideLoading();
+            
+            if (res.success) {
+                Swal.fire('สำเร็จ', `ให้สิทธิ์นักศึกษาเรียบร้อย ${studentList.length} คน`, 'success');
+                fileInput.value = ''; 
+                if (typeof loadSpecialAccessList === 'function') loadSpecialAccessList(); 
+            } else Swal.fire('เกิดข้อผิดพลาด', res.message, 'error');
+            
+        } catch(err) {
+            hideLoading(); Swal.fire('ผิดพลาด', err.message, 'error');
+        }
+    };
+    if (file.name.endsWith('.csv')) reader.readAsText(file, 'UTF-8');
+    else reader.readAsArrayBuffer(file);
 };
 
 </script>
