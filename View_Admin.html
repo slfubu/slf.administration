@@ -5957,8 +5957,8 @@ window.downloadSpecialAccessImportFile = () => {
         return;
     }
     
-    const csv = "\uFEFFรหัสนักศึกษา,ชื่อ-สกุล\n" + 
-    targets.map(p => `"${p['รหัสนักศึกษา'] || ''}","${p['ชื่อ-สกุล'] || ''}"`).join("\n");
+    const csv = "\uFEFFรหัสนักศึกษา,ชื่อ-สกุล,คณะ\n" + 
+    targets.map(p => `"${p['รหัสนักศึกษา'] || ''}","${p['ชื่อ-สกุล'] || ''}",""`).join("\n");
     
     downloadCSV(csv, "รายชื่อให้สิทธิ์นอกรอบ_สำหรับนำเข้า.csv");
 };
@@ -5971,7 +5971,7 @@ window.uploadSpecialAccessFile = function() {
     }
     const file = fileInput.files[0];
     const reader = new FileReader();
-    showLoading('กำลังอ่านไฟล์...');
+    showLoading('กำลังอ่านไฟล์');
 
     reader.onload = async function(e) {
         try {
@@ -5982,11 +5982,18 @@ window.uploadSpecialAccessFile = function() {
                 const headers = lines[0].replace(/["\r]/g, '').split(',');
                 const idIdx = headers.findIndex(h => h.includes('รหัส'));
                 const nameIdx = headers.findIndex(h => h.includes('ชื่อ'));
+                const facIdx = headers.findIndex(h => h.includes('คณะ') || h.includes('faculty'));
                 
                 for (let i = 1; i < lines.length; i++) {
                     if (!lines[i].trim()) continue;
                     const cols = lines[i].split(',').map(c => c.replace(/["\r]/g, '').trim());
-                    if (cols[idIdx]) studentList.push({ studentId: cols[idIdx], name: cols[nameIdx] || '' });
+                    if (cols[idIdx]) {
+                        studentList.push({ 
+                            studentId: cols[idIdx], 
+                            name: cols[nameIdx] || '',
+                            faculty: (facIdx !== -1 && cols[facIdx]) ? cols[facIdx] : '-'
+                        });
+                    }
                 }
             } else if (typeof XLSX !== 'undefined') { 
                 const data = new Uint8Array(e.target.result);
@@ -5994,9 +6001,17 @@ window.uploadSpecialAccessFile = function() {
                 const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
                 
                 jsonData.forEach(row => {
-                    const studentId = row['รหัสนักศึกษา'] || Object.values(row)[0];
-                    const name = row['ชื่อ-สกุล'] || row['ชื่อ'] || Object.values(row)[1] || '';
-                    if (studentId) studentList.push({ studentId: String(studentId).trim(), name: String(name).trim() });
+                    const studentId = row['รหัสนักศึกษา'] || row['studentId'] || Object.values(row)[0];
+                    const name = row['ชื่อ-สกุล'] || row['ชื่อ'] || row['name'] || Object.values(row)[1] || '';
+                    const faculty = row['คณะ'] || row['faculty'] || '-';
+                    
+                    if (studentId) {
+                        studentList.push({ 
+                            studentId: String(studentId).trim(), 
+                            name: String(name).trim(),
+                            faculty: String(faculty).trim()
+                        });
+                    }
                 });
             } else {
                 hideLoading();
@@ -6008,7 +6023,7 @@ window.uploadSpecialAccessFile = function() {
                 hideLoading(); Swal.fire('ผิดพลาด', 'ไม่พบรายชื่อในไฟล์', 'error'); return;
             }
 
-            showLoading(`กำลังบันทึก ${studentList.length} รายการเข้าสู่ฐานข้อมูล`);
+            showLoading(`กำลังบันทึก ${studentList.length} รายการเข้าสู่ฐานข้อมูล...`);
             const res = await callApi("bulkGrantSpecialAccess", { list: studentList, adminId: adminId, token: userToken });
             hideLoading();
             
