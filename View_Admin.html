@@ -5958,7 +5958,19 @@ window.downloadSpecialAccessImportFile = () => {
     }
     
     const csv = "\uFEFFรหัสนักศึกษา,ชื่อ-สกุล,คณะ\n" + 
-    targets.map(p => `"${p['รหัสนักศึกษา'] || ''}","${p['ชื่อ-สกุล'] || ''}",""`).join("\n");
+    targets.map(p => {
+        const stdId = p['รหัสนักศึกษา'] || '';
+        let faculty = p['คณะ'] || '';
+        
+        if (!faculty && typeof lastUsers !== 'undefined' && lastUsers.length > 0) {
+            const userMatch = lastUsers.find(u => String(u.studentId).trim() === String(stdId).trim());
+            if (userMatch && userMatch.faculty) {
+                faculty = userMatch.faculty;
+            }
+        }
+        
+        return `"${stdId}","${p['ชื่อ-สกุล'] || ''}","${faculty}"`;
+    }).join("\n");
     
     downloadCSV(csv, "รายชื่อให้สิทธิ์นอกรอบ_สำหรับนำเข้า.csv");
 };
