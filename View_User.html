@@ -289,7 +289,7 @@
                                 <i class="material-icons" style="font-size: 64px; color: #64B5F6; margin-bottom: 15px;">fact_check</i>
                                 <h3 style="color: #1565C0; margin: 0 0 10px 0; font-size: 20px;">ตรวจสอบคุณสมบัติเบื้องต้น</h3>
                                 <p style="color: #555; font-size: 15px; margin: 0 auto 25px auto; line-height: 1.6;">
-                                    ระบบจะทำการประมวลผลระดับคะแนนเฉลี่ยสะสม (GPAX) และจำนวนชั่วโมงจิตอาสา<br>เพื่อประเมินสิทธิ์ในการขอกู้ยืมเงินของท่าน
+                                    ระบบจะทำการประมวลผลระดับคะแนนเฉลี่ยสะสม (GPAX) และจำนวนหน่วยกิตจิตอาสา<br>เพื่อประเมินสิทธิ์ในการขอกู้ยืมเงินของท่าน
                                 </p>
                                 <button class="btn btn-login-new" onclick="checkMyEligibility()" style="width: auto; padding: 12px 40px; border-radius: 30px;">
                                     <i class="material-icons" style="font-size: 18px; margin-right: 5px;">search</i> ตรวจสอบสิทธิ์การกู้ยืม
@@ -303,7 +303,7 @@
                             <div id="loanFailMessage" style="display:none; text-align:center; padding:40px; border-radius:12px; background:#fff5f5; border: 1px solid #ffcdd2;">
                                 <i class="material-icons" style="font-size: 64px; color: #d32f2f; margin-bottom: 10px;">gpp_bad</i>
                                 <h3 style="color: #c62828;">คุณสมบัติของท่านไม่ผ่านเกณฑ์การกู้ยืม</h3>
-                                <p>ระดับเกรดเฉลี่ยสะสมต่ำกว่าเกณฑ์ 1.50 หรือ ชั่วโมงกิจกรรมจิตอาสาไม่ครบ 12 หน่วยกิต</p>
+                                <p>ระดับเกรดเฉลี่ยสะสมต่ำกว่าเกณฑ์ 1.50 หรือ หน่วยกิตกิจกรรมจิตอาสาไม่ครบ 12 หน่วยกิต</p>
                                 <p style="color: #666; font-size: 14px;">ระบบไม่อนุญาตให้ดำเนินการต่อ หากท่านประสงค์ให้ตรวจสอบข้อมูลประมวลผลอีกครั้ง รอบที่ 2 หรือมีเหตุผลความจำเป็น กรุณาดำเนินการยื่นคำร้องผ่านระบบคำร้องออนไลน์</p>
                                 <button class="btn btn-login-new" onclick="goToPetitionFromFail('2')" style="margin-top: 15px; border-radius: 30px; width: auto; padding: 10px 30px; background: linear-gradient(135deg, #d32f2f 0%, #e53e3e 100%);">
                                     <i class="material-icons" style="vertical-align: middle; margin-right: 5px;">rate_review</i> เข้าสู่หน้ายื่นคำร้องออนไลน์
@@ -431,7 +431,7 @@
                             <div id="overLoanFailMessage" style="display:none; text-align:center; padding:40px; border-radius:12px; background:#fff5f5; border: 1px solid #ffcdd2;">
                                 <i class="material-icons" style="font-size: 64px; color: #d32f2f; margin-bottom: 10px;">gpp_bad</i>
                                 <h3 style="color: #c62828;">คุณสมบัติของท่านไม่ผ่านเกณฑ์การกู้ยืม</h3>
-                                <p>ระดับเกรดเฉลี่ยสะสมต่ำกว่าเกณฑ์ 2.00 หรือ ชั่วโมงกิจกรรมจิตอาสาไม่ครบ 12 หน่วยกิต</p>
+                                <p>ระดับเกรดเฉลี่ยสะสมต่ำกว่าเกณฑ์ 2.00 หรือ หน่วยกิตกิจกรรมจิตอาสาไม่ครบ 12 หน่วยกิต</p>
                                 <p style="color: #666; font-size: 14px;">ระบบไม่อนุญาตให้ดำเนินการต่อ หากท่านประสงค์ให้ตรวจสอบข้อมูลประมวลผลอีกครั้ง รอบ 2 หรือมีเหตุผลความจำเป็น กรุณาดำเนินการยื่นคำร้องผ่านระบบคำร้องออนไลน์</p>
                                 <button class="btn btn-login-new" onclick="goToPetitionFromFail('2')" style="margin-top: 15px; border-radius: 30px; width: auto; padding: 10px 30px; background: linear-gradient(135deg, #d32f2f 0%, #e53e3e 100%);">
                                     <i class="material-icons" style="vertical-align: middle; margin-right: 5px;">rate_review</i> เข้าสู่หน้ายื่นคำร้องออนไลน์
@@ -1359,7 +1359,7 @@ let updateDateStr = res.studentInfo.updatedAt ? formatDate(res.studentInfo.updat
 document.getElementById('loanInfoCard').innerHTML = `
     <b>ข้อมูลผู้มีสิทธิ์:</b> ${escapeHTML(res.studentInfo.name || (currentUser.prefix + currentUser.firstName + ' ' + currentUser.lastName))}<br>
     <span style="font-size: 13px; color: #555;">รหัสประจำตัว: ${escapeHTML(res.studentInfo.studentId || currentUser.studentId)} | คณะ/สังกัด: ${escapeHTML(res.studentInfo.faculty || currentUser.faculty || '-')}</span><br>
-    <div style="margin-top:5px; border-top:1px dashed #ccc; padding-top:5px; margin-bottom:5px;">ระดับคะแนนเฉลี่ยสะสม (GPAX): <b>${escapeHTML(res.studentInfo.gpa)}</b> | หน่วยกิตกิจกรรมจิตอาสา: <b>${escapeHTML(res.studentInfo.credits)}</b> ชั่วโมง</div>
+    <div style="margin-top:5px; border-top:1px dashed #ccc; padding-top:5px; margin-bottom:5px;">ระดับคะแนนเฉลี่ยสะสม (GPAX): <b>${escapeHTML(res.studentInfo.gpa)}</b> | หน่วยกิตกิจกรรมจิตอาสา: <b>${escapeHTML(res.studentInfo.credits)}</b> หน่วยกิต</div>
     <div style="font-size: 13px; color: #1976D2;"><i class="material-icons" style="font-size: 14px; vertical-align: text-bottom;">info</i> รายงานจากฐานข้อมูล เมื่อ วันที่ ${updateDateStr}</div>
 `;
 
@@ -1509,7 +1509,7 @@ let updateDateStr = res.studentInfo.updatedAt ? formatDate(res.studentInfo.updat
 document.getElementById('overInfoBox').innerHTML = `
     <b>ข้อมูลผู้มีสิทธิ์ขอกู้:</b> ${escapeHTML(res.studentInfo.name)}<br>
     <span style="font-size: 13px; color: #555;">รหัสประจำตัว: ${escapeHTML(res.studentInfo.studentId)} | คณะ/สังกัด: ${escapeHTML(res.studentInfo.faculty)}</span><br>
-    <div style="margin-top:5px; border-top:1px dashed #ce93d8; padding-top:5px; margin-bottom:5px;">เกรดเฉลี่ยสะสม (GPAX): <b>${escapeHTML(res.studentInfo.gpa)}</b> | หน่วยกิตกิจกรรมจิตอาสา: <b>${escapeHTML(res.studentInfo.credits)}</b> ชั่วโมง</div>
+    <div style="margin-top:5px; border-top:1px dashed #ce93d8; padding-top:5px; margin-bottom:5px;">ระดับคะแนนเฉลี่ยสะสม (GPAX): <b>${escapeHTML(res.studentInfo.gpa)}</b> | หน่วยกิตกิจกรรมจิตอาสา: <b>${escapeHTML(res.studentInfo.credits)}</b> หน่วยกิต</div>
     <div style="font-size: 13px; color: var(--over-primary, #7b1fa2);"><i class="material-icons" style="font-size: 14px; vertical-align: text-bottom;">info</i> รายงานจากฐานข้อมูล เมื่อ วันที่ ${updateDateStr}</div>
 `;
 
