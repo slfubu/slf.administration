@@ -5945,6 +5945,7 @@ window.loadLoan2569Stats = async () => {
     } catch(e) { Swal.fire('Error', e.message, 'error'); } finally { hideLoading(); }
 };
 
+
 window.downloadSpecialAccessImportFile = () => {
     if (typeof lastFilteredPetitions === 'undefined' || lastFilteredPetitions.length === 0) {
         Swal.fire('แจ้งเตือน', 'ไม่มีข้อมูลคำร้องให้ประมวลผล ให้ใช้ตัวกรองเพื่อดึงข้อมูลก่อนครับ', 'warning');
@@ -5960,16 +5961,10 @@ window.downloadSpecialAccessImportFile = () => {
     const csv = "\uFEFFรหัสนักศึกษา,ชื่อ-สกุล,คณะ\n" + 
     targets.map(p => {
         const stdId = p['รหัสนักศึกษา'] || '';
-        let faculty = p['คณะ'] || '';
+        const stdName = p['ชื่อ-สกุล'] || '';
+        const faculty = p['คณะ'] || '-'; 
         
-        if (!faculty && typeof lastUsers !== 'undefined' && lastUsers.length > 0) {
-            const userMatch = lastUsers.find(u => String(u.studentId).trim() === String(stdId).trim());
-            if (userMatch && userMatch.faculty) {
-                faculty = userMatch.faculty;
-            }
-        }
-        
-        return `"${stdId}","${p['ชื่อ-สกุล'] || ''}","${faculty}"`;
+        return `"${stdId}","${stdName}","${faculty}"`;
     }).join("\n");
     
     downloadCSV(csv, "รายชื่อให้สิทธิ์นอกรอบ_สำหรับนำเข้า.csv");
