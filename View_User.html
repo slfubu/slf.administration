@@ -35,42 +35,42 @@
                         <i class="material-icons">dashboard</i><span>หน้าหลักข้อมูลของฉัน</span>
                     </a>
                 </li>
-                <li class="nav-item user-nav" id="menu_userProfile" style="display: none;">
+                <li class="nav-item user-nav" id="menu_userProfile">
                     <a href="#" id="navUserProfile" class="nav-link">
                         <i class="material-icons">assignment_ind</i><span>ทะเบียนประวัตินักศึกษา</span>
                     </a>
                 </li>
-                <li class="nav-item user-nav" id="menu_userActivity" style="display: none;">
+                <li class="nav-item user-nav" id="menu_userActivity">
                     <a href="#" id="navUserActivity" class="nav-link">
                         <i class="material-icons">volunteer_activism</i><span>ระบบลงทะเบียนจิตอาสา</span>
                     </a>
                 </li>
-                <li class="nav-item user-nav" id="menu_userQueue" style="display: none;">
+                <li class="nav-item user-nav" id="menu_userQueue">
                     <a href="#" id="navUserQueue" class="nav-link">
                         <i class="material-icons">confirmation_number</i><span>ระบบจองคิวส่งเอกสาร</span>
                     </a>
                 </li>
-                <li class="nav-item user-nav" id="menu_loan2569" style="display: none;">
+                <li class="nav-item user-nav" id="menu_loan2569">
                     <a href="#" id="navLoan2569" class="nav-link">
                         <i class="material-icons">monetization_on</i><span>ระบบยื่นกู้ กยศ. ปี 2569</span>
                     </a>
                 </li>
-                <li class="nav-item user-nav" id="menu_overLoan" style="display: none;">
+                <li class="nav-item user-nav" id="menu_overLoan">
                     <a href="#" id="navOverLoan" class="nav-link">
                         <i class="material-icons">history_edu</i><span>ยื่นกู้เกินหลักสูตร ปี 2569</span>
                     </a>
                 </li>
-                <li class="nav-item user-nav" id="menu_userResign" style="display: none;">
+                <li class="nav-item user-nav" id="menu_userResign">
                     <a href="#" id="navUserResign" class="nav-link">
                         <i class="material-icons">exit_to_app</i><span>แจ้งความประสงค์ลาออก</span>
                     </a>
                 </li>
-                <li class="nav-item user-nav" id="menu_userPetition" style="display: none;">
+                <li class="nav-item user-nav" id="menu_userPetition">
                     <a href="#" id="navUserPetition" class="nav-link">
                         <i class="material-icons">rate_review</i><span>ระบบยื่นคำร้องออนไลน์</span>
                     </a>
                 </li>
-                <li class="nav-item user-nav" id="menu_userTrackPetition" style="display: none;">
+                <li class="nav-item user-nav" id="menu_userTrackPetition">
                     <a href="#" id="navUserTrackPetition" class="nav-link">
                         <i class="material-icons">track_changes</i><span>สถานะคำร้องออนไลน์</span>
                     </a>
@@ -846,11 +846,45 @@
 
     if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebarOnMobile);
 
-    function showSection(sectionId) {
+  function showSection(sectionId) {
+        const menuSettingsMap = {
+            'userProfileSection': 'menu_userProfile',
+            'userActivitySection': 'menu_userActivity',
+            'userQueue': 'menu_userQueue',
+            'userLoan2569Section': 'menu_loan2569',
+            'userOverLoanSection': 'menu_overLoan',
+            'userResignSection': 'menu_userResign',
+            'userPetitionSection': 'menu_userPetition',
+            'userTrackPetitionSection': 'menu_userTrackPetition'
+        };
+
+        const settingKey = menuSettingsMap[sectionId];
+        
+        if (settingKey && Object.keys(window.currentSystemSettings).length > 0) {
+            const isGlobalOpen = window.currentSystemSettings[settingKey] === 'true' || window.currentSystemSettings[settingKey] === undefined;
+            const hasSpecial = (settingKey === 'menu_userProfile' && window.hasSpecialAccess); // เช็คสิทธิ์พิเศษสำหรับเมนูประวัติ
+
+            if (!isGlobalOpen && !hasSpecial) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ปิดให้บริการชั่วคราว',
+                    text: 'เมนูนี้ถูกปิดการใช้งานโดยผู้ดูแลระบบ ไม่สามารถเข้าใช้งานได้ในขณะนี้',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#1976D2'
+                });
+                return false; 
+            }
+        } else if (settingKey && Object.keys(window.currentSystemSettings).length === 0) {
+  
+             Swal.fire({ title: 'ระบบกำลังโหลดการตั้งค่า', text: 'กรุณารอสักครู่...', icon: 'info', timer: 1500, showConfirmButton: false });
+            return false;
+        }
+
         document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
         const target = document.getElementById(sectionId);
         if(target) target.classList.add('active');
         window.scrollTo(0, 0);
+        return true; 
     }
 
     function setupNav(id, sectionId, callback) {
@@ -858,11 +892,12 @@
         if (el) {
             el.addEventListener('click', (e) => {
                 e.preventDefault();
-                showSection(sectionId);
-                document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
-                el.classList.add('active');
-                closeSidebarOnMobile();
-                if (callback) callback();
+                if (showSection(sectionId)) {
+                    document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+                    el.classList.add('active');
+                    closeSidebarOnMobile();
+                    if (callback) callback();
+                }
             });
         }
     }
@@ -930,6 +965,7 @@
     autoLogout();
 
     window.currentSystemSettings = {};
+    window.hasSpecialAccess = false; 
     
     async function applyStudentMenuSettings() {
         try {
@@ -937,20 +973,10 @@
                 studentId: currentUser.studentId, 
                 token: userToken 
             });
+            
             window.currentSystemSettings = permissions.globalSettings; 
-            const menus = [
-                'menu_userProfile', 'menu_userActivity', 'menu_userQueue', 
-                'menu_loan2569', 'menu_userResign', 'menu_userPetition', 
-                'menu_userTrackPetition', 'menu_overLoan' 
-            ];
-            menus.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    const isGlobalOpen = permissions.globalSettings[id] === 'true' || permissions.globalSettings[id] === undefined;
-                    const hasSpecial = (id === 'menu_userProfile' && permissions.hasSpecialAccess);
-                    el.style.setProperty('display', (isGlobalOpen || hasSpecial) ? 'block' : 'none', 'important');
-                }
-            });
+            window.hasSpecialAccess = permissions.hasSpecialAccess; 
+            
         } catch (error) {
             console.error("Menu Settings Error:", error);
         }
@@ -1334,42 +1360,68 @@
             } else if (res.status === 'submitted') {
                 showLoanSummary(res.data); updateStepper(3, 'loan-step');
             } else if (res.status === 'no_profile') {
-                Swal.fire({
-                    icon: 'warning',
-                    title: '403 Forbidden',
-                    text: 'ระบบไม่สามารถทำรายการได้ เนื่องจากไม่พบข้อมูลทะเบียนประวัติของท่านในฐานข้อมูลระบบ หากท่านยังไม่บันทึกข้อมูลทะเบียนประวัติในระบบตามที่สถานศึกษากำหนด 2-7 มิ.ย. 2569 กรุณาดำเนินการยื่นคำร้อง "ขอปรับปรุงข้อมูลประวัติ" ผ่านระบบคำร้องออนไลน์ เพื่อดำเนินการในขั้นตอนต่อไป ระบบจะอนุมัติ 3 วันทำการ',
-                    showCancelButton: true,
-                    confirmButtonText: 'ดำเนินการยื่นคำร้อง',
-                    cancelButtonText: 'ปิดหน้าต่าง',
-                    confirmButtonColor: '#1976D2'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        goToPetitionFromFail('1'); 
-                    }
-                });
+                
+                // ตรวจสอบสถานะการเปิด-ปิดเมนูทะเบียนประวัติ
+                const isProfileMenuOpen = (window.currentSystemSettings['menu_userProfile'] === 'true' || window.currentSystemSettings['menu_userProfile'] === undefined);
+
+                if (isProfileMenuOpen) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'ยังไม่ได้บันทึกทะเบียนประวัติ',
+                        text: 'ท่านยังไม่ได้ทำการบันทึกทะเบียนประวัติในระบบ กรุณาบันทึกข้อมูลให้เรียบร้อยก่อนยื่นคำร้องขอกู้ยืมเงิน',
+                        showCancelButton: true,
+                        confirmButtonColor: '#1976D2',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'ไปหน้าบันทึกประวัติ',
+                        cancelButtonText: 'ปิดหน้าต่าง'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            showSection('userProfileSection'); 
+                            document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+                            document.getElementById('navUserProfile').classList.add('active');
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ไม่สามารถดำเนินการได้',
+                        text: 'เนื่องจากไม่อยู่ในระยะเวลาที่กำหนดให้บันทึกประวัติ',
+                        footer: '<span style="color:#d32f2f; font-weight:bold;">* กรุณายื่นคำร้องขอปรับปรุงข้อมูลประวัตินอกรอบ</span>',
+                        showCancelButton: true,
+                        confirmButtonColor: '#ff9800',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'ไปหน้ายื่นคำร้องออนไลน์',
+                        cancelButtonText: 'ปิดหน้าต่าง'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            goToPetitionFromFail('1'); 
+                        }
+                    });
+                }
+
             } else if (res.status === 'eligible_check') {
 
-document.getElementById('loanStep1').style.display = 'none';
-document.getElementById('loanStep2').style.display = 'block';
-updateStepper(2, 'loan-step');
+                document.getElementById('loanStep1').style.display = 'none';
+                document.getElementById('loanStep2').style.display = 'block';
+                updateStepper(2, 'loan-step');
 
-// เตรียมวันที่
-let updateDateStr = res.studentInfo.updatedAt ? formatDate(res.studentInfo.updatedAt) : 'ไม่ระบุ';
+                // เตรียมวันที่
+                let updateDateStr = res.studentInfo.updatedAt ? formatDate(res.studentInfo.updatedAt) : 'ไม่ระบุ';
 
-document.getElementById('loanInfoCard').innerHTML = `
-    <b>ข้อมูลผู้มีสิทธิ์:</b> ${escapeHTML(res.studentInfo.name || (currentUser.prefix + currentUser.firstName + ' ' + currentUser.lastName))}<br>
-    <span style="font-size: 13px; color: #555;">รหัสประจำตัว: ${escapeHTML(res.studentInfo.studentId || currentUser.studentId)} | คณะ/สังกัด: ${escapeHTML(res.studentInfo.faculty || currentUser.faculty || '-')}</span><br>
-    <div style="margin-top:5px; border-top:1px dashed #ccc; padding-top:5px; margin-bottom:5px;">ระดับคะแนนเฉลี่ยสะสม (GPAX): <b>${escapeHTML(res.studentInfo.gpa)}</b> | หน่วยกิตกิจกรรมจิตอาสา: <b>${escapeHTML(res.studentInfo.credits)}</b> หน่วยกิต</div>
-    <div style="font-size: 13px; color: #1976D2;"><i class="material-icons" style="font-size: 14px; vertical-align: text-bottom;">info</i> รายงานจากฐานข้อมูล เมื่อ วันที่ ${updateDateStr}</div>
-`;
+                document.getElementById('loanInfoCard').innerHTML = `
+                    <b>ข้อมูลผู้มีสิทธิ์:</b> ${escapeHTML(res.studentInfo.name || (currentUser.prefix + currentUser.firstName + ' ' + currentUser.lastName))}<br>
+                    <span style="font-size: 13px; color: #555;">รหัสประจำตัว: ${escapeHTML(res.studentInfo.studentId || currentUser.studentId)} | คณะ/สังกัด: ${escapeHTML(res.studentInfo.faculty || currentUser.faculty || '-')}</span><br>
+                    <div style="margin-top:5px; border-top:1px dashed #ccc; padding-top:5px; margin-bottom:5px;">ระดับคะแนนเฉลี่ยสะสม (GPAX): <b>${escapeHTML(res.studentInfo.gpa)}</b> | หน่วยกิตกิจกรรมจิตอาสา: <b>${escapeHTML(res.studentInfo.credits)}</b> หน่วยกิต</div>
+                    <div style="font-size: 13px; color: #1976D2;"><i class="material-icons" style="font-size: 14px; vertical-align: text-bottom;">info</i> รายงานจากฐานข้อมูล เมื่อ วันที่ ${updateDateStr}</div>
+                `;
 
-if (res.passed) {
-    document.getElementById('loanFailMessage').style.display = 'none';
-    document.getElementById('loanFormArea').style.display = 'block';
-} else {
-    document.getElementById('loanFailMessage').style.display = 'block';
-    document.getElementById('loanFormArea').style.display = 'none';
-}
+                if (res.passed) {
+                    document.getElementById('loanFailMessage').style.display = 'none';
+                    document.getElementById('loanFormArea').style.display = 'block';
+                } else {
+                    document.getElementById('loanFailMessage').style.display = 'block';
+                    document.getElementById('loanFormArea').style.display = 'none';
+                }
             }
         } catch (err) {
             hideLoading();
@@ -1485,41 +1537,65 @@ if (res.passed) {
             else if(res.status === 'submitted') {
                 showOverLoanSummary(res.data); updateStepper(3, 'over-step');
             } else if (res.status === 'no_profile') {
-                Swal.fire({
-                    icon: 'warning',
-                    title: '403 Forbidden',
-                    text: 'ระบบไม่สามารถทำรายการได้ เนื่องจากไม่พบข้อมูลทะเบียนประวัติของท่านในฐานข้อมูลระบบ หากท่านยังไม่บันทึกข้อมูลทะเบียนประวัติในระบบตามที่สถานศึกษากำหนด 2-7 มิ.ย. 2569 กรุณาดำเนินการยื่นคำร้อง "ขอปรับปรุงข้อมูลประวัติ" ผ่านระบบคำร้องออนไลน์ เพื่อดำเนินการในขั้นตอนต่อไป ระบบจะอนุมัติ 3 วันทำการ',
-                    showCancelButton: true,
-                    confirmButtonText: 'ดำเนินการยื่นคำร้อง',
-                    cancelButtonText: 'ปิดหน้าต่าง',
-                    confirmButtonColor: '#7b1fa2' 
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        goToPetitionFromFail('1'); 
-                    }
-                });
+                const isProfileMenuOpen = (window.currentSystemSettings['menu_userProfile'] === 'true' || window.currentSystemSettings['menu_userProfile'] === undefined);
+
+                if (isProfileMenuOpen) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'ยังไม่ได้บันทึกทะเบียนประวัติ',
+                        text: 'ท่านยังไม่ได้ทำการบันทึกทะเบียนประวัติในระบบ กรุณาบันทึกข้อมูลให้เรียบร้อยก่อนยื่นคำร้องขอกู้ยืมเงิน',
+                        showCancelButton: true,
+                        confirmButtonColor: '#7b1fa2', 
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'ไปหน้าบันทึกประวัติ',
+                        cancelButtonText: 'ปิดหน้าต่าง'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            showSection('userProfileSection'); 
+                            document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+                            document.getElementById('navUserProfile').classList.add('active');
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ไม่สามารถดำเนินการได้',
+                        text: 'เนื่องจากไม่อยู่ในระยะเวลาที่กำหนดให้บันทึกประวัติ',
+                        footer: '<span style="color:#d32f2f; font-weight:bold;">* กรุณายื่นคำร้องขอปรับปรุงข้อมูลประวัตินอกรอบ</span>',
+                        showCancelButton: true,
+                        confirmButtonColor: '#ff9800',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'ไปหน้ายื่นคำร้องออนไลน์',
+                        cancelButtonText: 'ปิดหน้าต่าง'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            goToPetitionFromFail('1'); 
+                        }
+                    });
+                }
+
             } else if (res.status === 'eligible_check') {
 
-document.getElementById('overStep1').style.display = 'none';
-document.getElementById('overStep2').style.display = 'block';
-updateStepper(2, 'over-step');
+                document.getElementById('overStep1').style.display = 'none';
+                document.getElementById('overStep2').style.display = 'block';
+                updateStepper(2, 'over-step');
 
-let updateDateStr = res.studentInfo.updatedAt ? formatDate(res.studentInfo.updatedAt) : 'ไม่ระบุ';
+                let updateDateStr = res.studentInfo.updatedAt ? formatDate(res.studentInfo.updatedAt) : 'ไม่ระบุ';
 
-document.getElementById('overInfoBox').innerHTML = `
-    <b>ข้อมูลผู้มีสิทธิ์ขอกู้:</b> ${escapeHTML(res.studentInfo.name)}<br>
-    <span style="font-size: 13px; color: #555;">รหัสประจำตัว: ${escapeHTML(res.studentInfo.studentId)} | คณะ/สังกัด: ${escapeHTML(res.studentInfo.faculty)}</span><br>
-    <div style="margin-top:5px; border-top:1px dashed #ce93d8; padding-top:5px; margin-bottom:5px;">ระดับคะแนนเฉลี่ยสะสม (GPAX): <b>${escapeHTML(res.studentInfo.gpa)}</b> | หน่วยกิตกิจกรรมจิตอาสา: <b>${escapeHTML(res.studentInfo.credits)}</b> หน่วยกิต</div>
-    <div style="font-size: 13px; color: var(--over-primary, #7b1fa2);"><i class="material-icons" style="font-size: 14px; vertical-align: text-bottom;">info</i> รายงานจากฐานข้อมูล เมื่อ วันที่ ${updateDateStr}</div>
-`;
+                document.getElementById('overInfoBox').innerHTML = `
+                    <b>ข้อมูลผู้มีสิทธิ์ขอกู้:</b> ${escapeHTML(res.studentInfo.name)}<br>
+                    <span style="font-size: 13px; color: #555;">รหัสประจำตัว: ${escapeHTML(res.studentInfo.studentId)} | คณะ/สังกัด: ${escapeHTML(res.studentInfo.faculty)}</span><br>
+                    <div style="margin-top:5px; border-top:1px dashed #ce93d8; padding-top:5px; margin-bottom:5px;">ระดับคะแนนเฉลี่ยสะสม (GPAX): <b>${escapeHTML(res.studentInfo.gpa)}</b> | หน่วยกิตกิจกรรมจิตอาสา: <b>${escapeHTML(res.studentInfo.credits)}</b> หน่วยกิต</div>
+                    <div style="font-size: 13px; color: var(--over-primary, #7b1fa2);"><i class="material-icons" style="font-size: 14px; vertical-align: text-bottom;">info</i> รายงานจากฐานข้อมูล เมื่อ วันที่ ${updateDateStr}</div>
+                `;
 
-if (res.passed) {
-    document.getElementById('overLoanFailMessage').style.display = 'none';
-    document.getElementById('overLoanFormArea').style.display = 'block';
-} else {
-    document.getElementById('overLoanFailMessage').style.display = 'block';
-    document.getElementById('overLoanFormArea').style.display = 'none';
-}
+                if (res.passed) {
+                    document.getElementById('overLoanFailMessage').style.display = 'none';
+                    document.getElementById('overLoanFormArea').style.display = 'block';
+                } else {
+                    document.getElementById('overLoanFailMessage').style.display = 'block';
+                    document.getElementById('overLoanFormArea').style.display = 'none';
+                }
             }
         } catch (err) {
             hideLoading();
