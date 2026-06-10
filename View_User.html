@@ -35,42 +35,42 @@
                         <i class="material-icons">dashboard</i><span>หน้าหลักข้อมูลของฉัน</span>
                     </a>
                 </li>
-                <li class="nav-item user-nav" id="menu_userProfile">
+                <li class="nav-item user-nav" id="menu_userProfile" style="display: none;">
                     <a href="#" id="navUserProfile" class="nav-link">
                         <i class="material-icons">assignment_ind</i><span>ทะเบียนประวัตินักศึกษา</span>
                     </a>
                 </li>
-                <li class="nav-item user-nav" id="menu_userActivity">
+                <li class="nav-item user-nav" id="menu_userActivity" style="display: none;">
                     <a href="#" id="navUserActivity" class="nav-link">
                         <i class="material-icons">volunteer_activism</i><span>ระบบลงทะเบียนจิตอาสา</span>
                     </a>
                 </li>
-                <li class="nav-item user-nav" id="menu_userQueue">
+                <li class="nav-item user-nav" id="menu_userQueue" style="display: none;">
                     <a href="#" id="navUserQueue" class="nav-link">
                         <i class="material-icons">confirmation_number</i><span>ระบบจองคิวส่งเอกสาร</span>
                     </a>
                 </li>
-                <li class="nav-item user-nav" id="menu_loan2569">
+                <li class="nav-item user-nav" id="menu_loan2569" style="display: none;">
                     <a href="#" id="navLoan2569" class="nav-link">
                         <i class="material-icons">monetization_on</i><span>ระบบยื่นกู้ กยศ. ปี 2569</span>
                     </a>
                 </li>
-                <li class="nav-item user-nav" id="menu_overLoan">
+                <li class="nav-item user-nav" id="menu_overLoan" style="display: none;">
                     <a href="#" id="navOverLoan" class="nav-link">
                         <i class="material-icons">history_edu</i><span>ยื่นกู้เกินหลักสูตร ปี 2569</span>
                     </a>
                 </li>
-                <li class="nav-item user-nav" id="menu_userResign">
+                <li class="nav-item user-nav" id="menu_userResign" style="display: none;">
                     <a href="#" id="navUserResign" class="nav-link">
                         <i class="material-icons">exit_to_app</i><span>แจ้งความประสงค์ลาออก</span>
                     </a>
                 </li>
-                <li class="nav-item user-nav" id="menu_userPetition">
+                <li class="nav-item user-nav" id="menu_userPetition" style="display: none;">
                     <a href="#" id="navUserPetition" class="nav-link">
                         <i class="material-icons">rate_review</i><span>ระบบยื่นคำร้องออนไลน์</span>
                     </a>
                 </li>
-                <li class="nav-item user-nav" id="menu_userTrackPetition">
+                <li class="nav-item user-nav" id="menu_userTrackPetition" style="display: none;">
                     <a href="#" id="navUserTrackPetition" class="nav-link">
                         <i class="material-icons">track_changes</i><span>สถานะคำร้องออนไลน์</span>
                     </a>
@@ -847,44 +847,10 @@
     if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebarOnMobile);
 
   function showSection(sectionId) {
-        const menuSettingsMap = {
-            'userProfileSection': 'menu_userProfile',
-            'userActivitySection': 'menu_userActivity',
-            'userQueue': 'menu_userQueue',
-            'userLoan2569Section': 'menu_loan2569',
-            'userOverLoanSection': 'menu_overLoan',
-            'userResignSection': 'menu_userResign',
-            'userPetitionSection': 'menu_userPetition',
-            'userTrackPetitionSection': 'menu_userTrackPetition'
-        };
-
-        const settingKey = menuSettingsMap[sectionId];
-        
-        if (settingKey && Object.keys(window.currentSystemSettings).length > 0) {
-            const isGlobalOpen = window.currentSystemSettings[settingKey] === 'true' || window.currentSystemSettings[settingKey] === undefined;
-            const hasSpecial = (settingKey === 'menu_userProfile' && window.hasSpecialAccess); // เช็คสิทธิ์พิเศษสำหรับเมนูประวัติ
-
-            if (!isGlobalOpen && !hasSpecial) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'ปิดให้บริการชั่วคราว',
-                    text: 'เมนูนี้ถูกปิดการใช้งานโดยผู้ดูแลระบบ ไม่สามารถเข้าใช้งานได้ในขณะนี้',
-                    confirmButtonText: 'ตกลง',
-                    confirmButtonColor: '#1976D2'
-                });
-                return false; 
-            }
-        } else if (settingKey && Object.keys(window.currentSystemSettings).length === 0) {
-  
-             Swal.fire({ title: 'ระบบกำลังโหลดการตั้งค่า', text: 'กรุณารอสักครู่...', icon: 'info', timer: 1500, showConfirmButton: false });
-            return false;
-        }
-
         document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
         const target = document.getElementById(sectionId);
         if(target) target.classList.add('active');
         window.scrollTo(0, 0);
-        return true; 
     }
 
     function setupNav(id, sectionId, callback) {
@@ -892,12 +858,11 @@
         if (el) {
             el.addEventListener('click', (e) => {
                 e.preventDefault();
-                if (showSection(sectionId)) {
-                    document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
-                    el.classList.add('active');
-                    closeSidebarOnMobile();
-                    if (callback) callback();
-                }
+                showSection(sectionId);
+                document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+                el.classList.add('active');
+                closeSidebarOnMobile();
+                if (callback) callback();
             });
         }
     }
@@ -965,18 +930,45 @@
     autoLogout();
 
     window.currentSystemSettings = {};
-    window.hasSpecialAccess = false; 
-    
+
+    // แยกลอจิกการเปิด-ปิดจัดการเมนูออกมาเพื่อให้ทำงานซ้ำได้ทันที
+    function renderStudentMenus(globalSettings, hasSpecialAccess) {
+        const menus = [
+            'menu_userProfile', 'menu_userActivity', 'menu_userQueue', 
+            'menu_loan2569', 'menu_userResign', 'menu_userPetition', 
+            'menu_userTrackPetition', 'menu_overLoan' 
+        ];
+        menus.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                const isGlobalOpen = globalSettings[id] === 'true' || globalSettings[id] === undefined;
+                const hasSpecial = (id === 'menu_userProfile' && hasSpecialAccess);
+                el.style.setProperty('display', (isGlobalOpen || hasSpecial) ? 'block' : 'none', 'important');
+            }
+        });
+    }
+
+    try {
+        const cachedMenuSettings = sessionStorage.getItem('ubu_cached_menu_settings');
+        const cachedSpecialAccess = sessionStorage.getItem('ubu_cached_special_access') === 'true';
+        if (cachedMenuSettings) {
+            window.currentSystemSettings = JSON.parse(cachedMenuSettings);
+            renderStudentMenus(window.currentSystemSettings, cachedSpecialAccess);
+        }
+    } catch (e) { console.error("Cache read error:", e); }
+
     async function applyStudentMenuSettings() {
         try {
             const permissions = await callApi('getStudentMenuPermissions', { 
                 studentId: currentUser.studentId, 
                 token: userToken 
             });
-            
             window.currentSystemSettings = permissions.globalSettings; 
-            window.hasSpecialAccess = permissions.hasSpecialAccess; 
             
+            renderStudentMenus(permissions.globalSettings, permissions.hasSpecialAccess);
+          
+            sessionStorage.setItem('ubu_cached_menu_settings', JSON.stringify(permissions.globalSettings));
+            sessionStorage.setItem('ubu_cached_special_access', String(permissions.hasSpecialAccess));
         } catch (error) {
             console.error("Menu Settings Error:", error);
         }
