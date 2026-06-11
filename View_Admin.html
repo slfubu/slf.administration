@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
   <link rel="stylesheet" href="style.css">
   <script src="api.js"></script>
@@ -2282,6 +2283,7 @@
         </div>
     </div>
 
+
     <div id="printPreviewModal" class="modal" style="z-index: 9999;">
         <div class="modal-content" style="max-width: 900px; width: 95%; height: 90vh; display: flex; flex-direction: column; padding: 0;">
           <div style="padding: 15px 20px; background: #333; color: white; display: flex; justify-content: space-between; align-items: center; border-radius: 8px 8px 0 0;">
@@ -2305,6 +2307,53 @@
         <span class="close-button" onclick="document.getElementById('lightboxModal').style.display='none'" style="position: absolute; top: 20px; right: 30px; color: white; font-size: 40px; cursor: pointer; transition: 0.3s;">&times;</span>
         <img id="lightboxImage" src="" style="max-width: 90vw; max-height: 90vh; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); object-fit: contain;">
     </div>
+
+    <div id="dashboardSection" class="dashboard-container">
+    <div class="dash-header">
+        <h2><i class="material-icons">analytics</i> สถิติการยื่นคำร้องกู้ยืม ปี 2569</h2>
+        <button class="btn-refresh" onclick="loadDashboardStats()">
+            <i class="material-icons">refresh</i> อัปเดตข้อมูล
+        </button>
+    </div>
+
+    <div class="summary-cards">
+        <div class="card stat-card primary">
+            <div class="stat-icon"><i class="material-icons">description</i></div>
+            <div class="stat-info">
+                <span class="stat-title">ยื่นคำร้องทั้งหมด</span>
+                <h3 id="statTotal">0 <small>รายการ</small></h3>
+            </div>
+        </div>
+        <div class="card stat-card success">
+            <div class="stat-icon"><i class="material-icons">check_circle</i></div>
+            <div class="stat-info">
+                <span class="stat-title">อนุมัติแล้ว</span>
+                <h3 id="statApproved">0 <small>รายการ</small></h3>
+            </div>
+        </div>
+        <div class="card stat-card warning">
+            <div class="stat-icon"><i class="material-icons">pending_actions</i></div>
+            <div class="stat-info">
+                <span class="stat-title">รอตรวจสอบ</span>
+                <h3 id="statPending">0 <small>รายการ</small></h3>
+            </div>
+        </div>
+        <div class="card stat-card danger">
+            <div class="stat-icon"><i class="material-icons">cancel</i></div>
+            <div class="stat-info">
+                <span class="stat-title">ไม่อนุมัติ</span>
+                <h3 id="statRejected">0 <small>รายการ</small></h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="chart-section card">
+        <h3 class="section-title">จำนวนผู้ยื่นคำร้อง แยกตามรายคณะ</h3>
+        <div class="chart-wrapper">
+            <canvas id="facultyChart"></canvas>
+        </div>
+    </div>
+</div>
 
     <div id="imageHistoryModal" class="modal">
         <div class="modal-content modern-admin-modal" style="max-width: 800px; width: 95%;">
@@ -6051,6 +6100,98 @@ window.uploadSpecialAccessFile = function() {
     if (file.name.endsWith('.csv')) reader.readAsText(file, 'UTF-8');
     else reader.readAsArrayBuffer(file);
 };
+let myChart = null; // เก็บตัวแปรจำกราฟเก่าไว้ลบทิ้งเวลาอัปเดต
+
+    async function loadDashboardStats() {
+        try {
+            // แสดง Loader ของระบบคุณ
+            if(document.getElementById('customLoader')) document.getElementById('customLoader').style.display = 'flex';
+            
+            // 1. ดึงข้อมูลจาก Google Apps Script ผ่าน api.js ของคุณ
+            const res = await callApi("getLoanDashboardStats2569", { 
+                adminId: "รหัสแอดมิน", // ปรับให้ดึงจาก Session ของระบบคุณ
+                token: "โทเคนแอดมิน"   // ปรับให้ดึงจาก Session ของระบบคุณ
+            });
+
+            if(document.getElementById('customLoader')) document.getElementById('customLoader').style.display = 'none';
+
+            if (res.success) {
+                const data = res.data; 
+                
+                // 2. อัปเดตตัวเลขในการ์ดสรุปผล (สมมติว่า backend ส่งค่าเหล่านี้มา)
+                document.getElementById('statTotal').innerHTML = `${data.total || 0} <small>รายการ</small>`;
+                document.getElementById('statApproved').innerHTML = `${data.approved || 0} <small>รายการ</small>`;
+                document.getElementById('statPending').innerHTML = `${data.pending || 0} <small>รายการ</small>`;
+                document.getElementById('statRejected').innerHTML = `${data.rejected || 0} <small>รายการ</small>`;
+
+                // 3. วาดกราฟแยกตามคณะ
+                renderChart(data.facultyStats); 
+            } else {
+                Swal.fire('ข้อผิดพลาด', res.message, 'error');
+            }
+        } catch (error) {
+            if(document.getElementById('customLoader')) document.getElementById('customLoader').style.display = 'none';
+            Swal.fire('ข้อผิดพลาด', 'ไม่สามารถโหลดสถิติได้ กรุณาลองใหม่', 'error');
+        }
+    }
+
+    function renderChart(facultyData) {
+        // ดึงแกน X (ชื่อคณะ) และ แกน Y (จำนวนคน) จาก Object ที่ได้มา
+        // ตัวอย่าง facultyData = { "คณะวิศวกรรมศาสตร์": 150, "คณะวิทยาศาสตร์": 80 }
+        const labels = Object.keys(facultyData || {});
+        const dataValues = Object.values(facultyData || {});
+
+        const ctx = document.getElementById('facultyChart').getContext('2d');
+        
+        // ล้างกราฟเก่าก่อนวาดใหม่ (ป้องกันปัญหากราฟซ้อนทับกัน)
+        if (myChart) {
+            myChart.destroy();
+        }
+
+        // วาดกราฟแท่ง (Bar Chart)
+        myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'จำนวนผู้ยื่นคำร้อง (คน)',
+                    data: dataValues,
+                    backgroundColor: 'rgba(59, 130, 246, 0.7)', // สีฟ้าอ่อน
+                    borderColor: 'rgba(37, 99, 235, 1)',       // สีฟ้าเข้มขอบ
+                    borderWidth: 1,
+                    borderRadius: 6, // มุมโค้งของกราฟแท่ง
+                    hoverBackgroundColor: 'rgba(37, 99, 235, 0.9)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { font: { family: "'Sarabun', sans-serif", size: 14 } }
+                    },
+                    tooltip: {
+                        titleFont: { family: "'Sarabun', sans-serif", size: 14 },
+                        bodyFont: { family: "'Sarabun', sans-serif", size: 14 }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            font: { family: "'Sarabun', sans-serif" },
+                            stepSize: 1 // ให้แสดงตัวเลขเป็นจำนวนเต็ม
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: { family: "'Sarabun', sans-serif" }
+                        }
+                    }
+                }
+            }
+        });
+    }
 
 </script>
 </body>
