@@ -23,6 +23,6 @@ async function callApi(actionName, payloadData = {}) {
         return await response.json();
     } catch (error) {
         console.error("API Error:", error);
-        throw new Error("500 Internal Server Error");
+        throw new Error("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาลองใหม่อีกครั้ง");
     }
 }
