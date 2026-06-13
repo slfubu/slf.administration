@@ -1,4 +1,11 @@
 <style>
+.sidebar.collapsed .nav-header {
+    display: none !important;
+}
+
+.sidebar.collapsed .arrow-icon {
+    display: none !important;
+}
     .sidebar.collapsed .nav-header {
         display: none;
     }
