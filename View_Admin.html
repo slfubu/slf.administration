@@ -2556,31 +2556,10 @@
                 });
             };
 
-            if (!hasAny(['navManageUsers', 'navAdminMenuSettings', 'navAdminVerify', 'navAdminSpecialAccess', 'navAdminSpecialLoanAccess', 'navAdminAnnouncement'])) {
-                hideMenuByText('เมนูการทำงานการจัดการระบบ');
-                hideMenuByText('เมนูการจัดการควบคุมระบบ'); 
-            }
-            
-            if (!hasAny(['navAdminManagePetition', 'navSuspendSystem', 'navAdminProfiles', 'navAdminImageReport'])) {
-                hideMenuByText('เมนูการทำงานการตรวจสอบข้อมูล');
-            }
-            
-            if (!hasAny(['navAdminActivity', 'navPrintReport', 'navExportData'])) {
-                hideMenuByText('ระบบลงทะเบียนจิตอาสา');
-            }
-            
-            if (!hasAny(['navManageQueue', 'navCheckQueueList'])) {
-                hideMenuByText('ระบบจองคิวส่งเอกสาร');
-            }
-            
-            if (!hasAny(['navAdminLoan2569', 'navAdminOverLoan', 'navAdminLoanManage', 'navAdminReports', 'navAdminAddMissingStudent'])) {
-                hideMenuByText('ระบบยื่นคำร้องกู้ปี 2569');
-            }
-            
-            if (!hasAny(['navAdminResign', 'navAdminResignManage'])) {
-                hideMenuByText('ระบบแจ้งลาออกพ้นสภาพ');
-            }
-        }
+            } // (ปีกกาปิดของเงื่อนไขเดิมที่มีอยู่)
+
+        // เรียกใช้ฟังก์ชันซ่อนเมนูอัตโนมัติที่เราเพิ่งสร้าง
+        hideEmptyMenus();
 
         showPage('adminDashboardSection'); 
     });
@@ -6150,6 +6129,55 @@ window.uploadSpecialAccessFile = function() {
 
         // เช็ค Header ตัวสุดท้ายของแถบเมนู
         if (currentHeader && !hasVisibleItems) {
+            currentHeader.style.display = 'none';
+        }
+    }
+    // ฟังก์ชันซ่อนหมวดหมู่หลัก หากไม่มีเมนูย่อยให้ใช้งาน
+    function hideEmptyMenus() {
+        // 1. จัดการซ่อนเมนูหลัก (ที่มี Dropdown)
+        const mainMenus = document.querySelectorAll('.sidebar-menu > li.nav-item');
+        
+        mainMenus.forEach(mainMenu => {
+            const submenu = mainMenu.querySelector('.submenu-list');
+            if (submenu) {
+                const subLinks = submenu.querySelectorAll('a.nav-link');
+                let hasVisibleSubMenu = false;
+
+                subLinks.forEach(link => {
+                    // เช็คว่าระบบ AdminAccessControl ได้ซ่อนเมนูนี้ไปหรือยัง
+                    if (link.style.display !== 'none' && link.parentElement.style.display !== 'none') {
+                        hasVisibleSubMenu = true;
+                    }
+                });
+
+                // ถ้าเมนูย่อยโดนซ่อนหมดเลย ให้ซ่อนเมนูหลัก (ตัวแม่) ไปด้วยเลย
+                if (!hasVisibleSubMenu) {
+                    mainMenu.style.display = 'none';
+                }
+            }
+        });
+
+        // 2. จัดการซ่อนหัวข้อกลุ่ม (nav-header ที่เป็นตัวหนังสือสีเทาๆ)
+        const allElements = document.querySelectorAll('.sidebar-menu > *');
+        let currentHeader = null;
+        let foundVisibleItemAfterHeader = false;
+
+        allElements.forEach(el => {
+            if (el.classList.contains('nav-header')) {
+                // ถ้าเจอหัวข้อใหม่ ให้สรุปผลหัวข้อก่อนหน้าก่อนว่าควรซ่อนไหม
+                if (currentHeader && !foundVisibleItemAfterHeader) {
+                    currentHeader.style.display = 'none';
+                }
+                currentHeader = el;
+                foundVisibleItemAfterHeader = false; 
+            } else if (el.style.display !== 'none') {
+                // ถ้าเจอเมนูข้างใต้ที่ยังเปิดใช้งานอยู่
+                foundVisibleItemAfterHeader = true;
+            }
+        });
+        
+        // เช็คหัวข้อตัวสุดท้าย
+        if (currentHeader && !foundVisibleItemAfterHeader) {
             currentHeader.style.display = 'none';
         }
     }
