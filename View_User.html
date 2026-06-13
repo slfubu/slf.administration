@@ -862,6 +862,24 @@
         if (el) {
             el.addEventListener('click', (e) => {
                 e.preventDefault();
+                if (sectionId !== 'userDashboardSection') {
+                    if (!currentUser.profileImage || currentUser.profileImage === 'undefined' || currentUser.profileImage === "") {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'ข้อความแจ้งเตือน',
+                            text: 'ระบบพบว่าบัญชีนักศึกษายังไม่ได้อัพโหลดภาพประจำตัวนักศึกษาที่หน้าหลัก กรุณาบันทึกภาพโปรไฟล์ก่อนจึงค่อยทำรายการอื่น',
+                            confirmButtonColor: '#1976D2'
+                        }).then(() => {
+                            showSection('userDashboardSection');
+                            document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+                            const dashNav = document.getElementById('navUserDashboard');
+                            if (dashNav) dashNav.classList.add('active');
+                            closeSidebarOnMobile();
+                        });
+                        return; 
+                    }
+                }
+
                 showSection(sectionId);
                 document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
                 el.classList.add('active');
@@ -935,7 +953,6 @@
 
     window.currentSystemSettings = {};
 
-    // แยกลอจิกการเปิด-ปิดจัดการเมนูออกมาเพื่อให้ทำงานซ้ำได้ทันที
     function renderStudentMenus(globalSettings, hasSpecialAccess) {
         const menus = [
             'menu_userProfile', 'menu_userActivity', 'menu_userQueue', 
