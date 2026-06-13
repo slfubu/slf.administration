@@ -16,9 +16,6 @@
   <script src="api.js"></script>
 </head>
 <body>
-    <section id="securityMonitorSection" style="display: none;">
-    <?!= include('View_Monitor'); ?>
-</section>
 
     <div id="customLoader" style="display: none;">
         <div class="loader-box">
@@ -1803,7 +1800,10 @@
     </div>
 </div>
 
-            </div> <footer class="app-footer">
+            <div id="securityMonitorSection" class="section">
+                    <?!= include('View_Monitor'); ?>
+                </div>
+                </div> <footer class="app-footer">
                 <div class="footer-container">
                     <div class="footer-col">
                         <div class="logo-section">
