@@ -1,15 +1,8 @@
-<style>
-.sidebar.collapsed .nav-header {
-    display: none !important;
-}
-
+<style>  
+.sidebar.collapsed .nav-header,
 .sidebar.collapsed .arrow-icon {
     display: none !important;
 }
-    .sidebar.collapsed .nav-header {
-        display: none;
-    }
-    
     .queue-ticket-expired {
         background-color: #f5f5f5 !important;
         border-color: #ccc !important;
