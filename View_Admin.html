@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
   <link rel="stylesheet" href="style.css">
   <script src="api.js"></script>
@@ -1110,6 +1111,19 @@
                             </label>
                         </div>
                         
+                        <div class="card mt-4" style="border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; margin-top: 20px; background: white;">
+                            <div style="padding: 15px 20px; border-bottom: 1px solid #e2e8f0; background-color: #f8fafc; border-radius: 12px 12px 0 0;">
+                                <h5 style="margin: 0; color: #1e293b; display: flex; align-items: center; font-size: 18px;">
+                                    <i class="material-icons" style="color: #3b82f6; margin-right: 8px;">timeline</i> 
+                                    สถิติการยื่นคำร้องรายวัน
+                                </h5>
+                            </div>
+                            <div style="padding: 20px;">
+                                <div style="position: relative; height: 350px; width: 100%;">
+                                    <canvas id="dailyLoanChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
                         <div class="filter-section" style="display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end; background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-top: 20px;">
                             <div class="filter-group" style="flex: 2; min-width: 250px; margin: 0;">
                                 <label class="filter-label" style="font-weight: bold; margin-bottom: 5px; display: block;">กรองข้อมูลรายคณะ</label>
@@ -2638,6 +2652,15 @@
         document.getElementById('missingStudentResultArea').style.display = 'none'; 
         }
         if(id === 'adminAnnouncementSection') loadAdminAnnouncement();
+        if(id === 'adminReportSection') { 
+            const radios = document.getElementsByName('reportType'); 
+            if(radios.length > 0) radios[0].checked = true; 
+            const fac = document.getElementById('reportFaculty');
+            if(fac) fac.value = 'all'; 
+            
+            // เพิ่มบรรทัดนี้ เพื่อสั่งดึงข้อมูลจริงมาวาดกราฟ
+            loadDailyChartForReport(); 
+        }
 
     };
 
@@ -6051,6 +6074,123 @@ window.uploadSpecialAccessFile = function() {
     if (file.name.endsWith('.csv')) reader.readAsText(file, 'UTF-8');
     else reader.readAsArrayBuffer(file);
 };
+let dailyLoanChartInstanceReport = null; 
+
+    window.loadDailyLoanChartForReport = async () => {
+        try {
+            // ดึงข้อมูลสถิติจากหลังบ้าน
+            const res = await callApi("getLoanDashboardStats2569", { adminId: adminId, token: userToken });
+            if(checkAuthError(res)) return;
+            
+            if (res.dailyStats) {
+                const ctx = document.getElementById('dailyLoanChart');
+                if (!ctx || Object.keys(res.dailyStats).length === 0) return;
+
+                const dates = Object.keys(res.dailyStats).sort((a, b) => new Date(a) - new Date(b));
+                const counts = dates.map(date => res.dailyStats[date]);
+                const formatDates = dates.map(dateStr => {
+                    const d = new Date(dateStr);
+                    return d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' });
+                });
+
+                if (dailyLoanChartInstanceReport) dailyLoanChartInstanceReport.destroy();
+
+                // วาดกราฟ
+                dailyLoanChartInstanceReport = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: formatDates,
+                        datasets: [{
+                            label: 'จำนวนนักศึกษาที่ยื่นคำร้อง (คน)',
+                            data: counts,
+                            borderColor: '#3b82f6', 
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)', 
+                            borderWidth: 2,
+                            pointBackgroundColor: '#2563eb',
+                            fill: true,
+                            tension: 0.3 
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { labels: { font: { family: "'Sarabun', sans-serif", size: 14 } } } },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { stepSize: 1, font: { family: "'Sarabun', sans-serif" } } },
+                            x: { ticks: { font: { family: "'Sarabun', sans-serif" } } }
+                        }
+                    }
+                });
+            }
+        } catch(err) {
+            console.error(err);
+        }
+    };
+    let dailyLoanChartInstanceReport = null; 
+
+    // ฟังก์ชันดึงข้อมูลจริงจากระบบหลังบ้านมาวาดกราฟ
+    window.loadDailyChartForReport = async () => {
+        const ctx = document.getElementById('dailyLoanChart');
+        if (!ctx) return;
+
+        // แสดงหลอดโหลดข้อมูล
+        showLoading('กำลังดึงข้อมูลสถิติรายวัน...');
+        
+        try {
+            // ดึงข้อมูลจริงจาก Google Apps Script
+            const res = await callApi("getLoanDashboardStats2569", { adminId: adminId, token: userToken });
+            
+            if(checkAuthError(res)) { hideLoading(); return; }
+            hideLoading();
+            
+            // ถ้าระบบส่ง dailyStats กลับมาและมีข้อมูล
+            if (res.dailyStats && Object.keys(res.dailyStats).length > 0) {
+                const dates = Object.keys(res.dailyStats).sort((a, b) => new Date(a) - new Date(b));
+                const counts = dates.map(date => res.dailyStats[date]);
+                
+                // แปลงรูปแบบวันที่ให้สวยงาม
+                const formatDates = dates.map(dateStr => {
+                    const d = new Date(dateStr);
+                    return d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' });
+                });
+
+                if (dailyLoanChartInstanceReport) dailyLoanChartInstanceReport.destroy();
+
+                // วาดกราฟ
+                dailyLoanChartInstanceReport = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: formatDates,
+                        datasets: [{
+                            label: 'จำนวนนักศึกษาที่ยื่นคำร้อง (คน)',
+                            data: counts,
+                            borderColor: '#3b82f6', 
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)', 
+                            borderWidth: 2,
+                            pointBackgroundColor: '#2563eb',
+                            fill: true,
+                            tension: 0.3 
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { labels: { font: { family: "'Sarabun', sans-serif", size: 14 } } } },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { stepSize: 1, font: { family: "'Sarabun', sans-serif" } } },
+                            x: { ticks: { font: { family: "'Sarabun', sans-serif" } } }
+                        }
+                    }
+                });
+            } else {
+                // กรณีที่ยังไม่มีใครยื่นคำร้องเลย ให้ลบกราฟเก่าทิ้ง
+                if (dailyLoanChartInstanceReport) dailyLoanChartInstanceReport.destroy();
+            }
+        } catch(err) {
+            hideLoading();
+            console.error("เกิดข้อผิดพลาดในการดึงกราฟสถิติ:", err);
+        }
+    };
 
 </script>
 </body>
