@@ -14,6 +14,7 @@
   
   <link rel="stylesheet" href="style.css">
   <script src="api.js"></script>
+  
 </head>
 <body>
 
@@ -26,82 +27,123 @@
 
     <div id="appLayout" class="app-wrapper">
         <div id="sidebarOverlay" class="sidebar-overlay"></div>
-        <aside class="sidebar" id="sidebar">
+<aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <img src="https://img1.pic.in.th/images/Ubu_logo.png" alt="Logo" class="sidebar-logo">
                 <span style="font-weight: bold; font-size: 16px;">ระบบเมนูสถานศึกษา</span>
             </div>
             <ul class="sidebar-menu">
+                
                 <li class="nav-item admin-nav" style="display:block;">
                     <a href="#" id="navDashboard" class="nav-link active">
                         <i class="material-icons">analytics</i><span>หน้าหลักข้อมูลสถานศึกษา</span>
                     </a>
                 </li>
                 
-                <div class="nav-header admin-nav nav-item" style="display:block;">เมนูการจัดการควบคุมระบบ</div>
+                <div class="nav-header admin-nav nav-item" style="display:block;">การควบคุมบัญชีผู้ใช้และระบบ</div>
                 
                 <li class="nav-item admin-nav" style="display:block;">
-                    <a href="#" id="navManageUsers" class="nav-link">
-                        <i class="material-icons">people</i><span>จัดการบัญชีผู้ใช้งานระบบ</span>
+                    <a href="javascript:void(0)" class="nav-link submenu-toggle" style="justify-content: space-between;">
+                        <div style="display: flex; align-items: center;">
+                            <i class="material-icons">admin_panel_settings</i>
+                            <span>จัดการบัญชีและความปลอดภัย</span>
+                        </div>
+                        <i class="material-icons arrow-icon" style="font-size: 18px; transition: transform 0.3s;">expand_more</i>
                     </a>
-                </li>
-                <li class="nav-item admin-nav" style="display:block;">
-                  <a href="#" id="navSecurityMonitor" class="nav-link">
-                 <i class="material-icons">shield</i><span>มอนิเตอร์ความปลอดภัย</span>
-                 </a>
-                </li>
-                
-                <li class="nav-item admin-nav" style="display:block;">
-                    <a href="#" id="navAdminMenuSettings" class="nav-link">
-                        <i class="material-icons">settings_applications</i><span>จัดการเปิด-ปิด เมนูระบบ</span>
-                    </a>
-                </li>
-                 <li class="nav-item admin-nav" style="display:block;">
-                 <a href="#" id="navAdminAnnouncement" class="nav-link">
-                <i class="material-icons">campaign</i><span>จัดการประกาศหน้าระบบ</span>
-                </a>
-                </li>
-                
-                <li class="nav-item admin-nav" style="display:block;">
-                <a href="#" id="navAdminVerify" class="nav-link">
-                      <i class="material-icons">manage_accounts</i><span>ยืนยันตัวตน-รีเซ็ตรหัสผ่าน</span>
-                   </a>
-                </li>
-                
-                <li class="nav-item admin-nav" style="display:block;">
-                    <a href="#" id="navAdminSpecialAccess" class="nav-link">
-                        <i class="material-icons">how_to_reg</i><span>จัดการสิทธิ์ขอลงประวัติ</span>
-                    </a>
-                </li>
-                <li class="nav-item admin-nav" style="display:block;">
-                    <a href="#" id="navAdminSpecialLoanAccess" class="nav-link">
-                        <i class="material-icons">vpn_key</i><span>จัดการสิทธิ์ยื่นคำขอกู้ยืม</span>
-                    </a>
+                    <ul class="submenu-list" style="display: none; list-style: none; padding: 0; background-color: rgba(0,0,0,0.2);">
+                        <li>
+                            <a href="#" id="navManageUsers" class="nav-link" style="padding-left: 50px;">
+                                <i class="material-icons" style="font-size: 18px;">people</i><span style="font-size: 14px;">จัดการบัญชีผู้ใช้งานระบบ</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" id="navAdminVerify" class="nav-link" style="padding-left: 50px;">
+                                <i class="material-icons" style="font-size: 18px;">manage_accounts</i><span style="font-size: 14px;">ยืนยันตัวตน-รีเซ็ตรหัส</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" id="navSuspendSystem" class="nav-link" style="padding-left: 50px;">
+                                <i class="material-icons" style="font-size: 18px;">block</i><span style="font-size: 14px;">ตรวจสอบการระงับบัญชี</span>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
 
-                <div class="nav-header admin-nav nav-item" style="display:block;">เมนูการทำงานการตรวจสอบข้อมูล</div>
                 <li class="nav-item admin-nav" style="display:block;">
-                    <a href="#" id="navAdminManagePetition" class="nav-link">
-                        <i class="material-icons">rate_review</i><span>ตรวจสอบคำร้องออนไลน์</span>
+                    <a href="javascript:void(0)" class="nav-link submenu-toggle" style="justify-content: space-between;">
+                        <div style="display: flex; align-items: center;">
+                            <i class="material-icons">key</i>
+                            <span>จัดการสิทธิ์การเข้าถึง (พิเศษ)</span>
+                        </div>
+                        <i class="material-icons arrow-icon" style="font-size: 18px; transition: transform 0.3s;">expand_more</i>
                     </a>
-                </li>
-                <li class="nav-item admin-nav" style="display:block;">
-                    <a href="#" id="navSuspendSystem" class="nav-link">
-                        <i class="material-icons">block</i><span>ตรวจสอบการระงับบัญชี</span>
-                    </a>
-                </li>
-                <li class="nav-item admin-nav" style="display:block;">
-                    <a href="#" id="navAdminProfiles" class="nav-link">
-                        <i class="material-icons">folder_shared</i><span>ตรวจสอบทะเบียนประวัติ</span>
-                    </a>
-                </li>
-                <li class="nav-item admin-nav" style="display:block;">
-                    <a href="#" id="navAdminImageReport" class="nav-link">
-                        <i class="material-icons">portrait</i><span>รายงานรูปภาพนักศึกษา</span>
-                    </a>
+                    <ul class="submenu-list" style="display: none; list-style: none; padding: 0; background-color: rgba(0,0,0,0.2);">
+                        <li>
+                            <a href="#" id="navAdminSpecialAccess" class="nav-link" style="padding-left: 50px;">
+                                <i class="material-icons" style="font-size: 18px;">how_to_reg</i><span style="font-size: 14px;">ให้สิทธิ์ขอลงประวัติ</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" id="navAdminSpecialLoanAccess" class="nav-link" style="padding-left: 50px;">
+                                <i class="material-icons" style="font-size: 18px;">vpn_key</i><span style="font-size: 14px;">ให้สิทธิ์ยื่นคำขอกู้ยืม</span>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
 
-                <div class="nav-header admin-nav nav-item" style="display:block;">เมนูการทำงานการจัดการระบบ</div>
+                <li class="nav-item admin-nav" style="display:block;">
+                    <a href="javascript:void(0)" class="nav-link submenu-toggle" style="justify-content: space-between;">
+                        <div style="display: flex; align-items: center;">
+                            <i class="material-icons">web</i>
+                            <span>ตั้งค่าการแสดงผลหน้าเว็บ</span>
+                        </div>
+                        <i class="material-icons arrow-icon" style="font-size: 18px; transition: transform 0.3s;">expand_more</i>
+                    </a>
+                    <ul class="submenu-list" style="display: none; list-style: none; padding: 0; background-color: rgba(0,0,0,0.2);">
+                        <li>
+                            <a href="#" id="navAdminMenuSettings" class="nav-link" style="padding-left: 50px;">
+                                <i class="material-icons" style="font-size: 18px;">settings_applications</i><span style="font-size: 14px;">จัดการเปิด-ปิด เมนูระบบ</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" id="navAdminAnnouncement" class="nav-link" style="padding-left: 50px;">
+                                <i class="material-icons" style="font-size: 18px;">campaign</i><span style="font-size: 14px;">จัดการประกาศหน้าระบบ</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <div class="nav-header admin-nav nav-item" style="display:block;">การตรวจสอบข้อมูลนักศึกษา</div>
+
+                <li class="nav-item admin-nav" style="display:block;">
+                    <a href="javascript:void(0)" class="nav-link submenu-toggle" style="justify-content: space-between;">
+                        <div style="display: flex; align-items: center;">
+                            <i class="material-icons">find_in_page</i>
+                            <span>ตรวจสอบประวัติและคำร้อง</span>
+                        </div>
+                        <i class="material-icons arrow-icon" style="font-size: 18px; transition: transform 0.3s;">expand_more</i>
+                    </a>
+                    <ul class="submenu-list" style="display: none; list-style: none; padding: 0; background-color: rgba(0,0,0,0.2);">
+                        <li>
+                            <a href="#" id="navAdminManagePetition" class="nav-link" style="padding-left: 50px;">
+                                <i class="material-icons" style="font-size: 18px;">rate_review</i><span style="font-size: 14px;">ตรวจสอบคำร้องออนไลน์</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" id="navAdminProfiles" class="nav-link" style="padding-left: 50px;">
+                                <i class="material-icons" style="font-size: 18px;">folder_shared</i><span style="font-size: 14px;">ตรวจสอบทะเบียนประวัติ</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" id="navAdminImageReport" class="nav-link" style="padding-left: 50px;">
+                                <i class="material-icons" style="font-size: 18px;">portrait</i><span style="font-size: 14px;">รายงานรูปภาพนักศึกษา</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <div class="nav-header admin-nav nav-item" style="display:block;">ระบบปฏิบัติงานหลัก</div>
+
                 <li class="nav-item admin-nav" style="display:block;">
                     <a href="javascript:void(0)" class="nav-link submenu-toggle" style="justify-content: space-between;">
                         <div style="display: flex; align-items: center;">
@@ -128,6 +170,7 @@
                         </li>
                     </ul>
                 </li>
+
                 <li class="nav-item admin-nav" style="display:block;">
                     <a href="javascript:void(0)" class="nav-link submenu-toggle" style="justify-content: space-between;">
                         <div style="display: flex; align-items: center;">
@@ -149,6 +192,7 @@
                         </li>
                     </ul>
                 </li>
+
                 <li class="nav-item admin-nav" style="display:block;">
                     <a href="javascript:void(0)" class="nav-link submenu-toggle" style="justify-content: space-between;">
                         <div style="display: flex; align-items: center;">
@@ -159,10 +203,10 @@
                     </a>
                     <ul class="submenu-list" style="display: none; list-style: none; padding: 0; background-color: rgba(0,0,0,0.2);">
                         <li>
-                        <a href="#" onclick="showPage('adminLoan2569DashboardSection'); loadLoan2569Stats();" class="nav-link"  style="padding-left: 50px;">
-                        <i class="material-icons" style="font-size: 18px;">analytics</i><span style="font-size: 14px;">สถิติขอยื่นกู้รายคณะ</span>
-                        </a>
-                       </li>
+                            <a href="#" onclick="showPage('adminLoan2569DashboardSection'); loadLoan2569Stats();" class="nav-link" style="padding-left: 50px;">
+                                <i class="material-icons" style="font-size: 18px;">analytics</i><span style="font-size: 14px;">สถิติขอยื่นกู้รายคณะ</span>
+                            </a>
+                        </li>
                         <li>
                             <a href="#" id="navAdminLoan2569" class="nav-link" style="padding-left: 50px;">
                                 <i class="material-icons" style="font-size: 18px;">cloud_upload</i><span style="font-size: 14px;">ระบบผู้กู้รายเก่าชั้นปี</span>
@@ -179,9 +223,9 @@
                             </a>
                         </li>
                         <li>
-                        <a href="#" id="navAdminAddMissingStudent" class="nav-link" style="padding-left: 50px;">
-                        <i class="material-icons" style="font-size: 18px;">person_add_alt_1</i><span style="font-size: 14px;">ขอลงทะเบียนเพิ่มชื่อ</span>
-                        </a>
+                            <a href="#" id="navAdminAddMissingStudent" class="nav-link" style="padding-left: 50px;">
+                                <i class="material-icons" style="font-size: 18px;">person_add_alt_1</i><span style="font-size: 14px;">ขอลงทะเบียนเพิ่มชื่อ</span>
+                            </a>
                         </li>
                         <li>
                             <a href="#" id="navAdminReports" class="nav-link" style="padding-left: 50px;">
@@ -190,6 +234,7 @@
                         </li>
                     </ul>
                 </li>
+
                 <li class="nav-item admin-nav" style="display:block;">
                     <a href="javascript:void(0)" class="nav-link submenu-toggle" style="justify-content: space-between;">
                         <div style="display: flex; align-items: center;">
@@ -1800,10 +1845,7 @@
     </div>
 </div>
 
-            <div id="securityMonitorSection" class="section">
-                    <?!= include('View_Monitor'); ?>
-                </div>
-                </div> <footer class="app-footer">
+            </div> <footer class="app-footer">
                 <div class="footer-container">
                     <div class="footer-col">
                         <div class="logo-section">
@@ -2683,12 +2725,6 @@
     setupNav('navAdminSpecialLoanAccess', 'adminSpecialLoanAccessSection');
     setupNav('navAdminAddMissingStudent', 'adminAddMissingStudentSection');
     setupNav('navAdminAnnouncement', 'adminAnnouncementSection');
-    setupNav('navSecurityMonitor', 'securityMonitorSection', () => {
-    if (typeof startSecurityMonitor === 'function') {
-        startSecurityMonitor();
-    }
-});
-    
 
     document.querySelectorAll('.submenu-toggle').forEach(item => {
         item.addEventListener('click', function(e) {
