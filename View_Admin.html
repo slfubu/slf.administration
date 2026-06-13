@@ -6107,6 +6107,52 @@ window.uploadSpecialAccessFile = function() {
     if (file.name.endsWith('.csv')) reader.readAsText(file, 'UTF-8');
     else reader.readAsArrayBuffer(file);
 };
+// ฟังก์ชันทำความสะอาดเมนูที่ว่างเปล่า
+    function cleanUpEmptyMenus() {
+        // 1. ซ่อนเมนูหลัก (หมวดหมู่ที่มี Dropdown) ถ้าเมนูย่อยข้างในถูกซ่อนหมดแล้ว
+        const parentMenus = document.querySelectorAll('.sidebar-menu > li.nav-item');
+        parentMenus.forEach(parent => {
+            const submenuList = parent.querySelector('.submenu-list');
+            if (submenuList) {
+                // เช็คว่ามีเมนูย่อยตัวไหนที่ยัง "แสดงอยู่" บ้าง
+                const visibleSubItems = Array.from(submenuList.querySelectorAll('li a')).filter(a => {
+                    // หาค่าการแสดงผล ถ้าโดนซ่อนอยู่ (display: none) จะถูกคัดออก
+                    return window.getComputedStyle(a).display !== 'none' && window.getComputedStyle(a.parentElement).display !== 'none';
+                });
+
+                if (visibleSubItems.length === 0) {
+                    parent.style.display = 'none'; // ซ่อนเมนูหลักถ้าไม่มีเมนูย่อย
+                } else {
+                    parent.style.display = 'block'; // แสดงถ้ายังมีเมนูย่อย
+                }
+            }
+        });
+
+        // 2. ซ่อนหัวข้อ nav-header (ตัวหนังสือสีเทาๆ) ถ้าไม่มีเมนูอะไรให้กดเลยในหมวดนั้น
+        const allItems = Array.from(document.querySelectorAll('.sidebar-menu > *'));
+        let currentHeader = null;
+        let hasVisibleItems = false;
+
+        allItems.forEach(item => {
+            if (item.classList.contains('nav-header')) {
+                // ถ้าเจอ Header ใหม่ ให้เช็ค Header ก่อนหน้าก่อน ว่ามีเมนูย่อยไหม ถ้าไม่มีให้ซ่อน
+                if (currentHeader && !hasVisibleItems) {
+                    currentHeader.style.display = 'none';
+                }
+                currentHeader = item;
+                hasVisibleItems = false; // รีเซ็ตเพื่อเริ่มนับของหมวดใหม่
+                currentHeader.style.display = 'block'; // เปิดไว้ก่อน เดี๋ยวเช็คอีกที
+            } else if (window.getComputedStyle(item).display !== 'none') {
+                // ถ้าเจอเมนูที่แสดงอยู่ใต้ Header นี้ (และไม่ใช่ Header)
+                hasVisibleItems = true; 
+            }
+        });
+
+        // เช็ค Header ตัวสุดท้ายของแถบเมนู
+        if (currentHeader && !hasVisibleItems) {
+            currentHeader.style.display = 'none';
+        }
+    }
 
 </script>
 </body>
