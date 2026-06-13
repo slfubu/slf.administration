@@ -14,6 +14,9 @@
   
   <link rel="stylesheet" href="style.css">
   <script src="api.js"></script>
+  <section id="securityMonitorSection" style="display: none;">
+    <?!= include('View_Monitor'); ?>
+</section>
 </head>
 <body>
 
@@ -44,6 +47,11 @@
                     <a href="#" id="navManageUsers" class="nav-link">
                         <i class="material-icons">people</i><span>จัดการบัญชีผู้ใช้งานระบบ</span>
                     </a>
+                </li>
+                <li class="nav-item admin-nav" style="display:block;">
+                  <a href="#" id="navSecurityMonitor" class="nav-link">
+                 <i class="material-icons">shield</i><span>มอนิเตอร์ความปลอดภัย</span>
+                 </a>
                 </li>
                 
                 <li class="nav-item admin-nav" style="display:block;">
@@ -2675,6 +2683,12 @@
     setupNav('navAdminSpecialLoanAccess', 'adminSpecialLoanAccessSection');
     setupNav('navAdminAddMissingStudent', 'adminAddMissingStudentSection');
     setupNav('navAdminAnnouncement', 'adminAnnouncementSection');
+    setupNav('navSecurityMonitor', 'securityMonitorSection', () => {
+    if (typeof startSecurityMonitor === 'function') {
+        startSecurityMonitor();
+    }
+});
+    
 
     document.querySelectorAll('.submenu-toggle').forEach(item => {
         item.addEventListener('click', function(e) {
@@ -5684,7 +5698,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     if(checkAuthError(res)) { hideLoading(); return; }
                     hideLoading(); 
                     
-                    loadSpecialLoanList();
+                    if (res.success) {
+                        Swal.fire('สำเร็จ', res.message, 'success');
+                        loadSpecialLoanList();
+                    } else {
+                        Swal.fire('แจ้งเตือน', res.message, 'warning');
+                    }
                 } catch(err) {
                     hideLoading();
                     Swal.fire('Error', err.message, 'error');
@@ -5692,6 +5711,7 @@ document.addEventListener("DOMContentLoaded", () => {
             } 
         });
     };
+
     let currentMissingStudent = null;
 
     window.searchMissingStudent = async () => {
