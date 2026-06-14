@@ -1,4 +1,4 @@
-<script>
+
   window.Swal = Swal.mixin({
     confirmButtonText: 'ตกลง',
     cancelButtonText: 'ยกเลิก'
@@ -354,4 +354,3 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.error("ไม่สามารถดึงประกาศได้:", e);
     }
 });
-</script>
