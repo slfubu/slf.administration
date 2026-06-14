@@ -1,5 +1,4 @@
-
-  window.Swal = Swal.mixin({
+window.Swal = Swal.mixin({
     confirmButtonText: 'ตกลง',
     cancelButtonText: 'ยกเลิก'
 });
@@ -82,7 +81,6 @@ function showSection(sectionId) {
     window.scrollTo(0, 0);
 }
 
-// ผูก Event ทันทีที่โหลดหน้าเว็บเสร็จ
 document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById('showSignup').addEventListener('click', (e) => { 
@@ -134,7 +132,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // ปุ่มดูรหัสผ่านตอนรีเซ็ต
     document.getElementById('btnToggleResetNew')?.addEventListener('click', function() {
         togglePasswordVisibility('resetNewPassword', this);
     });
@@ -143,9 +140,6 @@ document.addEventListener("DOMContentLoaded", () => {
         togglePasswordVisibility('resetConfirmPassword', this);
     });
 
-    // ---------------------------------------------
-    // จัดการ Form Submit
-    // ---------------------------------------------
 
     document.getElementById('btnVerifyIdentity').addEventListener('click', async () => {
         const studentId = document.getElementById('resetStudentId').value.trim();
@@ -323,31 +317,86 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
-
 document.addEventListener("DOMContentLoaded", async () => {
     sessionStorage.removeItem('ubu_student_id');
     sessionStorage.removeItem('ubu_token');
+    sessionStorage.removeItem('ubu_role');
+    sessionStorage.removeItem('ubu_user_data');
 
     try {
         const res = await callApi("getPublicAnnouncement", {});
+        
         if(res && res.success && res.data && res.data.length > 0) {
+            
             let combinedHtml = ''; 
             const accentColors = ['#2563eb', '#ea580c', '#16a34a', '#dc2626', '#7c3aed'];
             
             res.data.forEach((ann, index) => {
+                const safeTitle = escapeHTML(ann.title);
+                const safeContent = escapeHTML(ann.content);
+                const formattedContent = safeContent.replace(/\n/g, '<br>');
                 const themeColor = accentColors[index % accentColors.length];
+                
                 combinedHtml += `
-                    <div style="background: #fff; border-radius: 16px; padding: 20px; margin-bottom: 16px; border-left: 6px solid ${themeColor}; text-align: left;">
-                        <h4 style="margin: 0; color: #1e293b;">${escapeHTML(ann.title)}</h4>
-                        <div style="font-size: 15px; color: #475569; padding-top: 12px;">${escapeHTML(ann.content).replace(/\n/g, '<br>')}</div>
+                    <div style="background: #ffffff; border-radius: 16px; padding: 20px 24px; margin-bottom: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); border-left: 6px solid ${themeColor}; text-align: left; position: relative; transition: transform 0.2s ease;">
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 10px;">
+                            <h4 style="margin: 0; color: #1e293b; font-size: 18px; font-weight: 600; line-height: 1.4;">
+                                ${safeTitle}
+                            </h4>
+                            <span style="background: ${themeColor}15; color: ${themeColor}; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">
+                                <i class="material-icons" style="font-size: 14px;">fiber_new</i> ข่าวใหม่
+                            </span>
+                        </div>
+                        
+                        <div style="font-size: 15px; color: #475569; line-height: 1.6; padding-top: 12px; border-top: 1px dashed #e2e8f0;">
+                            ${formattedContent}
+                        </div>
                     </div>
                 `;
             });
+            
+            const finalHtml = `
+                <div style="background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); padding: 20px 20px; text-align: center; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
+                    <div style="position: absolute; bottom: -30px; left: -30px; width: 100px; height: 100px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
+                    
+                    <div style="position: relative; z-index: 1;">
+                        <h2 style="margin: 0 0 8px 0; font-size: 20px; font-weight: 700; color: #ffffff;">ประกาศที่สำคัญจากระบบ</h2>
+                        <div style="height: 1px; background: rgba(255,255,255,0.3); width: 85%; margin: 0 auto 8px auto;"></div>
+                        <p style="margin: 0; font-size: 13px; color: #ffffff;">กองทุนเงินให้กู้ยืมเพื่อการศึกษา มหาวิทยาลัยอุบลราชธานี</p>
+                    </div>
+                </div>
+                <div class="swal-custom-scroll" style="background: #f8fafc; padding: 24px; max-height: 55vh; overflow-y: auto;">
+                    ${combinedHtml}
+                </div>
+            `;
+
+            const style = document.createElement('style');
+            style.innerHTML = `
+                .swal-ann-popup { border-radius: 24px !important; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3) !important; border: none !important; font-family: 'Sarabun', sans-serif !important;}
+                .swal-ann-btn { font-family: 'Sarabun', sans-serif !important; font-size: 16px !important; padding: 12px 40px !important; border-radius: 50px !important; font-weight: 600 !important; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important; box-shadow: 0 4px 15px rgba(30, 60, 114, 0.3) !important; margin-bottom: 24px !important; transition: all 0.3s ease !important; border: none !important;}
+                .swal-ann-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(30, 60, 114, 0.45) !important; }
+                .swal2-html-container { margin: 0 !important; overflow: hidden !important; padding: 0 !important; }
+                .swal-custom-scroll::-webkit-scrollbar { width: 6px; }
+                .swal-custom-scroll::-webkit-scrollbar-track { background: #f8fafc; }
+                .swal-custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+                .swal-custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+            `;
+            document.head.appendChild(style);
 
             Swal.fire({
-                html: `<div style="background: #f8fafc; padding: 24px; max-height: 55vh; overflow-y: auto;">${combinedHtml}</div>`,
-                showConfirmButton: true, confirmButtonText: 'ปิดประกาศนี้',
-                width: '800px', padding: '0',
+                html: finalHtml,
+                showConfirmButton: true,
+                confirmButtonText: '<div style="display: flex; align-items: center; gap: 8px;"><i class="material-icons" style="font-size: 20px;"></i>ปิดประกาศนี้</div>',
+                allowOutsideClick: false, 
+                width: '800px', 
+                padding: '0', 
+                background: '#fff',
+                customClass: {
+                    popup: 'swal-ann-popup',
+                    confirmButton: 'swal-ann-btn'
+                }
             });
         }
     } catch(e) {
