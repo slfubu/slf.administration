@@ -287,11 +287,34 @@ function renderPagination() {
     if(document.getElementById('btnNextPage')) document.getElementById('btnNextPage').disabled = (currentPage === totalPages);
 }
 
+function searchProfiles() {
+    const input = document.getElementById('adminProfileSearchInput'); if(!input) return;
+    const q = input.value.toLowerCase();
+    currentFilteredData = q ? allProfilesData.filter(p => String(p.studentId).toLowerCase().includes(q) || String(p.name).toLowerCase().includes(q)) : allProfilesData;
+    currentPage = 1; renderPagination();
+}
+
+async function openAdminEditProfile(studentId) {
+    showLoading(); 
+    const targetIdEl = document.getElementById('adm_targetStudentId'), showIdEl = document.getElementById('adm_studentId_show');
+    if(targetIdEl) targetIdEl.value = studentId; if(showIdEl) showIdEl.value = studentId;
+    try {
+        const p = await callApi("getProfile", { studentId: studentId, adminId: adminId, token: userToken });
+        hideLoading(); if(checkAuthError(p)) return;
+        if (p && Object.keys(p).length > 0) {
+            ['idCard','nickname','dob','gpa','phone','disease','fatherName','fatherJob','fatherPhone','motherName','motherJob','motherPhone','parentsStatus','familyMembers','householdIncome','debt','addrNo','subDistrict','district','province','zipcode','mapLink'].forEach(k => {
+                const el = document.getElementById('adm_'+k); if (el) el.value = p[k] || '';
+            });
+        } else { showAlert('นักศึกษายังไม่ได้บันทึกข้อมูล (สามารถกรอกแทนได้)', 'info'); }
+        const modal = document.getElementById('adminProfileModal'); if(modal) modal.style.display = 'flex';
+    } catch(err) { hideLoading(); }
+}
+
 let cachedImageReportData = [], currentFilteredImageReportData = [], imgCurrentPage = 1, imgRowsPerPage = 20;
 async function loadAdminImageReport() {
     showLoading();
     try {
-        const data = await callApi("getStudentImageReport", { adminId, token: userToken });
+        const data = await callApi("getStudentImageReport", { adminId: adminId, token: userToken });
         hideLoading(); if(checkAuthError(data)) return;
         cachedImageReportData = safeArray(data); filterImageReport();
     } catch(e) { hideLoading(); }
@@ -350,6 +373,11 @@ async function viewImageHistory(sid) {
     } catch(e) { c.innerHTML = 'เกิดข้อผิดพลาด'; }
 }
 
+function openLightbox(url) { 
+    const img = document.getElementById('lightboxImage'); const mod = document.getElementById('lightboxModal');
+    if(img && mod) { img.src = url; mod.style.display = 'flex'; }
+}
+
 let adminActivitiesCache = [], currentAdminTab = 'current';
 async function loadActivitiesForAdmin() {
     showLoading();
@@ -358,6 +386,14 @@ async function loadActivitiesForAdmin() {
         hideLoading(); if(checkAuthError(res)) return;
         adminActivitiesCache = safeArray(res); renderAdminActivityTable(currentAdminTab);
     } catch(e) { hideLoading(); }
+}
+
+function switchAdminTab(tab) { 
+    currentAdminTab = tab; 
+    const bCurr = document.getElementById('btnTabCurrent'), bHist = document.getElementById('btnTabHistory');
+    if(bCurr) { bCurr.style.backgroundColor = tab === 'current' ? 'var(--secondary-color)' : '#f1f3f5'; bCurr.style.color = tab === 'current' ? 'white' : '#666'; }
+    if(bHist) { bHist.style.backgroundColor = tab === 'history' ? 'var(--secondary-color)' : '#f1f3f5'; bHist.style.color = tab === 'history' ? 'white' : '#666'; }
+    renderAdminActivityTable(tab); 
 }
 
 function renderAdminActivityTable(tab) {
@@ -387,6 +423,38 @@ function renderAdminActivityTable(tab) {
     });
 }
 
+function toggleChildRows(id) { 
+    const icon = document.getElementById('icon-' + id); let isH = false;
+    document.querySelectorAll(`.child-row-${id}`).forEach(r => { if (r.style.display === 'none') { r.style.display = 'table-row'; isH = false; } else { r.style.display = 'none'; isH = true; } }); 
+    if (icon) icon.textContent = isH ? 'expand_more' : 'expand_less'; 
+}
+
+function openEditActivityModal(id) {
+    const a = adminActivitiesCache.find(act => act.id === id); if(!a) return;
+    document.getElementById('editActId').value = a.id; document.getElementById('editActName').value = a.name; document.getElementById('editActDate').value = a.date; document.getElementById('editActPeriod').value = a.period; document.getElementById('editActLocation').value = a.location; document.getElementById('editActQuota').value = a.quota; 
+    const modal = document.getElementById('editActivityModal'); if(modal) modal.style.display = 'flex';
+}
+
+async function toggleStatus(id, st) { 
+    showLoading(); 
+    try {
+        const r = await callApi("toggleActivityStatus", { id: id, status: st, adminId: adminId, token: userToken });
+        if(checkAuthError(r)) return; hideLoading(); loadActivitiesForAdmin();
+    } catch(err) { hideLoading(); }
+}
+
+function deleteActivity(id) { 
+    Swal.fire({ title: 'ยืนยันการลบ', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ลบข้อมูล' }).then(async r => {
+        if (r.isConfirmed) { 
+            showLoading(); try {
+                const res = await callApi("deleteActivity", { id: id, adminId: adminId, token: userToken });
+                if(checkAuthError(res)) return; hideLoading(); loadActivitiesForAdmin();
+            } catch(err) { hideLoading(); }
+        }
+    });
+}
+
+window.printActivitiesCache = [];
 async function handlePrintSearchSubmit(e) {
     e.preventDefault();
     const d = document.getElementById('printSearchDate').value, p = document.getElementById('printSearchPeriod').value;
@@ -428,6 +496,14 @@ async function loadAdminQueueSlots() {
     } catch(e) { hideLoading(); }
 }
 
+function switchQueueTab(tab) { 
+    currentQueueTab = tab; 
+    const tbCurr = document.getElementById('tabQueueCurrent'), tbHist = document.getElementById('tabQueueHistory');
+    if(tbCurr) tbCurr.classList.toggle('active', tab === 'current');
+    if(tbHist) tbHist.classList.toggle('active', tab === 'history');
+    renderAdminQueueTable(); 
+}
+
 function renderAdminQueueTable() {
     const tb = document.getElementById('adminQueueTableBody'); if(!tb) return; tb.innerHTML = '';
     const today = new Date(); today.setHours(0,0,0,0);
@@ -451,6 +527,34 @@ function renderAdminQueueTable() {
     });
 }
 
+function editQueueSlot(id) { 
+    const s = adminQueueCache.find(x => x.id === id); if(!s) return;
+    document.getElementById('qEditId').value = id; document.getElementById('qDate').value = s.date.split('T')[0]; document.getElementById('qTime').value = s.time; document.getElementById('qQuota').value = s.quota; document.getElementById('qStatus').value = s.status; document.getElementById('queueModalTitle').innerHTML = 'แก้ไขรอบคิว'; 
+    const modal = document.getElementById('queueModal'); if(modal) modal.style.display = 'flex'; 
+}
+
+function toggleQueueStatus(id, st) { 
+    Swal.fire({ title: 'ยืนยันเปลี่ยนสถานะ', icon: 'question', showCancelButton: true }).then(async r => {
+        if (r.isConfirmed) { 
+            showLoading(); try {
+                const res = await callApi("toggleQueueStatus", { id: id, status: st === 'Show' ? 'Hide' : 'Show', adminId: adminId, token: userToken });
+                if(checkAuthError(res)) return; hideLoading(); loadAdminQueueSlots();
+            } catch(err) { hideLoading(); }
+        }
+    }); 
+}
+
+function deleteQueueSlot(id) { 
+    Swal.fire({ title: 'ยืนยันลบข้อมูล', text: 'ข้อมูลการจองในรอบนี้จะหายไปทั้งหมด', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33' }).then(async r => {
+        if (r.isConfirmed) { 
+            showLoading(); try {
+                const res = await callApi("deleteQueueSlot", { id: id, adminId: adminId, token: userToken });
+                if(checkAuthError(res)) return; hideLoading(); loadAdminQueueSlots();
+            } catch(err) { hideLoading(); }
+        }
+    }); 
+}
+
 let queueOptionsCache = {}, currentSearchInfo = {}, currentQueueListData = [];
 async function loadQueueDateOptions() {
     try {
@@ -460,6 +564,14 @@ async function loadQueueDateOptions() {
         sel.innerHTML = '<option value="">-- เลือกวันที่ --</option>';
         Object.keys(queueOptionsCache).forEach(k => sel.innerHTML += `<option value="${escapeHTML(k)}">${formatDate(k)}</option>`);
     } catch(e) {}
+}
+
+function updateTimeOptions() { 
+    const t = document.getElementById('searchQTime'), dEl = document.getElementById('searchQDate'); 
+    if(!t || !dEl) return; const d = dEl.value; t.innerHTML = '<option value="">-- เลือกเวลา --</option>'; 
+    if (d && queueOptionsCache[d]) { 
+        queueOptionsCache[d].forEach(x => t.innerHTML += '<option value="' + escapeHTML(x) + '">' + escapeHTML(x) + '</option>'); t.disabled = false; 
+    } else { t.disabled = true; }
 }
 
 async function handleQueueListSearch(e) {
@@ -478,6 +590,13 @@ async function handleQueueListSearch(e) {
             tb.innerHTML += `<tr><td><b>${x.queueNumber}</b></td><td>${x.studentId}</td><td>${x.name}</td><td>${x.faculty}</td><td></td></tr>`;
         });
     } catch(err) { hideLoading(); }
+}
+
+function printQueueList() {
+    const rows = currentQueueListData.map(x => '<tr><td style="text-align:center;"><b>' + escapeHTML(x.queueNumber) + '</b></td><td style="text-align:center;">' + escapeHTML(x.studentId) + '</td><td>' + escapeHTML(x.name) + '</td><td>' + escapeHTML(x.faculty) + '</td><td></td></tr>').join('');
+    const html = '<html><head><style>body{font-family:\'Sarabun\',sans-serif;margin:20px;} table{width:100%;border-collapse:collapse;margin-top:10px;} th,td{border:1px solid #000;padding:8px;font-size:14px;} th{background:#f0f0f0;}</style></head><body><h2>ใบรายชื่อผู้จองคิวส่งเอกสาร กยศ.</h2><h3>มหาวิทยาลัยอุบลราชธานี</h3><div style="margin:20px 0; border:1px solid #000; padding:10px; border-radius:4px;"><b>วันที่:</b> ' + escapeHTML(formatDate(currentSearchInfo.date)) + '<br><b>เวลา:</b> ' + escapeHTML(currentSearchInfo.time) + '<br><b>ผู้จอง:</b> ' + currentQueueListData.length + ' คน</div><table><tr><th>คิว</th><th>รหัส</th><th>ชื่อ</th><th>คณะ</th><th>หมายเหตุ/เซ็นชื่อ</th></tr>' + rows + '</table></body></html>';
+    const iframe = document.getElementById('previewIframe');
+    if(iframe) { iframe.contentWindow.document.open(); iframe.contentWindow.document.write(html); iframe.contentWindow.document.close(); const mod = document.getElementById('printPreviewModal'); if(mod) mod.style.display = 'flex'; }
 }
 
 async function loadAdminLoanStats() {
@@ -543,6 +662,18 @@ async function saveLoanAsAdmin() {
         const res = await callApi("adminSaveLoanRequest", { studentId: currentAdminLoanData.studentInfo.studentId, name: currentAdminLoanData.studentInfo.name, reqType: (isL&&isT)?'Both':(isL?'Living':'Tuition'), livingAmount: isL?18000:0, tuitionAmount: isT?tVal:0, totalAmount: (isL?18000:0)+tVal, adminId, token: userToken });
         hideLoading(); if(res.success) { Swal.fire('สำเร็จ', 'บันทึกข้อมูลกู้ยืมเรียบร้อย', 'success'); searchLoanForAdmin(); } else { Swal.fire('ผิดพลาด', res.message, 'error'); }
     } catch(e){ hideLoading(); }
+}
+
+function deleteLoanAsAdmin() { 
+    Swal.fire({ title: 'ลบรายการกู้ยืม', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ตกลงลบ' }).then(async r => {
+        if (r.isConfirmed) { 
+            showLoading(); try {
+                const res = await callApi("adminDeleteLoanRequest", { studentId: currentAdminLoanData.studentInfo.studentId, adminId: adminId, token: userToken });
+                if(checkAuthError(res)) return; hideLoading(); 
+                document.getElementById('adminLoanResultArea').style.display = 'none'; document.getElementById('adminLoanSearchInput2').value = '';
+            } catch(err) { hideLoading(); }
+        } 
+    });
 }
 
 async function uploadExcelFile() {
@@ -914,7 +1045,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('topbarAdminName').textContent = currentUser.firstName ? `${currentUser.prefix||''} ${currentUser.firstName} ${currentUser.lastName}` : 'ผู้ดูแลระบบ';
     loadAdminDashboardStats();
 
-
     document.querySelectorAll('.submenu-toggle').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.preventDefault(); const sub = this.nextElementSibling; const arrow = this.querySelector('.arrow-icon');
@@ -923,8 +1053,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     
     document.getElementById('sidebarToggle')?.addEventListener('click', () => {
-        if (window.innerWidth <= 900) { sidebar.classList.toggle('active'); document.getElementById('sidebarOverlay')?.classList.toggle('active'); } 
-        else { sidebar.classList.toggle('collapsed'); }
+        const sidebarEl = document.getElementById('sidebar');
+        if (window.innerWidth <= 900) { 
+            if (sidebarEl) sidebarEl.classList.toggle('active'); 
+            document.getElementById('sidebarOverlay')?.classList.toggle('active'); 
+        } else { 
+            if (sidebarEl) sidebarEl.classList.toggle('collapsed'); 
+        }
     });
     document.getElementById('sidebarOverlay')?.addEventListener('click', closeSidebarOnMobile);
 
@@ -952,7 +1087,6 @@ document.addEventListener("DOMContentLoaded", () => {
     bindNav('navAdminOverLoan', 'adminOverLoanSection', () => { loadAdminOverLoanStats(); loadOverLoanAdminTable(); });
     bindNav('navAdminResign', 'adminResignSection', loadAdminResignStats);
     bindNav('navAdminResignManage', 'adminResignManageSection', loadResignAdminTable);
-
 
     document.getElementById('btnSearchUsers')?.addEventListener('click', searchUsersBackend);
     document.getElementById('btnAdminCheckVerify')?.addEventListener('click', adminCheckStudentVerify);
@@ -982,8 +1116,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('btnUploadOverGpa')?.addEventListener('click', uploadOverGpa);
     document.getElementById('btnDownloadOverReport')?.addEventListener('click', downloadOverReport);
     document.getElementById('btnUploadResignFile')?.addEventListener('click', uploadResignFile);
-    document.getElementById('rsStatusFilter')?.addEventListener('change', filterResignTable);
-    document.getElementById('rsSearchInput')?.addEventListener('input', filterResignTable);
     document.getElementById('btnRunDuplicateCheck')?.addEventListener('click', runDuplicateCheck);
     document.getElementById('btnFilterDuplicateResults')?.addEventListener('click', filterDuplicateResults);
     document.getElementById('btnRefreshSuspendedUsers')?.addEventListener('click', loadSuspendedUsers);
@@ -992,7 +1124,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('btnSaveAnnData')?.addEventListener('click', saveAnnData);
     document.getElementById('overSearchInput')?.addEventListener('input', searchOverLoanTable);
     document.getElementById('overStatusFilter')?.addEventListener('change', searchOverLoanTable);
-    
 
     document.getElementById('rowsPerPageSelect')?.addEventListener('change', function(){ rowsPerPage = parseInt(this.value); currentPage = 1; renderPagination(); });
     document.getElementById('imgRowsPerPage')?.addEventListener('change', function(){ imgRowsPerPage = this.value; imgCurrentPage = 1; renderImageReportTable(); });
@@ -1011,19 +1142,16 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('btnPetPrev')?.addEventListener('click', () => { if(petCurrentPage>1){ petCurrentPage--; renderPetitionsTable(); }});
     document.getElementById('btnPetNext')?.addEventListener('click', () => { petCurrentPage++; renderPetitionsTable(); });
 
-
     document.getElementById('btnTabCurrent')?.addEventListener('click', () => switchAdminTab('current'));
     document.getElementById('btnTabHistory')?.addEventListener('click', () => switchAdminTab('history'));
     document.getElementById('tabQueueCurrent')?.addEventListener('click', () => switchQueueTab('current'));
     document.getElementById('tabQueueHistory')?.addEventListener('click', () => switchQueueTab('history'));
-
 
     document.getElementById('filterPetType')?.addEventListener('change', filterPetitionsTable);
     document.getElementById('filterPetStatus')?.addEventListener('change', filterPetitionsTable);
     document.getElementById('petitionUpdateForm')?.addEventListener('submit', submitPetitionUpdate);
     document.getElementById('btnSubmitBulkPetitionUpdate')?.addEventListener('click', submitBulkPetitionUpdate);
     document.getElementById('btnRefreshPetitions')?.addEventListener('click', loadAdminPetitions);
-
 
     const setupModal = (btnId, modalId, closeIds, openCb) => {
         document.getElementById(btnId)?.addEventListener('click', () => { if(openCb) openCb(); document.getElementById(modalId).style.display='flex'; });
@@ -1056,7 +1184,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 });
-
 
 document.body.addEventListener('click', function(e) {
     const t = e.target;
