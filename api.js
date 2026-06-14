@@ -1,5 +1,4 @@
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzUOViP1Y5PoFW8QMuRWkXkWS9Hojmo_FLEojvTwj2WxfbtE8WAibtiMMFIaRc1s5Ws/exec";
-const API_SECRET_KEY = "UBU_FUND_SECURE_X92K_2026!";
 
 async function callApi(actionName, payloadData = {}) {
     try {
@@ -11,12 +10,17 @@ async function callApi(actionName, payloadData = {}) {
             },
             body: JSON.stringify({ 
                 action: actionName, 
-                api_secret: API_SECRET_KEY,
+                api_secret: typeof API_SECRET_KEY !== 'undefined' ? API_SECRET_KEY : "", 
                 ...payloadData 
             })
         });
 
         if (!response.ok) {
+            if (response.status === 401 || response.status === 403) {
+                sessionStorage.clear();
+                window.location.replace("index.html");
+                return;
+            }
             throw new Error(`HTTP Error: ${response.status}`);
         }
         
