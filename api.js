@@ -10,7 +10,6 @@ async function callApi(actionName, payloadData = {}) {
             },
             body: JSON.stringify({ 
                 action: actionName, 
-                api_secret: typeof API_SECRET_KEY !== 'undefined' ? API_SECRET_KEY : "", 
                 ...payloadData 
             })
         });
