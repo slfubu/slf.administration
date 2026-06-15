@@ -1096,24 +1096,26 @@ const autoLogout = () => {
 autoLogout();
 
 async function initTransferPage() {
-
+    // ซ่อนทุกหน้าไว้ก่อนระหว่างรอตรวจสอบ
     document.getElementById('transferStep1').style.display = 'none';
     document.getElementById('transferStep2').style.display = 'none';
     
-    showLoading('กำลังตรวจสอบข้อมูลการทำรายการ');
+    showLoading('กำลังตรวจสอบข้อมูลการทำรายการ...');
     try {
- 
+        // 1. ยิง API ไปเช็คว่าเคยยื่นไปแล้วหรือยัง
         const checkRes = await callApi('checkTransferStatus', {
             action: 'checkTransferStatus',
             studentId: currentUser.studentId,
             token: userToken
         });
 
+        hideLoading();
 
+        // 2. ถ้าเคยทำรายการไปแล้ว
         if (checkRes && checkRes.status === 'submitted') {
-            hideLoading();
             document.getElementById('transferStep2').style.display = 'block';
             
+            // เปลี่ยนข้อความในหน้า Step 2 เพื่อบอกว่าเคยทำรายการไปแล้ว
             document.getElementById('transferStep2').innerHTML = `
                 <div style="width:80px; height:80px; background:#e8f5e9; color:#2e7d32; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px auto;">
                     <i class="material-icons" style="font-size:40px;">check_circle</i>
@@ -1125,11 +1127,48 @@ async function initTransferPage() {
         }
 
 
-        document.getElementById('transferStep1').style.display = 'block';
-        document.getElementById('tfName').value = `${currentUser.prefix || ''}${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim();
-        document.getElementById('tfIdCard').value = ''; 
+        const confirmTerms = await Swal.fire({
+            title: 'ข้อควรทราบก่อนดำเนินการ',
+            html: `
+                <div style="text-align: left; font-size: 14.5px; line-height: 1.6; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #dee2e6;">
+                    <div style="margin-bottom: 10px;">
+                        <span style="color: #1976D2; font-weight: bold; font-size: 15px;">อนุญาตเฉพาะนักศึกษาที่เข้าเงื่อนไข ดังนี้:</span><br>
+                        ผู้ที่ <b>"เคยศึกษาในระดับอุดมศึกษาจากสถาบันอื่น"</b> แล้วลาออกมาเข้าศึกษาใหม่ที่มหาวิทยาลัยอุบลราชธานี <br><u>และ</u> มีความประสงค์จะ <b>"ขอกู้ยืมเงิน กยศ. ต่อเนื่อง"</b> เท่านั้น
+                    </div>
+                    
+                    <div style="background: #fff5f5; padding: 10px; border-radius: 6px; border-left: 4px solid #d32f2f;">
+                        <span style="color: #d32f2f; font-weight: bold; font-size: 15px;">⚠️ คำเตือนสำหรับกลุ่มที่ไม่เข้าเงื่อนไข:</span><br>
+                        นักศึกษากลุ่มอื่นๆ ที่ไม่เข้าเงื่อนไขข้างต้น <b>"ห้ามดำเนินการแจ้งข้อมูลในเมนูนี้เด็ดขาด"</b> เนื่องจากข้อมูลจะถูกบันทึกและส่งผลกระทบต่อสิทธิ์การกู้ยืมเงินของท่านโดยตรง
+                    </div>
+                </div>
+                <p style="color: #555; margin-top: 15px; font-size: 14px;">
+                    หากมีข้อสงสัยหรือไม่แน่ใจ กรุณาสอบถามเจ้าหน้าที่ก่อนดำเนินการ<br>
+                    <i class="material-icons" style="vertical-align: middle; font-size: 18px;">phone</i> โทร <b>045-353093</b> (ในวันและเวลาราชการ)
+                </p>
+            `,
+            icon: 'info',
+            width: 600,
+            showCancelButton: true,
+            confirmButtonColor: '#2e7d32', 
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'ข้าพเจ้าเข้าเงื่อนไข และยอมรับ',
+            cancelButtonText: 'ยกเลิก / ไม่เข้าเงื่อนไข',
+            allowOutsideClick: false, 
+            allowEscapeKey: false
+        });
 
-        hideLoading();
+        if (confirmTerms.isConfirmed) {
+            document.getElementById('transferStep1').style.display = 'block';
+            document.getElementById('tfName').value = `${currentUser.prefix || ''}${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim();
+            document.getElementById('tfIdCard').value = ''; 
+        } else {
+
+            showSection('userDashboardSection');
+            document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+            const dashNav = document.getElementById('navUserDashboard');
+            if (dashNav) dashNav.classList.add('active');
+        }
+
     } catch (error) {
         hideLoading();
         Swal.fire('ข้อผิดพลาด', 'ไม่สามารถตรวจสอบข้อมูลได้: ' + error.message, 'error');
