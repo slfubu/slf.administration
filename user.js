@@ -123,6 +123,7 @@ function renderStudentMenus(globalSettings, hasSpecialAccess) {
     'menu_userProfile', 'menu_userActivity', 'menu_userQueue', 
     'menu_loan2569', 'menu_userResign', 'menu_userPetition', 
     'menu_userTrackPetition', 'menu_overLoan', 'menu_userTransfer' 
+    ]; 
     menus.forEach(id => {
         const el = document.getElementById(id);
         if (el) {
@@ -1180,7 +1181,7 @@ document.getElementById('transferForm')?.addEventListener('submit', (e) => {
                 } else {
                     Swal.fire('ข้อผิดพลาด', res.message || 'ไม่สามารถบันทึกได้', 'error');
                 }
-            } catch (err) {
+           } catch (err) {
                 hideLoading();
                 Swal.fire('ข้อผิดพลาด', err.message, 'error');
             }
