@@ -6425,18 +6425,6 @@ function exportTransferDataExcel() {
     document.body.removeChild(link);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    const navBtn = document.getElementById('navAdminTransfer');
-    if(navBtn) {
-        navBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            document.querySelectorAll('.section').forEach(sec => sec.style.display = 'none');
-            document.getElementById('adminTransferSection').style.display = 'block';
-            loadTransferData();
-        });
-    }
-});
-
 </script>
 </body>
 </html>
