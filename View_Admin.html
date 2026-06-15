@@ -6293,11 +6293,12 @@ window.uploadSpecialAccessFile = function() {
     let currentTransferData = [];
 
 async function loadTransferData() {
-    showLoading('กำลังโหลดข้อมูล...');
+    showLoading('กำลังโหลดข้อมูล');
     try {
         const response = await callApi('getTransferRequests', { 
             action: 'getTransferRequests',
-            token: typeof adminToken !== 'undefined' ? adminToken : sessionStorage.getItem('ubu_admin_token')
+            adminId: adminId,  
+            token: userToken   
         });
         
         if (response && response.success) {
