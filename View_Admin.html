@@ -2734,7 +2734,6 @@
         document.getElementById('missingStudentResultArea').style.display = 'none'; 
         }
         if(id === 'adminAnnouncementSection') loadAdminAnnouncement();
-        if(id === 'adminTransferSection') loadTransferData();
 
     };
 
@@ -2772,7 +2771,6 @@
     setupNav('navAdminSpecialLoanAccess', 'adminSpecialLoanAccessSection');
     setupNav('navAdminAddMissingStudent', 'adminAddMissingStudentSection');
     setupNav('navAdminAnnouncement', 'adminAnnouncementSection');
-    setupNav('navAdminTransfer', 'adminTransferSection');
 
     document.querySelectorAll('.submenu-toggle').forEach(item => {
         item.addEventListener('click', function(e) {
@@ -6293,12 +6291,11 @@ window.uploadSpecialAccessFile = function() {
     let currentTransferData = [];
 
 async function loadTransferData() {
-    showLoading('กำลังโหลดข้อมูล');
+    showLoading('กำลังโหลดข้อมูล...');
     try {
         const response = await callApi('getTransferRequests', { 
             action: 'getTransferRequests',
-            adminId: adminId,  
-            token: userToken   
+            token: typeof adminToken !== 'undefined' ? adminToken : sessionStorage.getItem('ubu_admin_token')
         });
         
         if (response && response.success) {
@@ -6423,6 +6420,17 @@ function exportTransferDataExcel() {
     document.body.removeChild(link);
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    const navBtn = document.getElementById('navAdminTransfer');
+    if(navBtn) {
+        navBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelectorAll('.section').forEach(sec => sec.style.display = 'none');
+            document.getElementById('adminTransferSection').style.display = 'block';
+            loadTransferData();
+        });
+    }
+});
 
 </script>
 </body>
