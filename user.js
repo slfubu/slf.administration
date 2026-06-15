@@ -1111,11 +1111,9 @@ async function initTransferPage() {
 
         hideLoading();
 
-        // 2. ถ้าเคยทำรายการไปแล้ว
         if (checkRes && checkRes.status === 'submitted') {
             document.getElementById('transferStep2').style.display = 'block';
             
-            // เปลี่ยนข้อความในหน้า Step 2 เพื่อบอกว่าเคยทำรายการไปแล้ว
             document.getElementById('transferStep2').innerHTML = `
                 <div style="width:80px; height:80px; background:#e8f5e9; color:#2e7d32; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px auto;">
                     <i class="material-icons" style="font-size:40px;">check_circle</i>
