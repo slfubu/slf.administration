@@ -65,6 +65,11 @@
                         <i class="material-icons">exit_to_app</i><span>แจ้งความประสงค์ลาออก</span>
                     </a>
                 </li>
+                <li class="nav-item user-nav" id="menu_userTransfer" style="display: none;">
+                 <a href="#" id="navUserTransfer" class="nav-link">
+                  <i class="material-icons">transfer_within_a_station</i><span>รายเก่าย้ายสถานศึกษา</span>
+                 </a>
+              </li>
                 <li class="nav-item user-nav" id="menu_userPetition" style="display: none;">
                     <a href="#" id="navUserPetition" class="nav-link">
                         <i class="material-icons">rate_review</i><span>ระบบยื่นคำร้องออนไลน์</span>
@@ -501,6 +506,92 @@
 
                     </div>
                 </div>
+
+    <div id="userTransferSection" class="section">
+    <div class="card" style="border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <div style="background: linear-gradient(135deg, #00897b 0%, #26a69a 100%); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto;">
+                <i class="material-icons" style="color: white; font-size: 32px;">transfer_within_a_station</i>
+            </div>
+            <h2 style="border: none; justify-content: center; margin-bottom: 5px; font-weight: 700; color: #333;">
+                แจ้งข้อมูลรายเก่าย้ายสถานศึกษา / เปลี่ยนระดับ
+            </h2>
+            <p style="color: #777; font-size: 15px; margin: 0;">กรอกข้อมูลเพิ่มเติมเพื่อแจ้งความประสงค์การขอยื่นกู้ใหม่</p>
+        </div>
+
+        <div id="transferStep1">
+            <form id="transferForm">
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>เลขบัตรประจำตัวประชาชน (จากทะเบียนประวัติ)</label>
+                            <input type="text" id="tfIdCard" class="modern-input adm-input-readonly" readonly>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>ชื่อ - นามสกุล (จากฐานข้อมูลผู้ใช้งาน)</label>
+                            <input type="text" id="tfName" class="modern-input adm-input-readonly" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>ระดับการศึกษา</label>
+                            <input type="text" id="tfLevel" class="modern-input" value="ป.ตรี" readonly style="background:#f5f5f5; color:#d32f2f; font-weight:bold;">
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>ชั้นปีการศึกษา <span style="color:red;">*</span></label>
+                            <select id="tfYear" class="modern-input" required>
+                                <option value="">-- เลือกชั้นปี --</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>สถานะ</label>
+                    <input type="text" id="tfStatus" class="modern-input" value="ย้ายสถานศึกษา" readonly style="background:#f5f5f5; color:#1976D2; font-weight:bold;">
+                </div>
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>รหัสสถานศึกษา (ปัจจุบัน)</label>
+                            <input type="text" id="tfInstCode" class="modern-input" value="001857" readonly style="background:#f5f5f5;">
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>ชื่อสถานศึกษา (ปัจจุบัน)</label>
+                            <input type="text" id="tfInstName" class="modern-input" value="มหาวิทยาลัยอุบลราชธานี" readonly style="background:#f5f5f5;">
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 25px;">
+                    <button type="submit" class="btn btn-primary" style="width: 100%; height: 50px; font-size: 16px; border-radius: 8px;">
+                        บันทึกข้อมูลและยื่นแบบฟอร์ม <i class="material-icons" style="margin-left: 8px; vertical-align: middle;">save</i>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div id="transferStep2" style="display:none; text-align:center; padding:40px;">
+            <div style="width:80px; height:80px; background:#e8f5e9; color:#2e7d32; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px auto;">
+                <i class="material-icons" style="font-size:40px;">check_circle</i>
+            </div>
+            <h3 style="color:#2e7d32;">ระบบได้รับข้อมูลการแจ้งย้ายสถานศึกษาเรียบร้อยแล้ว</h3>
+            <p style="color:#666;">ข้อมูลการย้ายสถานศึกษาและเปลี่ยนระดับของท่านได้รับการบันทึกเข้าสู่ระบบแล้ว<br>หากต้องการแก้ไขเพิ่มเติมโปรดติดต่อเจ้าหน้าที่</p>
+        </div>
+    </div>
+</div>
 
                 <div id="userResignSection" class="section">
                     <div class="card" style="border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
