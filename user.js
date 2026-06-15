@@ -1132,12 +1132,12 @@ async function initTransferPage() {
             html: `
                 <div style="text-align: left; font-size: 14.5px; line-height: 1.6; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #dee2e6;">
                     <div style="margin-bottom: 10px;">
-                        <span style="color: #1976D2; font-weight: bold; font-size: 15px;">อนุญาตเฉพาะนักศึกษาที่เข้าเงื่อนไข ดังนี้:</span><br>
+                        <span style="color: #1976D2; font-weight: bold; font-size: 15px;">อนุญาตเฉพาะนักศึกษาที่เข้าเงื่อนไข ดังนี้</span><br>
                         ผู้ที่ <b>"เคยศึกษาในระดับอุดมศึกษาจากสถาบันอื่น"</b> แล้วลาออกมาเข้าศึกษาใหม่ที่มหาวิทยาลัยอุบลราชธานี <br><u>และ</u> มีความประสงค์จะ <b>"ขอกู้ยืมเงิน กยศ. ต่อเนื่อง"</b> เท่านั้น
                     </div>
                     
                     <div style="background: #fff5f5; padding: 10px; border-radius: 6px; border-left: 4px solid #d32f2f;">
-                        <span style="color: #d32f2f; font-weight: bold; font-size: 15px;">⚠️ คำเตือนสำหรับกลุ่มที่ไม่เข้าเงื่อนไข:</span><br>
+                        <span style="color: #d32f2f; font-weight: bold; font-size: 15px;">⚠️ คำเตือนสำหรับกลุ่มที่ไม่เข้าเงื่อนไข</span><br>
                         นักศึกษากลุ่มอื่นๆ ที่ไม่เข้าเงื่อนไขข้างต้น <b>"ห้ามดำเนินการแจ้งข้อมูลในเมนูนี้เด็ดขาด"</b> เนื่องจากข้อมูลจะถูกบันทึกและส่งผลกระทบต่อสิทธิ์การกู้ยืมเงินของท่านโดยตรง
                     </div>
                 </div>
