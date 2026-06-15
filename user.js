@@ -1099,37 +1099,75 @@ async function initTransferPage() {
     document.getElementById('transferStep1').style.display = 'block';
     document.getElementById('transferStep2').style.display = 'none';
     
-    // ดึงชื่อ-นามสกุล
     document.getElementById('tfName').value = `${currentUser.prefix || ''}${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim();
     
-    showLoading('กำลังดึงข้อมูลจากทะเบียนประวัติ');
-    try {
-        const res = await callApi('getProfile', { 
-            studentId: currentUser.studentId, 
-            token: userToken 
-        });
-        hideLoading();
-        
-        const profile = res.data ? res.data : res;
-        
-      
-        let idCardNumber = (profile && profile.idCard) ? profile.idCard : (currentUser && currentUser.idCard ? currentUser.idCard : '');
-
-        if (idCardNumber && idCardNumber.trim() !== '') {
-            document.getElementById('tfIdCard').value = idCardNumber;
-        } else {
-            document.getElementById('tfIdCard').value = 'ยังไม่พบข้อมูลในระบบ';
-            Swal.fire({
-                icon: 'warning',
-                title: 'ข้อความแจ้งเตือน',
-                text: 'ระบบไม่พบเลขบัตรประจำตัวประชาชนของท่าน กรุณาไปที่เมนู "ทะเบียนประวัตินักศึกษา" เพื่อบันทึกข้อมูลให้ครบถ้วนก่อนทำรายการ'
-            });
-        }
-    } catch (error) {
-        hideLoading();
-        Swal.fire('ข้อผิดพลาด', 'ไม่สามารถดึงข้อมูลทะเบียนประวัติได้: ' + error.message, 'error');
-    }
+    document.getElementById('tfIdCard').value = '';
 }
+
+document.getElementById('transferForm')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    const idCard = document.getElementById('tfIdCard').value;
+
+    const name = document.getElementById('tfName').value;
+    const level = document.getElementById('tfLevel').value;
+    const year = document.getElementById('tfYear').value;
+    const status = document.getElementById('tfStatus').value;
+    const instCode = document.getElementById('tfInstCode').value;
+    const instName = document.getElementById('tfInstName').value;
+
+    const popupHtml = `
+        <div style="text-align:left; font-size:14px; background:#f8f9fa; padding:15px; border-radius:8px; border:1px solid #ddd;">
+            <b>เลขบัตร ปชช:</b> ${idCard}<br>
+            <b>ชื่อ-สกุล:</b> ${name}<br>
+            <b>ระดับการศึกษา:</b> ${level} (ชั้นปีที่ ${year})<br>
+            <b>สถานะ:</b> ${status}<br>
+            <b>รหัสสถานศึกษา:</b> ${instCode}<br>
+            <b>ชื่อสถานศึกษา:</b> ${instName}
+        </div>
+        <p style="color:#d32f2f; margin-top:15px; font-size:13px; font-weight:bold;">กรุณาตรวจสอบความถูกต้อง หากกดยืนยันแล้วจะไม่สามารถกลับมาแก้ไขได้</p>
+    `;
+
+    Swal.fire({
+        title: 'ตรวจสอบและยืนยันข้อมูล',
+        html: popupHtml,
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonColor: '#1976D2',
+        confirmButtonText: 'ยืนยันการส่งข้อมูล',
+        cancelButtonText: 'ยกเลิก'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            showLoading('กำลังบันทึกข้อมูลเข้าสู่ระบบ');
+            
+            try {
+                const payload = createSecurePayload({
+                    action: 'submitTransferRequest', 
+                    idCard: idCard,
+                    name: name,
+                    level: level,
+                    year: year,
+                    status: status,
+                    instCode: instCode,
+                    instName: instName
+                });
+
+                const res = await callApi('submitTransferRequest', payload); 
+                hideLoading();
+
+                if (res && res.success) {
+                    document.getElementById('transferStep1').style.display = 'none';
+                    document.getElementById('transferStep2').style.display = 'block';
+                } else {
+                    Swal.fire('ข้อผิดพลาด', res.message || 'ไม่สามารถบันทึกได้', 'error');
+                }
+           } catch (error) {
+                hideLoading();
+                Swal.fire('ข้อผิดพลาด', error.message, 'error');
+            }
+        }
+    });
+});
 
 document.getElementById('transferForm')?.addEventListener('submit', (e) => {
     e.preventDefault();
