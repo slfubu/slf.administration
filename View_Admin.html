@@ -2730,12 +2730,16 @@
             loadSpecialLoanList(); 
         }
         if(id === 'adminAddMissingStudentSection') { 
-        document.getElementById('missingStudentSearchInput').value = ''; 
-        document.getElementById('missingStudentResultArea').style.display = 'none'; 
+            document.getElementById('missingStudentSearchInput').value = ''; 
+            document.getElementById('missingStudentResultArea').style.display = 'none'; 
         }
         if(id === 'adminAnnouncementSection') loadAdminAnnouncement();
 
+        if(id === 'adminTransferSection') {
+            loadTransferData();
+        }
     };
+
 
     function setupNav(id, sectionId, callback) {
         const el = document.getElementById(id);
@@ -2771,6 +2775,7 @@
     setupNav('navAdminSpecialLoanAccess', 'adminSpecialLoanAccessSection');
     setupNav('navAdminAddMissingStudent', 'adminAddMissingStudentSection');
     setupNav('navAdminAnnouncement', 'adminAnnouncementSection');
+    setupNav('navAdminTransfer', 'adminTransferSection');
 
     document.querySelectorAll('.submenu-toggle').forEach(item => {
         item.addEventListener('click', function(e) {
