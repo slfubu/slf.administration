@@ -120,10 +120,9 @@ window.currentSystemSettings = {};
 
 function renderStudentMenus(globalSettings, hasSpecialAccess) {
     const menus = [
-        'menu_userProfile', 'menu_userActivity', 'menu_userQueue', 
-        'menu_loan2569', 'menu_userResign', 'menu_userPetition', 
-        'menu_userTrackPetition', 'menu_overLoan' 
-    ];
+    'menu_userProfile', 'menu_userActivity', 'menu_userQueue', 
+    'menu_loan2569', 'menu_userResign', 'menu_userPetition', 
+    'menu_userTrackPetition', 'menu_overLoan', 'menu_userTransfer' 
     menus.forEach(id => {
         const el = document.getElementById(id);
         if (el) {
@@ -824,6 +823,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupNav('navUserResign', 'userResignSection', initResignPage);
     setupNav('navUserPetition', 'userPetitionSection', () => { initPetitionPage(); });
     setupNav('navUserTrackPetition', 'userTrackPetitionSection', loadMyPetitions);
+    setupNav('navUserTransfer', 'userTransferSection', initTransferPage);
 
     document.getElementById('navLogout').addEventListener('click', (e) => { 
         e.preventDefault(); 
@@ -1093,3 +1093,97 @@ const autoLogout = () => {
     document.onscroll = resetTimer;
 };
 autoLogout();
+
+async function initTransferPage() {
+    document.getElementById('transferStep1').style.display = 'block';
+    document.getElementById('transferStep2').style.display = 'none';
+    
+    document.getElementById('tfName').value = `${currentUser.prefix || ''}${currentUser.firstName || ''} ${currentUser.lastName || ''}`;
+    
+    showLoading('กำลังดึงข้อมูลจากทะเบียนประวัติ');
+    try {
+        const profile = await callApi('getProfile', { 
+            studentId: currentUser.studentId, 
+            token: userToken 
+        });
+        hideLoading();
+        
+        if (profile && profile.idCard) {
+            document.getElementById('tfIdCard').value = profile.idCard;
+        } else {
+            document.getElementById('tfIdCard').value = 'ยังไม่พบข้อมูลในระบบ';
+            Swal.fire('ข้อความแจ้งเตือน', 'ท่านยังไม่ได้บันทึกทะเบียนประวัติ ระบบจึงไม่สามารถดึงเลขบัตรประชาชนได้ กรุณาไปที่เมนู "ทะเบียนประวัตินักศึกษา" เพื่อบันทึกข้อมูลก่อน', 'warning');
+        }
+    } catch (error) {
+        hideLoading();
+        showAlert(err.message, 'error');
+    }
+}
+
+document.getElementById('transferForm')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    const idCard = document.getElementById('tfIdCard').value;
+    if (idCard === 'ยังไม่พบข้อมูลในระบบ') {
+        return Swal.fire('ไม่สามารถบันทึกได้', 'กรุณาบันทึกทะเบียนประวัติเพื่อให้ระบบดึงเลขบัตรประชาชนมาทำรายการได้', 'error');
+    }
+
+    const name = document.getElementById('tfName').value;
+    const level = document.getElementById('tfLevel').value;
+    const year = document.getElementById('tfYear').value;
+    const status = document.getElementById('tfStatus').value;
+    const instCode = document.getElementById('tfInstCode').value;
+    const instName = document.getElementById('tfInstName').value;
+
+    const popupHtml = `
+        <div style="text-align:left; font-size:14px; background:#f8f9fa; padding:15px; border-radius:8px; border:1px solid #ddd;">
+            <b>เลขบัตร ปชช:</b> ${idCard}<br>
+            <b>ชื่อ-สกุล:</b> ${name}<br>
+            <b>ระดับการศึกษา:</b> ${level} (ชั้นปีที่ ${year})<br>
+            <b>สถานะ:</b> ${status}<br>
+            <b>รหัสสถานศึกษา:</b> ${instCode}<br>
+            <b>ชื่อสถานศึกษา:</b> ${instName}
+        </div>
+        <p style="color:#d32f2f; margin-top:15px; font-size:13px; font-weight:bold;">กรุณาตรวจสอบความถูกต้อง หากกดยืนยันแล้วจะไม่สามารถกลับมาแก้ไขได้</p>
+    `;
+
+    Swal.fire({
+        title: 'ตรวจสอบและยืนยันข้อมูล',
+        html: popupHtml,
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonColor: '#1976D2',
+        confirmButtonText: 'ยืนยันการส่งข้อมูล',
+        cancelButtonText: 'ยกเลิก'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            showLoading('กำลังบันทึกข้อมูลเข้าสู่ระบบ');
+            
+            try {
+                const payload = createSecurePayload({
+                    action: 'submitTransferRequest', 
+                    idCard: idCard,
+                    name: name,
+                    level: level,
+                    year: year,
+                    status: status,
+                    instCode: instCode,
+                    instName: instName
+                });
+
+                const res = await callApi('submitTransferRequest', payload); 
+                hideLoading();
+
+                if (res && res.success) {
+                    document.getElementById('transferStep1').style.display = 'none';
+                    document.getElementById('transferStep2').style.display = 'block';
+                } else {
+                    Swal.fire('ข้อผิดพลาด', res.message || 'ไม่สามารถบันทึกได้', 'error');
+                }
+            } catch (err) {
+                hideLoading();
+                Swal.fire('ข้อผิดพลาด', err.message, 'error');
+            }
+        }
+    });
+});
