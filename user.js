@@ -1099,25 +1099,35 @@ async function initTransferPage() {
     document.getElementById('transferStep1').style.display = 'block';
     document.getElementById('transferStep2').style.display = 'none';
     
-    document.getElementById('tfName').value = `${currentUser.prefix || ''}${currentUser.firstName || ''} ${currentUser.lastName || ''}`;
+    // ดึงชื่อ-นามสกุล
+    document.getElementById('tfName').value = `${currentUser.prefix || ''}${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim();
     
     showLoading('กำลังดึงข้อมูลจากทะเบียนประวัติ');
     try {
-        const profile = await callApi('getProfile', { 
+        const res = await callApi('getProfile', { 
             studentId: currentUser.studentId, 
             token: userToken 
         });
         hideLoading();
         
-        if (profile && profile.idCard) {
-            document.getElementById('tfIdCard').value = profile.idCard;
+        const profile = res.data ? res.data : res;
+        
+      
+        let idCardNumber = (profile && profile.idCard) ? profile.idCard : (currentUser && currentUser.idCard ? currentUser.idCard : '');
+
+        if (idCardNumber && idCardNumber.trim() !== '') {
+            document.getElementById('tfIdCard').value = idCardNumber;
         } else {
             document.getElementById('tfIdCard').value = 'ยังไม่พบข้อมูลในระบบ';
-            Swal.fire('ข้อความแจ้งเตือน', 'ท่านยังไม่ได้บันทึกทะเบียนประวัติ ระบบจึงไม่สามารถดึงเลขบัตรประชาชนได้ กรุณาไปที่เมนู "ทะเบียนประวัตินักศึกษา" เพื่อบันทึกข้อมูลก่อน', 'warning');
+            Swal.fire({
+                icon: 'warning',
+                title: 'ข้อความแจ้งเตือน',
+                text: 'ระบบไม่พบเลขบัตรประจำตัวประชาชนของท่าน กรุณาไปที่เมนู "ทะเบียนประวัตินักศึกษา" เพื่อบันทึกข้อมูลให้ครบถ้วนก่อนทำรายการ'
+            });
         }
     } catch (error) {
         hideLoading();
-        showAlert(err.message, 'error');
+        Swal.fire('ข้อผิดพลาด', 'ไม่สามารถดึงข้อมูลทะเบียนประวัติได้: ' + error.message, 'error');
     }
 }
 
