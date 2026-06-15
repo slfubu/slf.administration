@@ -1096,12 +1096,44 @@ const autoLogout = () => {
 autoLogout();
 
 async function initTransferPage() {
-    document.getElementById('transferStep1').style.display = 'block';
+
+    document.getElementById('transferStep1').style.display = 'none';
     document.getElementById('transferStep2').style.display = 'none';
     
-    document.getElementById('tfName').value = `${currentUser.prefix || ''}${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim();
-    
-    document.getElementById('tfIdCard').value = '';
+    showLoading('กำลังตรวจสอบข้อมูลการทำรายการ');
+    try {
+ 
+        const checkRes = await callApi('checkTransferStatus', {
+            action: 'checkTransferStatus',
+            studentId: currentUser.studentId,
+            token: userToken
+        });
+
+
+        if (checkRes && checkRes.status === 'submitted') {
+            hideLoading();
+            document.getElementById('transferStep2').style.display = 'block';
+            
+            document.getElementById('transferStep2').innerHTML = `
+                <div style="width:80px; height:80px; background:#e8f5e9; color:#2e7d32; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px auto;">
+                    <i class="material-icons" style="font-size:40px;">check_circle</i>
+                </div>
+                <h3 style="color:#2e7d32;">ท่านได้แจ้งข้อมูลย้ายสถานศึกษาเรียบร้อยแล้ว</h3>
+                <p style="color:#666;">ข้อมูลของท่านได้รับการบันทึกเข้าสู่ระบบเมื่อวันที่ <b>${checkRes.info.timestamp || '-'}</b><br>ระบบไม่อนุญาตให้ทำรายการซ้ำ หากต้องการแก้ไขข้อมูลโปรดติดต่อเจ้าหน้าที่</p>
+            `;
+            return; 
+        }
+
+
+        document.getElementById('transferStep1').style.display = 'block';
+        document.getElementById('tfName').value = `${currentUser.prefix || ''}${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim();
+        document.getElementById('tfIdCard').value = ''; 
+
+        hideLoading();
+    } catch (error) {
+        hideLoading();
+        Swal.fire('ข้อผิดพลาด', 'ไม่สามารถตรวจสอบข้อมูลได้: ' + error.message, 'error');
+    }
 }
 
 document.getElementById('transferForm')?.addEventListener('submit', (e) => {
