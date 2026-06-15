@@ -256,6 +256,12 @@
                         </li>
                     </ul>
                 </li>
+                <li class="nav-item admin-nav" id="menu_adminTransfer">
+            <a href="#" id="navAdminTransfer" class="nav-link">
+        <i class="material-icons">transfer_within_a_station</i>
+        <span>ข้อมูลย้ายสถานศึกษา</span>
+    </a>
+</li>
             </ul>
         </aside>
 
@@ -1628,7 +1634,9 @@
             <tr><td colspan="7" style="text-align: center; padding: 30px; color: #999;">กำลังโหลดข้อมูล</td></tr>
         </tbody>
     </table>
-</div> </div> </div> <div id="adminMenuSettingsSection" class="section">
+</div> </div> </div> 
+
+ <div id="adminMenuSettingsSection" class="section">
     <div class="card">
         <h2><i class="material-icons">settings_applications</i> ตั้งค่าการแสดงผลเมนูนักศึกษา</h2>
         <div style="max-width: 600px;">
@@ -1644,7 +1652,6 @@
                     <span class="slider"></span>
                 </label>
             </div>
-            
             <div class="toggle-row">
                 <div class="toggle-label">
                     <div class="toggle-icon"><i class="material-icons">rate_review</i></div>
@@ -1656,7 +1663,6 @@
                     <input type="checkbox" id="setting_menu_userPetition"> <span class="slider"></span>
                 </label>
             </div>
-
             <div class="toggle-row">
                 <div class="toggle-label">
                     <div class="toggle-icon"><i class="material-icons">volunteer_activism</i></div>
@@ -1669,7 +1675,6 @@
                     <span class="slider"></span>
                 </label>
             </div>
-
             <div class="toggle-row">
                 <div class="toggle-label">
                     <div class="toggle-icon"><i class="material-icons">confirmation_number</i></div>
@@ -1682,7 +1687,6 @@
                     <span class="slider"></span>
                 </label>
             </div>
-
             <div class="toggle-row">
                 <div class="toggle-label">
                     <div class="toggle-icon"><i class="material-icons">monetization_on</i></div>
@@ -1695,7 +1699,6 @@
                     <span class="slider"></span>
                 </label>
             </div>
-
             <div class="toggle-row">
                 <div class="toggle-label">
                     <div class="toggle-icon"><i class="material-icons">history_edu</i></div>
@@ -1708,8 +1711,8 @@
                     <span class="slider"></span>
                 </label>
             </div>
-
-            <div class="toggle-row" style="border-bottom: none;">
+            
+            <div class="toggle-row">
                 <div class="toggle-label">
                     <div class="toggle-icon"><i class="material-icons">exit_to_app</i></div>
                     <div>
@@ -1722,6 +1725,19 @@
                 </label>
             </div>
 
+            <div class="toggle-row" style="border-bottom: none;">
+                <div class="toggle-label">
+                    <div class="toggle-icon"><i class="material-icons">transfer_within_a_station</i></div>
+                    <div>
+                        <div>รายเก่าย้ายสถานศึกษา</div>
+                    </div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="setting_menu_userTransfer">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
             <div style="margin-top: 20px; text-align: right;">
                 <button class="btn btn-primary" onclick="saveAdminMenuSettings()" style="padding: 10px 25px;">
                     <i class="material-icons">save</i> บันทึกการตั้งค่า
@@ -1729,7 +1745,6 @@
             </div>
 
             <hr style="border: 0; border-top: 1px dashed #ccc; margin: 30px 0 20px 0;">
-            
             <h3 style="color: #2a5298; margin-bottom: 15px; font-size: 18px;">
                 <i class="material-icons" style="vertical-align: middle; font-size: 20px;">rule</i> 
                 ตั้งค่าการรับคำร้องออนไลน์ (แต่ละประเภท)
@@ -1763,13 +1778,13 @@
 
             <div class="toggle-row" style="border-bottom: none;">
                 <div class="toggle-label">
-                    <div class="toggle-icon" style="background: #e8f5e9; color: #2e7d32;"><i class="material-icons">person_add</i></div>
+                    <div class="toggle-icon" style="background: #f3e5f5; color: #0277bd;"><i class="material-icons">more_horiz</i></div>
                     <div>
-                        <div>รับคำร้อง: เพิ่มชื่อกู้ยืม (ไม่พบชื่อ/ไม่ต่อเนื่อง)</div>
+                        <div>รับคำร้อง: เรื่องอื่นๆ ผ่านระบบ</div>
                     </div>
                 </div>
                 <label class="switch">
-                    <input type="checkbox" id="setting_pet_type4_open">
+                    <input type="checkbox" id="setting_pet_type3_open">
                     <span class="slider"></span>
                 </label>
             </div>
@@ -1777,7 +1792,8 @@
     </div>
 </div>
 
-                <div id="adminSpecialAccessSection" class="section">
+
+    <div id="adminSpecialAccessSection" class="section">
     <div class="card">
         <h2><i class="material-icons" style="color: var(--secondary-color);">how_to_reg</i> อนุญาตให้บันทึกประวัตินอกรอบเพื่อขอยื่นกู้ ปี 2569</h2>
         
@@ -1982,6 +1998,53 @@
             </form>
         </div>
     </div>
+
+    <div id="adminTransferSection" class="section" style="display: none;">
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+            <h2 style="margin: 0; display: flex; align-items: center;">
+                <i class="material-icons" style="margin-right: 8px; color: #00897b;">transfer_within_a_station</i> 
+                ข้อมูลผู้กู้ยืมรายเก่าย้ายสถานศึกษา
+            </h2>
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <div style="background: #f5f5f5; padding: 5px 10px; border-radius: 5px; display: flex; align-items: center; gap: 8px;">
+                    <label style="font-size: 14px; margin: 0;">ตั้งแต่วันที่:</label>
+                    <input type="date" id="transferStartDate" style="padding: 4px; border: 1px solid #ccc; border-radius: 4px;">
+                    <label style="font-size: 14px; margin: 0;">ถึง:</label>
+                    <input type="date" id="transferEndDate" style="padding: 4px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
+                <button class="btn btn-secondary" onclick="loadTransferData()" style="padding: 8px 15px;">
+                    <i class="material-icons" style="font-size: 18px; vertical-align: middle;">refresh</i> โหลดข้อมูล
+                </button>
+                <button class="btn btn-success" onclick="exportTransferDataExcel()" style="padding: 8px 15px; background-color: #2e7d32; color: white;">
+                    <i class="material-icons" style="font-size: 18px; vertical-align: middle;">file_download</i> ดาวน์โหลด
+                </button>
+            </div>
+        </div>
+        <div class="table-container">
+            <table class="clean-table">
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">ลำดับ</th>
+                        <th>วันที่แจ้ง</th>
+                        <th>เลขบัตร ปชช.</th>
+                        <th>ชื่อ - นามสกุล</th>
+                        <th>ระดับการศึกษา</th>
+                        <th>ชั้นปี</th>
+                        <th>สถานะ</th>
+                        <th>รหัสสถานศึกษา</th>
+                        <th>ชื่อสถานศึกษา</th>
+                    </tr>
+                </thead>
+                <tbody id="transferDataBody">
+                    <tr>
+                        <td colspan="9" style="text-align: center; padding: 20px;">คลิก "โหลดข้อมูล" เพื่อดูข้อมูล</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
     <div id="adminProfileModal" class="modal">
         <div class="modal-content modern-admin-modal" style="max-width: 900px; width: 95%;">
@@ -6220,6 +6283,150 @@ window.uploadSpecialAccessFile = function() {
     });
 
     resetIdleTimer();
+
+    let currentTransferData = [];
+
+async function loadTransferData() {
+    showLoading('กำลังโหลดข้อมูล...');
+    try {
+        const response = await callApi('getTransferRequests', { 
+            action: 'getTransferRequests',
+            token: typeof adminToken !== 'undefined' ? adminToken : sessionStorage.getItem('ubu_admin_token')
+        });
+        
+        if (response && response.success) {
+            currentTransferData = response.data || [];
+            renderTransferTable(currentTransferData);
+        } else {
+            throw new Error(response.message || 'ไม่พบข้อมูล');
+        }
+        hideLoading();
+    } catch (error) {
+        hideLoading();
+        Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถโหลดข้อมูลได้: ' + error.message, 'error');
+        renderTransferTable([]); 
+    }
+}
+
+function renderTransferTable(data) {
+    const tbody = document.getElementById('transferDataBody');
+    tbody.innerHTML = '';
+    if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: #888;">ไม่มีประวัติการแจ้งย้ายสถานศึกษา</td></tr>';
+        return;
+    }
+    data.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td style="text-align: center;">${index + 1}</td>
+            <td>${item.timestamp || '-'}</td>
+            <td>${item.idCard || '-'}</td>
+            <td>${item.name || '-'}</td>
+            <td style="text-align: center;">${item.level || '-'}</td>
+            <td style="text-align: center;">${item.year || '-'}</td>
+            <td style="color: #1976D2;">${item.status || '-'}</td>
+            <td>${item.instCode || '-'}</td>
+            <td>${item.instName || '-'}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function parseTransferDate(dateStr) {
+    if (!dateStr || dateStr === '-') return null;
+    try {
+        const parts = dateStr.split(' ');
+        const dateParts = parts[0].split('/');
+        if (dateParts.length === 3) {
+            const day = parseInt(dateParts[0], 10);
+            const month = parseInt(dateParts[1], 10) - 1;
+            const year = parseInt(dateParts[2], 10);
+            return new Date(year, month, day);
+        }
+    } catch (e) {}
+    return null;
+}
+
+function exportTransferDataExcel() {
+    if (!currentTransferData || currentTransferData.length === 0) {
+        Swal.fire('แจ้งเตือน', 'ไม่มีข้อมูลสำหรับดาวน์โหลด กรุณาโหลดข้อมูลก่อน', 'warning');
+        return;
+    }
+
+    const startDateVal = document.getElementById('transferStartDate').value;
+    const endDateVal = document.getElementById('transferEndDate').value;
+    let dataToExport = currentTransferData;
+
+    if (startDateVal || endDateVal) {
+        const startDate = startDateVal ? new Date(startDateVal) : null;
+        if (startDate) startDate.setHours(0, 0, 0, 0);
+
+        const endDate = endDateVal ? new Date(endDateVal) : null;
+        if (endDate) endDate.setHours(23, 59, 59, 999);
+
+        dataToExport = currentTransferData.filter(item => {
+            const itemDate = parseTransferDate(item.timestamp);
+            if (!itemDate) return true;
+            let keep = true;
+            if (startDate && itemDate < startDate) keep = false;
+            if (endDate && itemDate > endDate) keep = false;
+            return keep;
+        });
+    }
+
+    if (dataToExport.length === 0) {
+        Swal.fire('แจ้งเตือน', 'ไม่มีข้อมูลในช่วงวันที่ท่านเลือก', 'info');
+        return;
+    }
+
+    let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
+    csvContent += "ลำดับ,วันที่แจ้ง,เลขบัตร ปชช.,ชื่อ - นามสกุล,ระดับการศึกษา,ชั้นปี,สถานะ,รหัสสถานศึกษา,ชื่อสถานศึกษา\n";
+
+    dataToExport.forEach((item, index) => {
+        const idCardSafe = item.idCard ? `="${item.idCard}"` : '-';
+        const instCodeSafe = item.instCode ? `="${item.instCode}"` : '-';
+        const row = [
+            index + 1,
+            `"${item.timestamp || '-'}"`,
+            idCardSafe,
+            `"${item.name || '-'}"`,
+            `"${item.level || '-'}"`,
+            `"${item.year || '-'}"`,
+            `"${item.status || '-'}"`,
+            instCodeSafe,
+            `"${item.instName || '-'}"`
+        ];
+        csvContent += row.join(",") + "\n";
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    
+    let fileName = "ข้อมูลย้ายสถานศึกษา";
+    if (startDateVal || endDateVal) {
+        fileName += `_${startDateVal || 'start'}_ถึง_${endDateVal || 'end'}`;
+    } else {
+        fileName += `_ทั้งหมด`;
+    }
+    
+    link.setAttribute("download", `${fileName}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const navBtn = document.getElementById('navAdminTransfer');
+    if(navBtn) {
+        navBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelectorAll('.section').forEach(sec => sec.style.display = 'none');
+            document.getElementById('adminTransferSection').style.display = 'block';
+            loadTransferData();
+        });
+    }
+});
 
 </script>
 </body>
