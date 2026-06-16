@@ -4965,7 +4965,7 @@
             if(checkAuthError(s)) { hideLoading(); return; }
             hideLoading(); 
             
-            ['userProfile','userActivity','userQueue','loan2569','userResign','userPetition','overLoan'].forEach(k => {
+            ['userProfile','userActivity','userQueue','loan2569','userResign','userPetition','overLoan','userTransfer'].forEach(k => {
                 if (document.getElementById('setting_menu_' + k)) document.getElementById('setting_menu_' + k).checked = (s['menu_' + k] === 'true');
             }); 
             ['type1','type2','type3','type4'].forEach(k => {
@@ -4980,7 +4980,8 @@
     window.saveAdminMenuSettings = async () => { 
         showLoading(); 
         const s = {}; 
-        ['userProfile','userActivity','userQueue','loan2569','userResign','userPetition','overLoan'].forEach(k => {
+        
+        ['userProfile','userActivity','userQueue','loan2569','userResign','userPetition','overLoan','userTransfer'].forEach(k => {
             if (document.getElementById('setting_menu_' + k)) s['menu_' + k] = document.getElementById('setting_menu_' + k).checked.toString();
         }); 
         ['type1','type2','type3','type4'].forEach(k => {
