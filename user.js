@@ -474,21 +474,37 @@ async function checkMyEligibility() {
                     }
                 });
             } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'ไม่สามารถดำเนินการได้',
-                    text: 'เนื่องจากไม่อยู่ในระยะเวลาที่กำหนดให้บันทึกประวัติ',
-                    footer: '<span style="color:#d32f2f; font-weight:bold;">* กรุณายื่นคำร้องขอปรับปรุงข้อมูลประวัตินอกรอบ</span>',
-                    showCancelButton: true,
-                    confirmButtonColor: '#ff9800',
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: 'ไปหน้ายื่นคำร้องออนไลน์',
-                    cancelButtonText: 'ปิดหน้าต่าง'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        goToPetitionFromFail('1'); 
-                    }
-                });
+                // 👇 เพิ่มการเช็คว่าระบบคำร้องปิดอยู่หรือไม่
+                const isPetitionClosed = (window.currentSystemSettings['pet_type1_open'] === 'false');
+                
+                if (isPetitionClosed) {
+                    // ถ้าระบบคำร้องปิด ดักแจ้งเตือนตรงนี้เลย
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ไม่สามารถดำเนินการได้',
+                        text: 'ท่านไม่มีข้อมูลทะเบียนประวัติในระบบ และขณะนี้ระบบยื่นคำร้องออนไลน์ได้ "ปิดรับการดำเนินการ" แล้ว',
+                        footer: '<span style="color:#d32f2f; font-weight:bold;">* กรุณาติดต่อเจ้าหน้าที่ กยศ. เพื่อสอบถามข้อมูลเพิ่มเติม</span>',
+                        confirmButtonColor: '#d32f2f',
+                        confirmButtonText: 'ปิดหน้าต่าง'
+                    });
+                } else {
+                    // ถ้าระบบคำร้องเปิด เด้งให้ไปหน้าคำร้องปกติ
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ไม่สามารถดำเนินการได้',
+                        text: 'เนื่องจากไม่อยู่ในระยะเวลาที่กำหนดให้บันทึกประวัติ',
+                        footer: '<span style="color:#d32f2f; font-weight:bold;">* กรุณายื่นคำร้องขอปรับปรุงข้อมูลประวัตินอกรอบ</span>',
+                        showCancelButton: true,
+                        confirmButtonColor: '#ff9800',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'ไปหน้ายื่นคำร้องออนไลน์',
+                        cancelButtonText: 'ปิดหน้าต่าง'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            goToPetitionFromFail('1'); 
+                        }
+                    });
+                }
             }
         } else if (res.status === 'eligible_check') {
             document.getElementById('loanStep1').style.display = 'none';
@@ -641,21 +657,35 @@ async function checkMyOverEligibility() {
                     }
                 });
             } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'ไม่สามารถดำเนินการได้',
-                    text: 'เนื่องจากไม่อยู่ในระยะเวลาที่กำหนดให้บันทึกประวัติ',
-                    footer: '<span style="color:#d32f2f; font-weight:bold;">* กรุณายื่นคำร้องขอปรับปรุงข้อมูลประวัตินอกรอบ</span>',
-                    showCancelButton: true,
-                    confirmButtonColor: '#ff9800',
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: 'ไปหน้ายื่นคำร้องออนไลน์',
-                    cancelButtonText: 'ปิดหน้าต่าง'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        goToPetitionFromFail('1'); 
-                    }
-                });
+                // 👇 เพิ่มการเช็คระบบคำร้องปิด สำหรับหน้ายื่นกู้เกินหลักสูตร
+                const isPetitionClosed = (window.currentSystemSettings['pet_type1_open'] === 'false');
+                
+                if (isPetitionClosed) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ไม่สามารถดำเนินการได้',
+                        text: 'ท่านไม่มีข้อมูลทะเบียนประวัติในระบบ และขณะนี้ระบบยื่นคำร้องออนไลน์ได้ "ปิดรับการดำเนินการ" แล้ว',
+                        footer: '<span style="color:#d32f2f; font-weight:bold;">* กรุณาติดต่อเจ้าหน้าที่ กยศ. เพื่อสอบถามข้อมูลเพิ่มเติม</span>',
+                        confirmButtonColor: '#d32f2f',
+                        confirmButtonText: 'ปิดหน้าต่าง'
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ไม่สามารถดำเนินการได้',
+                        text: 'เนื่องจากไม่อยู่ในระยะเวลาที่กำหนดให้บันทึกประวัติ',
+                        footer: '<span style="color:#d32f2f; font-weight:bold;">* กรุณายื่นคำร้องขอปรับปรุงข้อมูลประวัตินอกรอบ</span>',
+                        showCancelButton: true,
+                        confirmButtonColor: '#ff9800',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'ไปหน้ายื่นคำร้องออนไลน์',
+                        cancelButtonText: 'ปิดหน้าต่าง'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            goToPetitionFromFail('1'); 
+                        }
+                    });
+                }
             }
         } else if (res.status === 'eligible_check') {
             document.getElementById('overStep1').style.display = 'none';
