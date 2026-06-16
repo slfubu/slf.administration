@@ -1036,10 +1036,38 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    document.getElementById('petitionForm').addEventListener('submit', (e) => {
+    document.getElementById('petitionForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        if(!document.getElementById('petType').value) return Swal.fire('ข้อความแจ้งเตือน','กรุณาเลือกประเภทของคำร้อง','warning');
+        const petType = document.getElementById('petType').value;
+        if(!petType) return Swal.fire('ข้อความแจ้งเตือน','กรุณาเลือกประเภทของคำร้อง','warning');
         
+        if (petType === "4") {
+            showLoading('กำลังตรวจสอบข้อมูลรายชื่อของท่านในระบบ');
+            try {
+                
+                const checkRes = await callApi('checkStudentEligibility2569', {
+                    studentId: currentUser.studentId,
+                    token: userToken
+                });
+                hideLoading();
+                
+                
+                if (checkRes.status === 'eligible_check' || checkRes.status === 'submitted') {
+                    return Swal.fire({
+                        icon: 'error',
+                        title: 'ไม่สามารถยื่นคำร้องได้',
+                        text: 'ระบบตรวจสอบพบว่า "ท่านมีรายชื่อผู้มีสิทธิ์ในระบบเรียบร้อยแล้ว" ไม่จำเป็นต้องยื่นคำร้องขอเพิ่มชื่ออีก',
+                        confirmButtonColor: '#d32f2f'
+                    });
+                }
+            } catch (err) {
+                hideLoading();
+                console.error(err);
+              
+            }
+        }
+       
+
         Swal.fire({ title:'ยืนยันการส่งคำร้องออนไลน์', icon:'question', showCancelButton:true }).then(async r => {
             if(r.isConfirmed) {
                 showLoading();
@@ -1052,7 +1080,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 try {
                     const res = await callApi('submitOnlinePetition', payload);
                     hideLoading();
-                    if(res.success) { Swal.fire('การดำเนินการเสร็จสมบูรณ์','ระบบได้ได้รับคำร้องออนไลน์ของท่านแล้ว','success').then(()=>{ showSection('userDashboardSection'); }); }
+                    if(res.success) { 
+                        Swal.fire('การดำเนินการเสร็จสมบูรณ์','ระบบได้รับคำร้องออนไลน์ของท่านแล้ว','success').then(()=>{ 
+                            showSection('userDashboardSection'); 
+                        }); 
+                    }
                     else Swal.fire('เกิดข้อผิดพลาด', res.message, 'error');
                 } catch (err) {
                     hideLoading();
