@@ -2146,7 +2146,8 @@
     </div>
 
     <div id="petitionUpdateModal" class="modal">
-        <div class="modal-content modern-admin-modal" style="max-width: 650px; width: 95%; border-radius: 16px; overflow: hidden; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: flex; flex-direction: column; max-height: 90vh;">
+        <!-- แก้ไขความกว้างตรง max-width จาก 650px เป็น 900px -->
+        <div class="modal-content modern-admin-modal" style="max-width: 900px; width: 95%; border-radius: 16px; overflow: hidden; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: flex; flex-direction: column; max-height: 90vh;">
             <div class="admin-modal-header" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); padding: 20px 25px; flex-shrink: 0;">
                 <h3 style="margin: 0; display: flex; align-items: center; gap: 12px; font-size: 22px; font-weight: 600; color: white;">
                     <i class="material-icons" style="font-size: 28px; background: rgba(255,255,255,0.2); padding: 8px; border-radius: 10px;">rate_review</i> 
@@ -2173,12 +2174,13 @@
                         
                         <div style="margin-bottom: 15px;">
                             <span style="font-size: 13px; color: #a0aec0; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">ประเภทคำร้อง</span>
-                            <div id="modalPetType" style="font-size: 14px; color: #1976D2; font-weight: bold; margin-top: 4px; padding: 10px 12px; background: #f0f7ff; border-radius: 6px; border-left: 4px solid #1976D2;">-</div>
+                            <div id="modalPetType" style="font-size: 15px; color: #1976D2; font-weight: bold; margin-top: 4px; padding: 10px 12px; background: #f0f7ff; border-radius: 6px; border-left: 4px solid #1976D2;">-</div>
                         </div>
                         
                         <div>
                             <span style="font-size: 13px; color: #a0aec0; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">เหตุผลประกอบ / รายละเอียดที่แจ้ง</span>
-                            <div id="modalPetReason" style="font-size: 14px; color: #4a5568; background: #f7fafc; padding: 12px 15px; border-radius: 8px; margin-top: 5px; border: 1px solid #e2e8f0; max-height: 120px; overflow-y: auto; line-height: 1.6;">-</div>
+                            <!-- ปรับขนาด font-size เป็น 15px และ max-height เป็น 250px ให้อ่านง่ายและกล่องสูงขึ้น -->
+                            <div id="modalPetReason" style="font-size: 15px; color: #4a5568; background: #f7fafc; padding: 15px; border-radius: 8px; margin-top: 5px; border: 1px solid #e2e8f0; max-height: 250px; overflow-y: auto; line-height: 1.6;">-</div>
                         </div>
                     </div>
 
@@ -2202,7 +2204,8 @@
                                 <span style="display: flex; align-items: center; gap: 5px;"><i class="material-icons" style="color: #4299e1; font-size: 20px;">forum</i> หมายเหตุถึงนักศึกษา</span>
                                 <span id="noteRequiredAsterisk" style="color:#e53e3e; font-size: 12px; background: #fff5f5; padding: 2px 8px; border-radius: 12px; display:none; border: 1px solid #fed7d7;">* จำเป็นต้องระบุ</span>
                             </label>
-                            <textarea id="modalPetNote" class="modern-input" rows="3" placeholder="ระบุเหตุผล หรือรายละเอียดเพิ่มเติมเพื่อแจ้งให้นักศึกษาทราบ..." style="border: 1px solid #cbd5e0; border-radius: 8px; padding: 12px; resize: vertical;"></textarea>
+                            <!-- ปรับขนาดกล่องหมายเหตุให้ใหญ่ขึ้นเป็น 4 แถว (rows="4") -->
+                            <textarea id="modalPetNote" class="modern-input" rows="4" placeholder="ระบุเหตุผล หรือรายละเอียดเพิ่มเติมเพื่อแจ้งให้นักศึกษาทราบ..." style="border: 1px solid #cbd5e0; border-radius: 8px; padding: 12px; resize: vertical; font-size: 15px;"></textarea>
                         </div>
                     </div>
                 </div>
