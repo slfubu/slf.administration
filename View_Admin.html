@@ -6452,11 +6452,11 @@ let transferCurrentPage = 1;
 let transferRowsPerPage = 10;
 
 async function loadTransferData() {
-    showLoading('ระบบกำลังโหลดข้อมูล');
+    showLoading('ระบบกำลังโหลดข้อมูล...');
     try {
         const response = await callApi('getTransferRequests', { 
-            action: 'getTransferRequests',
-            token: typeof adminToken !== 'undefined' ? adminToken : sessionStorage.getItem('ubu_admin_token')
+            adminId: adminId,
+            token: userToken
         });
         
         if (response && response.success) {
@@ -6475,7 +6475,6 @@ async function loadTransferData() {
 }
 
 function filterTransferData() {
-    // กรองข้อมูลตามช่วงวันที่ (ถ้าแอดมินเลือกไว้)
     const startDateVal = document.getElementById('transferStartDate').value;
     const endDateVal = document.getElementById('transferEndDate').value;
     
