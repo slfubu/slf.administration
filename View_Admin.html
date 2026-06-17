@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   
   <link rel="stylesheet" href="style.css">
   <script src="api.js"></script>
@@ -6778,9 +6779,8 @@ window.printPetitionForm = async (rowIndex) => {
     printWindow.document.close();
 };
 
-
 window.downloadGpaPetitionXls = async () => {
-    showLoading('กำลังรวบรวมข้อมูลจากฐานข้อมูล อาจใช้เวลาสักครู่');
+    showLoading('ระบบกำลังประมวลผลข้อมูลสร้างไฟล์');
     try {
         const res = await callApi("exportGpaPetitionData", { adminId: adminId, token: userToken });
         hideLoading();
@@ -6790,25 +6790,22 @@ window.downloadGpaPetitionXls = async () => {
                 return Swal.fire('แจ้งเตือน', 'ไม่พบข้อมูลคำร้องประเภท "ขอประมวลผลเกรดเฉลี่ยฯ" ในระบบ', 'info');
             }
             
-            let html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
-            html += '<head><meta charset="utf-8"></head><body>';
-            html += '<table border="1">';
-            
-
-            html += `<tr>
-                <th style="background-color: #e2efda;">ลำดับ</th>
-                <th style="background-color: #e2efda;">ประทับเวลา</th>
-                <th style="background-color: #e2efda;">คำนำหน้า</th>
-                <th style="background-color: #e2efda;">ชื่อ (ไม่ต้องมีคำนำหน้า)</th>
-                <th style="background-color: #e2efda;">นามสกุล</th>
-                <th style="background-color: #e2efda;">เลขบัตรประจำตัวประชาชน</th>
-                <th style="background-color: #e2efda;">รหัสนักศึกษา</th>
-                <th style="background-color: #e2efda;">สังกัดคณะ</th>
-                <th style="background-color: #e2efda;">สาขา</th>
-                <th style="background-color: #e2efda;">ยอดค่าเทอมที่ต้องชำระภาคเรียนที่ 1/2568 (บาท)(หมายเหตุ หากยังไม่ลงทะเบียนเรียน1/2568 อย่าเพิ่งกรอกยื่นความประสงค์กู้ยืม ให้กรอกหลังลงทะเบียนเรียนเรียบร้อยแล้วเท่านั้น)</th>
-                <th style="background-color: #e2efda;">ผลการเรียนเฉลี่ย (GPAX ไม่ต่ำกว่า 1.50 เท่านั้น)</th>
-                <th style="background-color: #e2efda;">ระบุจำนวนหน่วยกิจกรรมทุกด้านที่เป็นประโยชน์ต่อสังคมหรือสาธารณะ ในระบบทะเบียนกิจกรรมนักศึกษาของปีการศึกษา 2567 (เฉพาะผู้ที่มีไม่น้อยกว่า 12 หน่วยกิจกรรม หรือ 36 ชั่วโมง เท่านั้นจึงยื่นความประสงค์ขอกู้ยืมได้)</th>
-            </tr>`;
+            const excelData = [
+                [
+                    "ลำดับ",
+                    "ประทับเวลา",
+                    "คำนำหน้า",
+                    "ชื่อ (ไม่ต้องมีคำนำหน้า)",
+                    "นามสกุล",
+                    "เลขบัตรประจำตัวประชาชน",
+                    "รหัสนักศึกษา",
+                    "สังกัดคณะ",
+                    "สาขา",
+                    "ยอดค่าเทอมที่ต้องชำระภาคเรียนที่ 1/2568 (บาท)(หมายเหตุ หากยังไม่ลงทะเบียนเรียน1/2568 อย่าเพิ่งกรอกยื่นความประสงค์กู้ยืม ให้กรอกหลังลงทะเบียนเรียนเรียบร้อยแล้วเท่านั้น)",
+                    "ผลการเรียนเฉลี่ย (GPAX ไม่ต่ำกว่า 1.50 เท่านั้น)",
+                    "ระบุจำนวนหน่วยกิจกรรมทุกด้านที่เป็นประโยชน์ต่อสังคมหรือสาธารณะ ในระบบทะเบียนกิจกรรมนักศึกษาของปีการศึกษา 2567 (เฉพาะผู้ที่มีไม่น้อยกว่า 12 หน่วยกิจกรรม หรือ 36 ชั่วโมง เท่านั้นจึงยื่นความประสงค์ขอกู้ยืมได้)"
+                ]
+            ];
 
             res.data.forEach(row => {
                 let title = "", fName = "", lName = "";
@@ -6832,32 +6829,27 @@ window.downloadGpaPetitionXls = async () => {
                     formattedDate = `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
                 }
 
-                html += `<tr>
-                    <td>${row.no}</td>
-                    <td>${formattedDate}</td>
-                    <td>${title}</td>
-                    <td>${fName}</td>
-                    <td>${lName}</td>
-                    <td style="mso-number-format:'\\@';">${row.idCard || ''}</td>
-                    <td style="mso-number-format:'\\@';">${row.studentId || ''}</td>
-                    <td>${row.faculty || ''}</td>
-                    <td>${row.curriculum || ''}</td>
-                    <td></td> <td>${row.gpa || ''}</td>
-                    <td>${row.credits || ''}</td>
-                </tr>`;
+                excelData.push([
+                    row.no,
+                    formattedDate,
+                    title,
+                    fName,
+                    lName,
+                    String(row.idCard || ''),   
+                    String(row.studentId || ''), 
+                    row.faculty || '',
+                    row.curriculum || '',
+                    '', 
+                    row.gpa || '',
+                    row.credits || ''
+                ]);
             });
-            
-            html += '</table></body></html>';
 
-            const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = "ข้อมูลคำร้องขอประมวลผลเกรดรอบ 2";
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            const ws = XLSX.utils.aoa_to_sheet(excelData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+
+            XLSX.writeFile(wb, "ข้อมูลคำร้องขอประมวลผลเกรด รอบ 2");
             
         } else {
             Swal.fire('ข้อผิดพลาด', res.message || 'ไม่สามารถดึงข้อมูลได้', 'error');
