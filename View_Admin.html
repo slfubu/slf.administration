@@ -6780,12 +6780,14 @@ window.printPetitionForm = async (rowIndex) => {
 };
 
 
+
 window.downloadGpaPetitionXls = async () => {
     const statEl = document.getElementById('filterPetStatus');
     const currentStatus = statEl ? statEl.value : 'all';
 
-    showLoading('ระบบกำลังประมวล อาจใช้เวลาสักครู่');
+    showLoading('ระบบกำลังประมวลผล อาจใช้เวลาสักครู่');
     try {
+
         const res = await callApi("exportGpaPetitionData", { 
             statusFilter: currentStatus, 
             adminId: adminId, 
@@ -6794,13 +6796,15 @@ window.downloadGpaPetitionXls = async () => {
         hideLoading();
         
         if (res && res.success) {
+
             if (res.data.length === 0) {
                 let msg = currentStatus === 'all' 
                     ? 'ไม่พบข้อมูลคำร้องประเภท "ขอประมวลผลเกรดเฉลี่ยฯ" ในระบบ' 
-                    : `ไม่พบข้อมูลคำร้องประเภทนี้ ในสถานะ "${currentStatus}"`;
+                    : `ไม่พบข้อมูลคำร้องในสถานะ "${currentStatus}"`;
                 return Swal.fire('แจ้งเตือน', msg, 'info');
             }
             
+
             const excelData = [
                 [
                     "ประทับเวลา",
@@ -6817,14 +6821,17 @@ window.downloadGpaPetitionXls = async () => {
                 ]
             ];
 
+
             res.data.forEach(row => {
                 let title = "", fName = "", lName = "";
                 let fullN = String(row.fullName || '').trim();
                 
+
                 if (fullN.startsWith("นาย")) { title = "นาย"; fullN = fullN.substring(3).trim(); }
                 else if (fullN.startsWith("นางสาว")) { title = "นางสาว"; fullN = fullN.substring(6).trim(); }
                 else if (fullN.startsWith("นาง")) { title = "นาง"; fullN = fullN.substring(3).trim(); }
                 
+
                 let parts = fullN.split(/\s+/);
                 if (parts.length >= 2) {
                     lName = parts.pop();
@@ -6832,6 +6839,7 @@ window.downloadGpaPetitionXls = async () => {
                 } else {
                     fName = fullN;
                 }
+
 
                 let formattedDate = "";
                 if (row.timestamp) {
@@ -6844,20 +6852,24 @@ window.downloadGpaPetitionXls = async () => {
                     title,
                     fName,
                     lName,
-                    String(row.idCard || ''),
-                    String(row.studentId || ''),
+                    String(row.idCard || ''),    
+                    String(row.studentId || ''), 
                     row.faculty || '',
                     row.curriculum || '',
-                    '',
+                    '',                          
                     row.gpa || '',
                     row.credits || ''
                 ]);
             });
 
+
             const ws = XLSX.utils.aoa_to_sheet(excelData);
             const wb = XLSX.utils.book_new();
+            
+
             XLSX.utils.book_append_sheet(wb, ws, "Data");
-            XLSX.writeFile(wb, "ไฟล์ข้อมูลรายชื่อยื่นขอประมวลผลคุณสมบัติรอบ 2", { bookType: "biff8" });
+
+            XLSX.writeFile(wb, "ไฟล์นำเข้าตรวจคุณสมบัติรอบ 2 (ประเภทยื่นคำร้องในระบบ)", { bookType: "biff8" });
             
         } else {
             Swal.fire('ข้อผิดพลาด', res.message || 'ไม่สามารถดึงข้อมูลได้', 'error');
