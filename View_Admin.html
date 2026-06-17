@@ -5439,12 +5439,10 @@ const petitionUpdateFormEl = document.getElementById('petitionUpdateForm');
             const status = document.getElementById('modalPetStatus').value;
             const note = document.getElementById('modalPetNote').value;
             
-            // ดึงข้อมูลที่จะใช้ส่งอีเมล
             const stdName = document.getElementById('modalPetStudentName').textContent;
             const stdId = document.getElementById('modalPetStudentId').textContent;
             const petType = document.getElementById('modalPetType').textContent;
             
-            // เด้งหน้าต่างถามแอดมินว่าต้องการส่งอีเมลหรือไม่
             Swal.fire({
                 title: 'ยืนยันการบันทึกสถานะ',
                 text: "ต้องการส่งอีเมลแจ้งผลการพิจารณาไปยังนักศึกษาด้วยหรือไม่?",
@@ -5454,23 +5452,27 @@ const petitionUpdateFormEl = document.getElementById('petitionUpdateForm');
                 confirmButtonText: '<i class="material-icons" style="vertical-align: middle; font-size:18px;">send</i> บันทึก & ส่งอีเมล',
                 denyButtonText: 'บันทึกอย่างเดียว',
                 cancelButtonText: 'ยกเลิก',
-                confirmButtonColor: '#28a745', // สีเขียวสำหรับส่งอีเมล
-                denyButtonColor: '#1976D2'     // สีฟ้าสำหรับบันทึกเฉยๆ
+                confirmButtonColor: '#28a745', 
+                denyButtonColor: '#1976D2'     
             }).then(async (result) => {
-                // ถ้าแอดมินกด "บันทึก & ส่งอีเมล" หรือ "บันทึกอย่างเดียว"
                 if (result.isConfirmed || result.isDenied) {
                     const isSendEmail = result.isConfirmed; 
                     showLoading(isSendEmail ? 'กำลังบันทึกและส่งอีเมลแจ้งเตือน...' : 'กำลังบันทึกสถานะ...'); 
+                    
+                    // [ปรับใหม่] ซ่อนข้อมูลส่งอีเมลไปกับตัวแปร note เพื่อให้ API 5 ตัวเดิมทำงานได้ไม่รวน!
+                    const extraData = JSON.stringify({ 
+                        sendEmail: isSendEmail, 
+                        stdId: stdId, 
+                        stdName: stdName, 
+                        petType: petType 
+                    });
+                    const hiddenNote = note + "||EXTRA||" + extraData;
                     
                     try {
                         const r = await callApi("updatePetitionStatus", {
                             rowIndex: rowIndex, 
                             status: status, 
-                            note: note, 
-                            sendEmail: isSendEmail, // ส่งคำสั่งไปบอกหลังบ้านว่าต้องส่งอีเมลไหม
-                            stdName: stdName,
-                            stdId: stdId,
-                            petType: petType,
+                            note: hiddenNote, // ส่งแบบซ่อนข้อมูล
                             adminId: adminId, 
                             token: userToken
                         });
@@ -5481,15 +5483,10 @@ const petitionUpdateFormEl = document.getElementById('petitionUpdateForm');
                                 if (p && p['ประเภทคำร้อง'] === 'ขอลงทะเบียนปรับปรุงข้อมูลประวัติ (ไม่อยู่ในช่วงระยะเวลาที่กำหนด)') {
                                     const studentId = p['รหัสนักศึกษา'];
                                     if (studentId) {
-                                        await callApi("grantSpecialMenuAccess", { 
-                                            studentId: studentId, 
-                                            adminId: adminId, 
-                                            token: userToken 
-                                        });
+                                        await callApi("grantSpecialMenuAccess", { studentId: studentId, adminId: adminId, token: userToken });
                                     }
                                 }
                             }
-
                             hideLoading(); 
                             Swal.fire({ icon: 'success', title: 'บันทึกสถานะสำเร็จ', showConfirmButton: false, timer: 1500 });
                             const mod = document.getElementById('petitionUpdateModal');
