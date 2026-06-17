@@ -6779,8 +6779,9 @@ window.printPetitionForm = async (rowIndex) => {
     printWindow.document.close();
 };
 
+// ฟังก์ชันโหลดไฟล์คำร้องขอประมวลผลเกรด (ส่งออกเป็น Excel 97-2003 แท้ 100%)
 window.downloadGpaPetitionXls = async () => {
-    showLoading('ระบบกำลังประมวลผลข้อมูลสร้างไฟล์');
+    showLoading('กำลังรวบรวมข้อมูลสร้างไฟล์ Excel 97-2003...');
     try {
         const res = await callApi("exportGpaPetitionData", { adminId: adminId, token: userToken });
         hideLoading();
@@ -6790,6 +6791,7 @@ window.downloadGpaPetitionXls = async () => {
                 return Swal.fire('แจ้งเตือน', 'ไม่พบข้อมูลคำร้องประเภท "ขอประมวลผลเกรดเฉลี่ยฯ" ในระบบ', 'info');
             }
             
+            // 1. สร้าง Array จัดเรียงข้อมูล (หัวตาราง)
             const excelData = [
                 [
                     "ลำดับ",
@@ -6807,6 +6809,7 @@ window.downloadGpaPetitionXls = async () => {
                 ]
             ];
 
+            // 2. ลูปยัดข้อมูลนักศึกษาลงไป
             res.data.forEach(row => {
                 let title = "", fName = "", lName = "";
                 let fullN = String(row.fullName || '').trim();
@@ -6823,6 +6826,7 @@ window.downloadGpaPetitionXls = async () => {
                     fName = fullN;
                 }
 
+                // จัดรูปแบบวันที่ตามฟอร์แมต Excel
                 let formattedDate = "";
                 if (row.timestamp) {
                     const d = new Date(row.timestamp);
@@ -6835,21 +6839,23 @@ window.downloadGpaPetitionXls = async () => {
                     title,
                     fName,
                     lName,
-                    String(row.idCard || ''),   
-                    String(row.studentId || ''), 
+                    String(row.idCard || ''),   // เลขบัตรประชาชน (แปลงเป็นข้อความ)
+                    String(row.studentId || ''), // รหัสนักศึกษา (แปลงเป็นข้อความ)
                     row.faculty || '',
                     row.curriculum || '',
-                    '', 
+                    '', // ยอดค่าเทอมว่างไว้
                     row.gpa || '',
                     row.credits || ''
                 ]);
             });
 
+            // 3. ใช้ SheetJS ประกอบร่างไฟล์
             const ws = XLSX.utils.aoa_to_sheet(excelData);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
 
-            XLSX.writeFile(wb, "ข้อมูลคำร้องขอประมวลผลเกรด รอบ 2");
+            // 4. สั่งดาวน์โหลด บังคับไฟล์สกุล .xls แบบ 97-2003 แท้ (biff8)
+            XLSX.writeFile(wb, "ข้อมูลคำร้องขอประมวลผลเกรด.xls", { bookType: "biff8" });
             
         } else {
             Swal.fire('ข้อผิดพลาด', res.message || 'ไม่สามารถดึงข้อมูลได้', 'error');
