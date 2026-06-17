@@ -6779,19 +6779,28 @@ window.printPetitionForm = async (rowIndex) => {
     printWindow.document.close();
 };
 
-// ฟังก์ชันโหลดไฟล์คำร้องขอประมวลผลเกรด (อิงตามไฟล์ต้นฉบับ 100% เพื่อให้บอทตรวจผ่าน)
+
 window.downloadGpaPetitionXls = async () => {
-    showLoading('กำลังรวบรวมข้อมูลสร้างไฟล์ Excel 97-2003...');
+    const statEl = document.getElementById('filterPetStatus');
+    const currentStatus = statEl ? statEl.value : 'all';
+
+    showLoading('ระบบกำลังประมวล อาจใช้เวลาสักครู่');
     try {
-        const res = await callApi("exportGpaPetitionData", { adminId: adminId, token: userToken });
+        const res = await callApi("exportGpaPetitionData", { 
+            statusFilter: currentStatus, 
+            adminId: adminId, 
+            token: userToken 
+        });
         hideLoading();
         
         if (res && res.success) {
             if (res.data.length === 0) {
-                return Swal.fire('แจ้งเตือน', 'ไม่พบข้อมูลคำร้องประเภท "ขอประมวลผลเกรดเฉลี่ยฯ" ในระบบ', 'info');
+                let msg = currentStatus === 'all' 
+                    ? 'ไม่พบข้อมูลคำร้องประเภท "ขอประมวลผลเกรดเฉลี่ยฯ" ในระบบ' 
+                    : `ไม่พบข้อมูลคำร้องประเภทนี้ ในสถานะ "${currentStatus}"`;
+                return Swal.fire('แจ้งเตือน', msg, 'info');
             }
             
-            // 1. หัวตารางเป๊ะๆ ตามไฟล์ต้นฉบับ (เอาคอลัมน์ ลำดับ ออก และใช้อักขระซ่อน \u200b ตามต้นฉบับ)
             const excelData = [
                 [
                     "ประทับเวลา",
@@ -6808,17 +6817,14 @@ window.downloadGpaPetitionXls = async () => {
                 ]
             ];
 
-            // 2. ลูปยัดข้อมูลนักศึกษาลงไป
             res.data.forEach(row => {
                 let title = "", fName = "", lName = "";
                 let fullN = String(row.fullName || '').trim();
                 
-                // แยกคำนำหน้า
                 if (fullN.startsWith("นาย")) { title = "นาย"; fullN = fullN.substring(3).trim(); }
                 else if (fullN.startsWith("นางสาว")) { title = "นางสาว"; fullN = fullN.substring(6).trim(); }
                 else if (fullN.startsWith("นาง")) { title = "นาง"; fullN = fullN.substring(3).trim(); }
                 
-                // แยกชื่อและนามสกุล
                 let parts = fullN.split(/\s+/);
                 if (parts.length >= 2) {
                     lName = parts.pop();
@@ -6827,7 +6833,6 @@ window.downloadGpaPetitionXls = async () => {
                     fName = fullN;
                 }
 
-                // จัดรูปแบบวันที่ตามฟอร์แมตที่ระบุ (เช่น 6/18/2026 01:12:57)
                 let formattedDate = "";
                 if (row.timestamp) {
                     const d = new Date(row.timestamp);
@@ -6839,25 +6844,20 @@ window.downloadGpaPetitionXls = async () => {
                     title,
                     fName,
                     lName,
-                    String(row.idCard || ''),    // เลขบัตรประชาชน (ส่งไปเป็น string ป้องกันศูนย์หาย)
-                    String(row.studentId || ''), // รหัสนักศึกษา
+                    String(row.idCard || ''),
+                    String(row.studentId || ''),
                     row.faculty || '',
                     row.curriculum || '',
-                    '',                          // ยอดค่าเทอม เว้นว่างไว้ตามโจทย์
+                    '',
                     row.gpa || '',
                     row.credits || ''
                 ]);
             });
 
-            // 3. ใช้ SheetJS ประกอบร่างไฟล์
             const ws = XLSX.utils.aoa_to_sheet(excelData);
             const wb = XLSX.utils.book_new();
-            
-            // เปลี่ยนชื่อชีตให้เป็นคำว่า "Data" (เหมือนไฟล์ต้นฉบับ)
             XLSX.utils.book_append_sheet(wb, ws, "Data");
-
-            // 4. สั่งดาวน์โหลด บังคับไฟล์สกุล .xls แบบ 97-2003 แท้ (biff8)
-            XLSX.writeFile(wb, "Student_Loan_Upload_Data.xls", { bookType: "biff8" });
+            XLSX.writeFile(wb, "ไฟล์ข้อมูลรายชื่อยื่นขอประมวลผลคุณสมบัติรอบ 2", { bookType: "biff8" });
             
         } else {
             Swal.fire('ข้อผิดพลาด', res.message || 'ไม่สามารถดึงข้อมูลได้', 'error');
