@@ -5430,53 +5430,83 @@
         }
     };
 
-    const petitionUpdateFormEl = document.getElementById('petitionUpdateForm');
-if(petitionUpdateFormEl) {
-    petitionUpdateFormEl.onsubmit = async (e) => { 
-        e.preventDefault(); 
-        showLoading('กำลังบันทึกสถานะและจัดการสิทธิ์'); 
-        try {
+const petitionUpdateFormEl = document.getElementById('petitionUpdateForm');
+    if(petitionUpdateFormEl) {
+        petitionUpdateFormEl.onsubmit = async (e) => { 
+            e.preventDefault(); 
+            
             const rowIndex = document.getElementById('modalPetRowIndex').value;
             const status = document.getElementById('modalPetStatus').value;
+            const note = document.getElementById('modalPetNote').value;
             
-            const r = await callApi("updatePetitionStatus", {
-                rowIndex: rowIndex, 
-                status: status, 
-                note: document.getElementById('modalPetNote').value, 
-                adminId: adminId, 
-                token: userToken
-            });
+            // ดึงข้อมูลที่จะใช้ส่งอีเมล
+            const stdName = document.getElementById('modalPetStudentName').textContent;
+            const stdId = document.getElementById('modalPetStudentId').textContent;
+            const petType = document.getElementById('modalPetType').textContent;
             
-            if(r && r.success) {
-                if (status === 'อนุมัติดำเนินการเรียบร้อย') {
-                    const p = adminPetitionsCache.find(x => String(x._rowIndex) === String(rowIndex));
-                    if (p && p['ประเภทคำร้อง'] === 'ขอลงทะเบียนปรับปรุงข้อมูลประวัติ (ไม่อยู่ในช่วงระยะเวลาที่กำหนด)') {
-                        const studentId = p['รหัสนักศึกษา'];
-                        if (studentId) {
-                            await callApi("grantSpecialMenuAccess", { 
-                                studentId: studentId, 
-                                adminId: adminId, 
-                                token: userToken 
-                            });
+            // เด้งหน้าต่างถามแอดมินว่าต้องการส่งอีเมลหรือไม่
+            Swal.fire({
+                title: 'ยืนยันการบันทึกสถานะ',
+                text: "ต้องการส่งอีเมลแจ้งผลการพิจารณาไปยังนักศึกษาด้วยหรือไม่?",
+                icon: 'question',
+                showDenyButton: true,
+                showCancelButton: true,
+                confirmButtonText: '<i class="material-icons" style="vertical-align: middle; font-size:18px;">send</i> บันทึก & ส่งอีเมล',
+                denyButtonText: 'บันทึกอย่างเดียว',
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: '#28a745', // สีเขียวสำหรับส่งอีเมล
+                denyButtonColor: '#1976D2'     // สีฟ้าสำหรับบันทึกเฉยๆ
+            }).then(async (result) => {
+                // ถ้าแอดมินกด "บันทึก & ส่งอีเมล" หรือ "บันทึกอย่างเดียว"
+                if (result.isConfirmed || result.isDenied) {
+                    const isSendEmail = result.isConfirmed; 
+                    showLoading(isSendEmail ? 'กำลังบันทึกและส่งอีเมลแจ้งเตือน...' : 'กำลังบันทึกสถานะ...'); 
+                    
+                    try {
+                        const r = await callApi("updatePetitionStatus", {
+                            rowIndex: rowIndex, 
+                            status: status, 
+                            note: note, 
+                            sendEmail: isSendEmail, // ส่งคำสั่งไปบอกหลังบ้านว่าต้องส่งอีเมลไหม
+                            stdName: stdName,
+                            stdId: stdId,
+                            petType: petType,
+                            adminId: adminId, 
+                            token: userToken
+                        });
+                        
+                        if(r && r.success) {
+                            if (status === 'อนุมัติดำเนินการเรียบร้อย') {
+                                const p = adminPetitionsCache.find(x => String(x._rowIndex) === String(rowIndex));
+                                if (p && p['ประเภทคำร้อง'] === 'ขอลงทะเบียนปรับปรุงข้อมูลประวัติ (ไม่อยู่ในช่วงระยะเวลาที่กำหนด)') {
+                                    const studentId = p['รหัสนักศึกษา'];
+                                    if (studentId) {
+                                        await callApi("grantSpecialMenuAccess", { 
+                                            studentId: studentId, 
+                                            adminId: adminId, 
+                                            token: userToken 
+                                        });
+                                    }
+                                }
+                            }
+
+                            hideLoading(); 
+                            Swal.fire({ icon: 'success', title: 'บันทึกสถานะสำเร็จ', showConfirmButton: false, timer: 1500 });
+                            const mod = document.getElementById('petitionUpdateModal');
+                            if(mod) mod.style.display = 'none'; 
+                            loadAdminPetitions();
+                        } else {
+                            hideLoading();
+                            Swal.fire('ผิดพลาด', r ? r.message : 'ไม่สามารถบันทึกได้', 'error');
                         }
+                    } catch(err) {
+                        hideLoading();
+                        Swal.fire('ข้อผิดพลาด', err.message, 'error');
                     }
                 }
-
-                hideLoading(); 
-                Swal.fire({ icon: 'success', title: 'บันทึกและจัดการสิทธิ์สำเร็จ', showConfirmButton: false, timer: 1500 });
-                const mod = document.getElementById('petitionUpdateModal');
-                if(mod) mod.style.display = 'none'; 
-                loadAdminPetitions();
-            } else {
-                hideLoading();
-                Swal.fire('ผิดพลาด', r ? r.message : 'ไม่สามารถบันทึกได้', 'error');
-            }
-        } catch(err) {
-            hideLoading();
-            Swal.fire('ข้อผิดพลาด', err.message, 'error');
-        }
-    };
-}
+            });
+        };
+    }
 
     window.downloadFilteredPetitions = () => {
     if (lastFilteredPetitions.length === 0) {
