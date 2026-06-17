@@ -1622,21 +1622,29 @@
         </div>
 
         <!-- สถิติ (Stats Grid) -->
-        <div class="admin-stat-grid" style="margin-bottom: 25px;">
-            <div class="stat-card" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); box-shadow: 0 4px 10px rgba(30, 60, 114, 0.2); border-radius: 12px;">
+        <div class="admin-stat-grid" style="margin-bottom: 25px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <div class="stat-card" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); box-shadow: 0 4px 10px rgba(30, 60, 114, 0.2); border-radius: 12px; padding: 20px;">
                 <i class="material-icons stat-watermark">receipt_long</i>
                 <div class="stat-title" style="color: #e2e8f0; font-size: 15px;">คำร้องทั้งหมด</div>
-                <div class="stat-value" id="petStatTotal" style="font-size: 32px;">0</div>
+                <div class="stat-value" id="petStatTotal" style="font-size: 32px; font-weight: bold; color: white;">0</div>
             </div>
-            <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 4px 10px rgba(245, 158, 11, 0.2); border-radius: 12px;">
+            
+            <div class="stat-card" style="background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%); box-shadow: 0 4px 10px rgba(229, 62, 62, 0.2); border-radius: 12px; padding: 20px;">
+                <i class="material-icons stat-watermark">new_releases</i>
+                <div class="stat-title" style="color: #fed7d7; font-size: 15px; font-weight: bold;">คำร้องใหม่ (รอรับเรื่อง)</div>
+                <div class="stat-value" id="petStatNew" style="font-size: 32px; font-weight: bold; color: white;">0</div>
+            </div>
+
+            <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 4px 10px rgba(245, 158, 11, 0.2); border-radius: 12px; padding: 20px;">
                 <i class="material-icons stat-watermark">pending_actions</i>
-                <div class="stat-title" style="color: #fef3c7; font-size: 15px;">รอดำเนินการ / ตรวจสอบ</div>
-                <div class="stat-value" id="petStatPending" style="font-size: 32px;">0</div>
+                <div class="stat-title" style="color: #fef3c7; font-size: 15px;">อยู่ระหว่างพิจารณา</div>
+                <div class="stat-value" id="petStatProcessing" style="font-size: 32px; font-weight: bold; color: white;">0</div>
             </div>
-            <div class="stat-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2); border-radius: 12px;">
+            
+            <div class="stat-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2); border-radius: 12px; padding: 20px;">
                 <i class="material-icons stat-watermark">task_alt</i>
                 <div class="stat-title" style="color: #d1fae5; font-size: 15px;">ดำเนินการแล้ว</div>
-                <div class="stat-value" id="petStatDone" style="font-size: 32px;">0</div>
+                <div class="stat-value" id="petStatDone" style="font-size: 32px; font-weight: bold; color: white;">0</div>
             </div>
         </div>
 
@@ -5180,25 +5188,32 @@
 
     window.updatePetitionStats = () => { 
         const doneStatuses = ["อนุมัติดำเนินการเรียบร้อย", "ไม่อนุมัติ", "ยื่นคำร้องไม่สำเร็จ"]; 
+        const newStatuses = ["รอดำเนินการ"]; 
+        
         const tEl = document.getElementById('petStatTotal');
         const dEl = document.getElementById('petStatDone');
-        const pEl = document.getElementById('petStatPending');
+        const newEl = document.getElementById('petStatNew');
+        const procEl = document.getElementById('petStatProcessing');
         
         let doneCount = 0;
-        let pendingCount = 0;
+        let newCount = 0;
+        let procCount = 0;
 
         adminPetitionsCache.forEach(p => {
-            const currentStatus = p['สถานะ'] || 'รอดำเนินการ';
+            const currentStatus = String(p['สถานะ'] || 'รอดำเนินการ').trim();
             if (doneStatuses.includes(currentStatus)) {
-                doneCount++;
+                doneCount++; 
+            } else if (newStatuses.includes(currentStatus)) {
+                newCount++; 
             } else {
-                pendingCount++;
+                procCount++; 
             }
         });
 
         if(tEl) tEl.textContent = adminPetitionsCache.length; 
         if(dEl) dEl.textContent = doneCount; 
-        if(pEl) pEl.textContent = pendingCount; 
+        if(newEl) newEl.textContent = newCount; 
+        if(procEl) procEl.textContent = procCount; 
     };
 
     window.resetPetPage = () => { 
