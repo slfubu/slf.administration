@@ -1341,24 +1341,43 @@
                 </button>
             </div>
         </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #f8f9fa; padding: 10px; border-radius: 6px; border: 1px solid #eee;">
+            <div style="display: flex; align-items: center; gap: 10px; font-size: 14px;">
+                <span>แสดงหน้าละ</span>
+                <select id="transferRowsPerPage" class="modern-input" style="padding: 5px; width: auto; height: auto; margin-bottom: 0; min-height: 30px; border-radius: 6px;" onchange="resetTransferPagination()">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <span>รายการ</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 5px;">
+                <button id="btnTransferPrev" class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px; border-radius: 6px;" onclick="changeTransferPage(-1)" disabled>ก่อนหน้า</button>
+                <span id="transferPageInfo" style="font-size: 14px; font-weight: bold; margin: 0 10px; color: #00897b;">หน้า 1 / 1</span>
+                <button id="btnTransferNext" class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px; border-radius: 6px;" onclick="changeTransferPage(1)" disabled>ถัดไป</button>
+            </div>
+        </div>
+
         <div class="table-container">
             <table class="clean-table">
-                <thead>
+                <thead style="background: #f8fafc;">
                     <tr>
-                        <th style="width: 50px;">ลำดับ</th>
+                        <th style="width: 50px; text-align: center;">ลำดับ</th>
                         <th>วันที่แจ้ง</th>
                         <th>เลขบัตร ปชช.</th>
                         <th>ชื่อ - นามสกุล</th>
-                        <th>ระดับการศึกษา</th>
-                        <th>ชั้นปี</th>
+                        <th style="text-align: center;">ระดับการศึกษา</th>
+                        <th style="text-align: center;">ชั้นปี</th>
                         <th>สถานะ</th>
-                        <th>รหัสสถานศึกษา</th>
+                        <th style="text-align: center;">รหัสสถานศึกษา</th>
                         <th>ชื่อสถานศึกษา</th>
                     </tr>
                 </thead>
                 <tbody id="transferDataBody">
                     <tr>
-                        <td colspan="9" style="text-align: center; padding: 20px;">คลิก "โหลดข้อมูล" เพื่อดูข้อมูล</td>
+                        <td colspan="9" style="text-align: center; padding: 40px; color: #888;">คลิก "โหลดข้อมูล" เพื่อดูข้อมูล</td>
                     </tr>
                 </tbody>
             </table>
@@ -6427,10 +6446,13 @@ window.uploadSpecialAccessFile = function() {
 
     resetIdleTimer();
 
-    let currentTransferData = [];
+let currentTransferData = [];
+let transferFilteredData = [];
+let transferCurrentPage = 1;
+let transferRowsPerPage = 10;
 
 async function loadTransferData() {
-    showLoading('กำลังโหลดข้อมูล...');
+    showLoading('ระบบกำลังโหลดข้อมูล');
     try {
         const response = await callApi('getTransferRequests', { 
             action: 'getTransferRequests',
@@ -6439,7 +6461,7 @@ async function loadTransferData() {
         
         if (response && response.success) {
             currentTransferData = response.data || [];
-            renderTransferTable(currentTransferData);
+            filterTransferData(); 
         } else {
             throw new Error(response.message || 'ไม่พบข้อมูล');
         }
@@ -6447,32 +6469,101 @@ async function loadTransferData() {
     } catch (error) {
         hideLoading();
         Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถโหลดข้อมูลได้: ' + error.message, 'error');
-        renderTransferTable([]); 
+        currentTransferData = [];
+        filterTransferData();
     }
 }
 
-function renderTransferTable(data) {
+function filterTransferData() {
+    // กรองข้อมูลตามช่วงวันที่ (ถ้าแอดมินเลือกไว้)
+    const startDateVal = document.getElementById('transferStartDate').value;
+    const endDateVal = document.getElementById('transferEndDate').value;
+    
+    transferFilteredData = currentTransferData;
+
+    if (startDateVal || endDateVal) {
+        const startDate = startDateVal ? new Date(startDateVal) : null;
+        if (startDate) startDate.setHours(0, 0, 0, 0);
+
+        const endDate = endDateVal ? new Date(endDateVal) : null;
+        if (endDate) endDate.setHours(23, 59, 59, 999);
+
+        transferFilteredData = currentTransferData.filter(item => {
+            const itemDate = parseTransferDate(item.timestamp);
+            if (!itemDate) return true;
+            let keep = true;
+            if (startDate && itemDate < startDate) keep = false;
+            if (endDate && itemDate > endDate) keep = false;
+            return keep;
+        });
+    }
+    
+    resetTransferPagination();
+}
+
+window.resetTransferPagination = () => {
+    const rpp = document.getElementById('transferRowsPerPage');
+    if (rpp) transferRowsPerPage = parseInt(rpp.value);
+    transferCurrentPage = 1;
+    renderTransferTable();
+};
+
+window.changeTransferPage = (step) => {
+    transferCurrentPage += step;
+    renderTransferTable();
+};
+
+function renderTransferTable() {
     const tbody = document.getElementById('transferDataBody');
+    const infoEl = document.getElementById('transferPageInfo');
+    const btnPrev = document.getElementById('btnTransferPrev');
+    const btnNext = document.getElementById('btnTransferNext');
+
+    if (!tbody) return;
     tbody.innerHTML = '';
-    if (!data || data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: #888;">ไม่มีประวัติการแจ้งย้ายสถานศึกษา</td></tr>';
+    
+    // กรณีไม่มีข้อมูล
+    if (!transferFilteredData || transferFilteredData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: #888; padding: 40px;">ไม่มีประวัติการแจ้งย้ายสถานศึกษาในช่วงเวลาที่เลือก</td></tr>';
+        if (infoEl) infoEl.textContent = 'หน้า 0 / 0';
+        if (btnPrev) btnPrev.disabled = true;
+        if (btnNext) btnNext.disabled = true;
         return;
     }
-    data.forEach((item, index) => {
+
+    // คำนวณหน้าและการแบ่งข้อมูล
+    const limit = transferRowsPerPage;
+    const totalPages = Math.ceil(transferFilteredData.length / limit) || 1;
+    
+    if (transferCurrentPage < 1) transferCurrentPage = 1;
+    if (transferCurrentPage > totalPages) transferCurrentPage = totalPages;
+
+    const start = (transferCurrentPage - 1) * limit;
+    const end = start + limit;
+    const pageData = transferFilteredData.slice(start, end);
+
+    // วาดตารางข้อมูลเฉพาะหน้าที่เลือก
+    pageData.forEach((item, index) => {
+        const actualIndex = start + index + 1;
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td style="text-align: center;">${index + 1}</td>
-            <td>${item.timestamp || '-'}</td>
-            <td>${item.idCard || '-'}</td>
-            <td>${item.name || '-'}</td>
-            <td style="text-align: center;">${item.level || '-'}</td>
-            <td style="text-align: center;">${item.year || '-'}</td>
-            <td style="color: #1976D2;">${item.status || '-'}</td>
-            <td>${item.instCode || '-'}</td>
-            <td>${item.instName || '-'}</td>
+            <td style="text-align: center;">${actualIndex}</td>
+            <td>${escapeHTML(item.timestamp || '-')}</td>
+            <td>${escapeHTML(item.idCard || '-')}</td>
+            <td>${escapeHTML(item.name || '-')}</td>
+            <td style="text-align: center;">${escapeHTML(item.level || '-')}</td>
+            <td style="text-align: center;">${escapeHTML(item.year || '-')}</td>
+            <td style="color: #00897b; font-weight: bold;">${escapeHTML(item.status || '-')}</td>
+            <td style="text-align: center;">${escapeHTML(item.instCode || '-')}</td>
+            <td>${escapeHTML(item.instName || '-')}</td>
         `;
         tbody.appendChild(tr);
     });
+
+    // อัปเดตข้อความและสถานะปุ่ม เปลี่ยนหน้า
+    if (infoEl) infoEl.textContent = `หน้า ${transferCurrentPage} / ${totalPages} (รวม ${transferFilteredData.length} รายการ)`;
+    if (btnPrev) btnPrev.disabled = (transferCurrentPage === 1);
+    if (btnNext) btnNext.disabled = (transferCurrentPage === totalPages);
 }
 
 function parseTransferDate(dateStr) {
@@ -6559,7 +6650,6 @@ function exportTransferDataExcel() {
     document.body.removeChild(link);
 }
 
-// ฟังก์ชันสำหรับพิมพ์ใบคำร้องออนไลน์
 window.printPetitionForm = (rowIndex) => {
     const p = adminPetitionsCache.find(x => x._rowIndex == rowIndex);
     if(!p) return Swal.fire('ข้อผิดพลาด', 'ไม่พบข้อมูลคำร้อง', 'error');
@@ -6568,7 +6658,6 @@ window.printPetitionForm = (rowIndex) => {
     const formattedDate = dateObj.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
     const formattedTime = dateObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
 
-    // สร้างเนื้อหาหน้าต่างใหม่สำหรับพิมพ์ (ขนาด A4)
     const printWindow = window.open('', '_blank', 'width=800,height=900');
     printWindow.document.write(`
         <html>
