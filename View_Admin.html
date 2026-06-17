@@ -6785,7 +6785,7 @@ window.downloadGpaPetitionXls = async () => {
     const statEl = document.getElementById('filterPetStatus');
     const currentStatus = statEl ? statEl.value : 'all';
 
-    showLoading('ระบบกำลังประมวลผล อาจใช้เวลาสักครู่');
+    showLoading('กำลังรวบรวมข้อมูลสร้างไฟล์ Excel 97-2003...');
     try {
 
         const res = await callApi("exportGpaPetitionData", { 
@@ -6869,7 +6869,7 @@ window.downloadGpaPetitionXls = async () => {
 
             XLSX.utils.book_append_sheet(wb, ws, "Data");
 
-            XLSX.writeFile(wb, "ไฟล์นำเข้าตรวจคุณสมบัติรอบ 2 (ประเภทยื่นคำร้องในระบบ)", { bookType: "biff8" });
+            XLSX.writeFile(wb, "Student_Loan_Upload_Data.xls", { bookType: "biff8" });
             
         } else {
             Swal.fire('ข้อผิดพลาด', res.message || 'ไม่สามารถดึงข้อมูลได้', 'error');
