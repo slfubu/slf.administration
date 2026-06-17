@@ -1609,6 +1609,9 @@
                 ระบบตรวจสอบและจัดการคำร้องออนไลน์
             </h2>
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn btn-info" style="background-color: #0288d1; color: white; border-radius: 8px; font-weight: 500;" onclick="downloadGpaPetitionXls()">
+                    <i class="material-icons" style="font-size: 18px; margin-right: 5px;">assessment</i> โหลดไฟล์ประมวลผลเกรด
+                </button>
                 <button class="btn btn-warning" style="background-color: #f59e0b; color: white; border-radius: 8px; font-weight: 500;" onclick="downloadSpecialAccessImportFile()">
                     <i class="material-icons" style="font-size: 18px; margin-right: 5px;">how_to_reg</i> โหลดไฟล์ให้สิทธิ์นอกรอบ
                 </button>
@@ -6773,6 +6776,96 @@ window.printPetitionForm = async (rowIndex) => {
         </html>
     `);
     printWindow.document.close();
+};
+
+
+window.downloadGpaPetitionXls = async () => {
+    showLoading('กำลังรวบรวมข้อมูลจากฐานข้อมูล อาจใช้เวลาสักครู่');
+    try {
+        const res = await callApi("exportGpaPetitionData", { adminId: adminId, token: userToken });
+        hideLoading();
+        
+        if (res && res.success) {
+            if (res.data.length === 0) {
+                return Swal.fire('แจ้งเตือน', 'ไม่พบข้อมูลคำร้องประเภท "ขอประมวลผลเกรดเฉลี่ยฯ" ในระบบ', 'info');
+            }
+            
+            let html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
+            html += '<head><meta charset="utf-8"></head><body>';
+            html += '<table border="1">';
+            
+
+            html += `<tr>
+                <th style="background-color: #e2efda;">ลำดับ</th>
+                <th style="background-color: #e2efda;">ประทับเวลา</th>
+                <th style="background-color: #e2efda;">คำนำหน้า</th>
+                <th style="background-color: #e2efda;">ชื่อ (ไม่ต้องมีคำนำหน้า)</th>
+                <th style="background-color: #e2efda;">นามสกุล</th>
+                <th style="background-color: #e2efda;">เลขบัตรประจำตัวประชาชน</th>
+                <th style="background-color: #e2efda;">รหัสนักศึกษา</th>
+                <th style="background-color: #e2efda;">สังกัดคณะ</th>
+                <th style="background-color: #e2efda;">สาขา</th>
+                <th style="background-color: #e2efda;">ยอดค่าเทอมที่ต้องชำระภาคเรียนที่ 1/2568 (บาท)(หมายเหตุ หากยังไม่ลงทะเบียนเรียน1/2568 อย่าเพิ่งกรอกยื่นความประสงค์กู้ยืม ให้กรอกหลังลงทะเบียนเรียนเรียบร้อยแล้วเท่านั้น)</th>
+                <th style="background-color: #e2efda;">ผลการเรียนเฉลี่ย (GPAX ไม่ต่ำกว่า 1.50 เท่านั้น)</th>
+                <th style="background-color: #e2efda;">ระบุจำนวนหน่วยกิจกรรมทุกด้านที่เป็นประโยชน์ต่อสังคมหรือสาธารณะ ในระบบทะเบียนกิจกรรมนักศึกษาของปีการศึกษา 2567 (เฉพาะผู้ที่มีไม่น้อยกว่า 12 หน่วยกิจกรรม หรือ 36 ชั่วโมง เท่านั้นจึงยื่นความประสงค์ขอกู้ยืมได้)</th>
+            </tr>`;
+
+            res.data.forEach(row => {
+                let title = "", fName = "", lName = "";
+                let fullN = String(row.fullName || '').trim();
+                
+                if (fullN.startsWith("นาย")) { title = "นาย"; fullN = fullN.substring(3).trim(); }
+                else if (fullN.startsWith("นางสาว")) { title = "นางสาว"; fullN = fullN.substring(6).trim(); }
+                else if (fullN.startsWith("นาง")) { title = "นาง"; fullN = fullN.substring(3).trim(); }
+                
+                let parts = fullN.split(/\s+/);
+                if (parts.length >= 2) {
+                    lName = parts.pop();
+                    fName = parts.join(" ");
+                } else {
+                    fName = fullN;
+                }
+
+                let formattedDate = "";
+                if (row.timestamp) {
+                    const d = new Date(row.timestamp);
+                    formattedDate = `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
+                }
+
+                html += `<tr>
+                    <td>${row.no}</td>
+                    <td>${formattedDate}</td>
+                    <td>${title}</td>
+                    <td>${fName}</td>
+                    <td>${lName}</td>
+                    <td style="mso-number-format:'\\@';">${row.idCard || ''}</td>
+                    <td style="mso-number-format:'\\@';">${row.studentId || ''}</td>
+                    <td>${row.faculty || ''}</td>
+                    <td>${row.curriculum || ''}</td>
+                    <td></td> <td>${row.gpa || ''}</td>
+                    <td>${row.credits || ''}</td>
+                </tr>`;
+            });
+            
+            html += '</table></body></html>';
+
+            const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "ข้อมูลคำร้องขอประมวลผลเกรดรอบ 2";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+        } else {
+            Swal.fire('ข้อผิดพลาด', res.message || 'ไม่สามารถดึงข้อมูลได้', 'error');
+        }
+    } catch (e) {
+        hideLoading();
+        Swal.fire('ข้อผิดพลาด', e.message, 'error');
+    }
 };
 
 </script>
