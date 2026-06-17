@@ -6779,7 +6779,7 @@ window.printPetitionForm = async (rowIndex) => {
     printWindow.document.close();
 };
 
-// ฟังก์ชันโหลดไฟล์คำร้องขอประมวลผลเกรด (ส่งออกเป็น Excel 97-2003 แท้ 100%)
+// ฟังก์ชันโหลดไฟล์คำร้องขอประมวลผลเกรด (อิงตามไฟล์ต้นฉบับ 100% เพื่อให้บอทตรวจผ่าน)
 window.downloadGpaPetitionXls = async () => {
     showLoading('กำลังรวบรวมข้อมูลสร้างไฟล์ Excel 97-2003...');
     try {
@@ -6791,10 +6791,9 @@ window.downloadGpaPetitionXls = async () => {
                 return Swal.fire('แจ้งเตือน', 'ไม่พบข้อมูลคำร้องประเภท "ขอประมวลผลเกรดเฉลี่ยฯ" ในระบบ', 'info');
             }
             
-            // 1. สร้าง Array จัดเรียงข้อมูล (หัวตาราง)
+            // 1. หัวตารางเป๊ะๆ ตามไฟล์ต้นฉบับ (เอาคอลัมน์ ลำดับ ออก และใช้อักขระซ่อน \u200b ตามต้นฉบับ)
             const excelData = [
                 [
-                    "ลำดับ",
                     "ประทับเวลา",
                     "คำนำหน้า",
                     "ชื่อ (ไม่ต้องมีคำนำหน้า)",
@@ -6803,9 +6802,9 @@ window.downloadGpaPetitionXls = async () => {
                     "รหัสนักศึกษา",
                     "สังกัดคณะ",
                     "สาขา",
-                    "ยอดค่าเทอมที่ต้องชำระภาคเรียนที่ 1/2568 (บาท)(หมายเหตุ หากยังไม่ลงทะเบียนเรียน1/2568 อย่าเพิ่งกรอกยื่นความประสงค์กู้ยืม ให้กรอกหลังลงทะเบียนเรียนเรียบร้อยแล้วเท่านั้น)",
+                    "ยอดค่าเทอมที่ต้องชำระ\u200bภาคเรียน\u200bที่\u200b 1/2568\u200b (บาท)\u200b\n(หมายเหตุ หากยังไม่ลงทะเบียนเรียน1/2568 อย่าเพิ่งกรอกยื่นความประสงค์กู้ยืม ให้กรอกหลังลงทะเบียนเรียนเรียบร้อยแล้วเท่านั้น)",
                     "ผลการเรียนเฉลี่ย (GPAX ไม่ต่ำกว่า 1.50 เท่านั้น)",
-                    "ระบุจำนวนหน่วยกิจกรรมทุกด้านที่เป็นประโยชน์ต่อสังคมหรือสาธารณะ ในระบบทะเบียนกิจกรรมนักศึกษาของปีการศึกษา 2567 (เฉพาะผู้ที่มีไม่น้อยกว่า 12 หน่วยกิจกรรม หรือ 36 ชั่วโมง เท่านั้นจึงยื่นความประสงค์ขอกู้ยืมได้)"
+                    "ระบุจำนวนหน่วยกิจกรรมทุกด้านที่เป็นประโยชน์ต่อสังคมหรือสาธารณะ ในระบบทะเบียนกิจกรรมนักศึกษาของปีการศึกษา 2567 (เฉพาะ\u200bผู้ที่มีไม่น้อยกว่า 12 หน่วยกิจกรรม หรือ 36 ชั่วโมง เท่านั้นจึงยื่นความประสงค์\u200bขอกู้ยืมได้)"
                 ]
             ];
 
@@ -6814,10 +6813,12 @@ window.downloadGpaPetitionXls = async () => {
                 let title = "", fName = "", lName = "";
                 let fullN = String(row.fullName || '').trim();
                 
+                // แยกคำนำหน้า
                 if (fullN.startsWith("นาย")) { title = "นาย"; fullN = fullN.substring(3).trim(); }
                 else if (fullN.startsWith("นางสาว")) { title = "นางสาว"; fullN = fullN.substring(6).trim(); }
                 else if (fullN.startsWith("นาง")) { title = "นาง"; fullN = fullN.substring(3).trim(); }
                 
+                // แยกชื่อและนามสกุล
                 let parts = fullN.split(/\s+/);
                 if (parts.length >= 2) {
                     lName = parts.pop();
@@ -6826,7 +6827,7 @@ window.downloadGpaPetitionXls = async () => {
                     fName = fullN;
                 }
 
-                // จัดรูปแบบวันที่ตามฟอร์แมต Excel
+                // จัดรูปแบบวันที่ตามฟอร์แมตที่ระบุ (เช่น 6/18/2026 01:12:57)
                 let formattedDate = "";
                 if (row.timestamp) {
                     const d = new Date(row.timestamp);
@@ -6834,16 +6835,15 @@ window.downloadGpaPetitionXls = async () => {
                 }
 
                 excelData.push([
-                    row.no,
                     formattedDate,
                     title,
                     fName,
                     lName,
-                    String(row.idCard || ''),   // เลขบัตรประชาชน (แปลงเป็นข้อความ)
-                    String(row.studentId || ''), // รหัสนักศึกษา (แปลงเป็นข้อความ)
+                    String(row.idCard || ''),    // เลขบัตรประชาชน (ส่งไปเป็น string ป้องกันศูนย์หาย)
+                    String(row.studentId || ''), // รหัสนักศึกษา
                     row.faculty || '',
                     row.curriculum || '',
-                    '', // ยอดค่าเทอมว่างไว้
+                    '',                          // ยอดค่าเทอม เว้นว่างไว้ตามโจทย์
                     row.gpa || '',
                     row.credits || ''
                 ]);
@@ -6852,10 +6852,12 @@ window.downloadGpaPetitionXls = async () => {
             // 3. ใช้ SheetJS ประกอบร่างไฟล์
             const ws = XLSX.utils.aoa_to_sheet(excelData);
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+            
+            // เปลี่ยนชื่อชีตให้เป็นคำว่า "Data" (เหมือนไฟล์ต้นฉบับ)
+            XLSX.utils.book_append_sheet(wb, ws, "Data");
 
             // 4. สั่งดาวน์โหลด บังคับไฟล์สกุล .xls แบบ 97-2003 แท้ (biff8)
-            XLSX.writeFile(wb, "ข้อมูลคำร้องขอประมวลผลเกรด.xls", { bookType: "biff8" });
+            XLSX.writeFile(wb, "Student_Loan_Upload_Data.xls", { bookType: "biff8" });
             
         } else {
             Swal.fire('ข้อผิดพลาด', res.message || 'ไม่สามารถดึงข้อมูลได้', 'error');
