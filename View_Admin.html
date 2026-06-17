@@ -1637,13 +1637,13 @@
 
             <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 4px 10px rgba(245, 158, 11, 0.2); border-radius: 12px; padding: 20px;">
                 <i class="material-icons stat-watermark">pending_actions</i>
-                <div class="stat-title" style="color: #fef3c7; font-size: 15px;">อยู่ระหว่างพิจารณา</div>
+                <div class="stat-title" style="color: #fef3c7; font-size: 15px;">อยู่ระหว่างพิจารณา/อยู่ระหว่างดำเนินการ</div>
                 <div class="stat-value" id="petStatProcessing" style="font-size: 32px; font-weight: bold; color: white;">0</div>
             </div>
             
             <div class="stat-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2); border-radius: 12px; padding: 20px;">
                 <i class="material-icons stat-watermark">task_alt</i>
-                <div class="stat-title" style="color: #d1fae5; font-size: 15px;">ดำเนินการแล้ว</div>
+                <div class="stat-title" style="color: #d1fae5; font-size: 15px;">ดำเนินการแล้ว/เสร็จสิ้นแล้ว</div>
                 <div class="stat-value" id="petStatDone" style="font-size: 32px; font-weight: bold; color: white;">0</div>
             </div>
         </div>
@@ -6664,9 +6664,27 @@ function exportTransferDataExcel() {
     document.body.removeChild(link);
 }
 
-window.printPetitionForm = (rowIndex) => {
+window.printPetitionForm = async (rowIndex) => {
     const p = adminPetitionsCache.find(x => x._rowIndex == rowIndex);
     if(!p) return Swal.fire('ข้อผิดพลาด', 'ไม่พบข้อมูลคำร้อง', 'error');
+
+    showLoading('กำลังเตรียมข้อมูลการพิมพ์');
+    let phoneNumber = '-';
+    try {
+        const userRes = await callApi("searchUsersBackend", { query: p['รหัสนักศึกษา'], adminId: adminId, token: userToken });
+        const userArray = safeArray(userRes);
+        if (userArray && userArray.length > 0) {
+            const matchedUser = userArray.find(u => String(u.studentId).trim() === String(p['รหัสนักศึกษา']).trim());
+            if (matchedUser && matchedUser.phone) {
+                phoneNumber = matchedUser.phone;
+            } else if (userArray[0].phone) {
+                phoneNumber = userArray[0].phone;
+            }
+        }
+    } catch(e) {
+        console.error("Error fetching phone:", e);
+    }
+    hideLoading();
 
     const dateObj = new Date(p['วันที่ยื่นคำร้อง']);
     const formattedDate = dateObj.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -6721,6 +6739,10 @@ window.printPetitionForm = (rowIndex) => {
                     <span class="label">ชื่อ-สกุล :</span>
                     <span class="value">${p['ชื่อ-สกุล'] || '-'}</span>
                 </div>
+                <div class="row">
+                    <span class="label">เบอร์โทรศัพท์ :</span>
+                    <span class="value">${phoneNumber}</span>
+                </div>
                 <div class="row" style="margin-top: 20px;">
                     <span class="label">ความประสงค์ :</span>
                     <span style="font-weight: bold;">${p['ประเภทคำร้อง'] || '-'}</span>
@@ -6745,7 +6767,6 @@ window.printPetitionForm = (rowIndex) => {
             </div>
             
             <script>
-                // สั่งให้หน้าต่างนี้เปิด dialog สำหรับพิมพ์ขึ้นมาอัตโนมัติเมื่อโหลดเสร็จ
                 window.onload = function() { setTimeout(function(){ window.print(); }, 500); }
             <\/script>
         </body>
