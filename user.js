@@ -473,12 +473,11 @@ async function checkMyEligibility() {
                         document.getElementById('navUserProfile').classList.add('active');
                     }
                 });
-            } else {
-                // 👇 เพิ่มการเช็คว่าระบบคำร้องปิดอยู่หรือไม่
+           } else {
+ 
                 const isPetitionClosed = (window.currentSystemSettings['pet_type1_open'] === 'false');
                 
                 if (isPetitionClosed) {
-                    // ถ้าระบบคำร้องปิด ดักแจ้งเตือนตรงนี้เลย
                     Swal.fire({
                         icon: 'error',
                         title: 'ไม่สามารถดำเนินการได้',
@@ -488,7 +487,6 @@ async function checkMyEligibility() {
                         confirmButtonText: 'ปิดหน้าต่าง'
                     });
                 } else {
-                    // ถ้าระบบคำร้องเปิด เด้งให้ไปหน้าคำร้องปกติ
                     Swal.fire({
                         icon: 'error',
                         title: 'ไม่สามารถดำเนินการได้',
@@ -510,7 +508,10 @@ async function checkMyEligibility() {
             document.getElementById('loanStep1').style.display = 'none';
             document.getElementById('loanStep2').style.display = 'block';
             updateStepper(2, 'loan-step');
-            let updateDateStr = res.studentInfo.updatedAt ? formatDate(res.studentInfo.updatedAt) : 'ไม่ระบุ';
+            
+            // 👇 [อัปเดตใหม่] ดึงวันที่มาจากการอัปเดตเกรดที่เราส่งมาจากหลังบ้าน
+            let updateDateStr = res.gpaxUpdatedDate ? res.gpaxUpdatedDate : (res.studentInfo.updatedAt ? formatDate(res.studentInfo.updatedAt) : 'ไม่ระบุ');
+            
             document.getElementById('loanInfoCard').innerHTML = `
                 <b>ข้อมูลผู้มีสิทธิ์:</b> ${escapeHTML(res.studentInfo.name || (currentUser.prefix + currentUser.firstName + ' ' + currentUser.lastName))}<br>
                 <span style="font-size: 13px; color: #555;">รหัสประจำตัว: ${escapeHTML(res.studentInfo.studentId || currentUser.studentId)} | คณะ/สังกัด: ${escapeHTML(res.studentInfo.faculty || currentUser.faculty || '-')}</span><br>
@@ -691,7 +692,9 @@ async function checkMyOverEligibility() {
             document.getElementById('overStep1').style.display = 'none';
             document.getElementById('overStep2').style.display = 'block';
             updateStepper(2, 'over-step');
-            let updateDateStr = res.studentInfo.updatedAt ? formatDate(res.studentInfo.updatedAt) : 'ไม่ระบุ';
+            
+            let updateDateStr = res.gpaxUpdatedDate ? res.gpaxUpdatedDate : (res.studentInfo.updatedAt ? formatDate(res.studentInfo.updatedAt) : 'ไม่ระบุ');
+            
             document.getElementById('overInfoBox').innerHTML = `
                 <b>ข้อมูลผู้มีสิทธิ์ขอกู้:</b> ${escapeHTML(res.studentInfo.name)}<br>
                 <span style="font-size: 13px; color: #555;">รหัสประจำตัว: ${escapeHTML(res.studentInfo.studentId)} | คณะ/สังกัด: ${escapeHTML(res.studentInfo.faculty)}</span><br>
