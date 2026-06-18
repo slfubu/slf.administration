@@ -6869,7 +6869,7 @@ window.downloadGpaPetitionXls = async () => {
 
             XLSX.utils.book_append_sheet(wb, ws, "Data");
 
-            XLSX.writeFile(wb, "ไฟล์นำเข้าตรวจสอบคุณสมบัติ ขอประมวลผลรอบ 2 (รายชื่อผ่านระบบคำร้อง)", { bookType: "biff8" });
+            XLSX.writeFile(wb, "ไฟล์นำเข้าตรวจสอบคุณสมบัติ ขอประมวลผลรอบ 2 (รายชื่อผ่านระบบคำร้อง).xls", { bookType: "biff8" });
             
         } else {
             Swal.fire('ข้อผิดพลาด', res.message || 'ไม่สามารถดึงข้อมูลได้', 'error');
