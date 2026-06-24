@@ -6796,8 +6796,6 @@ window.printPetitionForm = async (rowIndex) => {
     printWindow.document.close();
 };
 
-
-
 window.downloadGpaPetitionXls = async () => {
     const statEl = document.getElementById('filterPetStatus');
     const currentStatus = statEl ? statEl.value : 'all';
@@ -6805,6 +6803,7 @@ window.downloadGpaPetitionXls = async () => {
     showLoading('ระบบกำลังประมวลข้อมูล อาจใช้เวลาสักครู่');
     try {
         const res = await callApi("exportGpaPetitionData", { 
+            status: currentStatus,
             statusFilter: currentStatus, 
             adminId: adminId, 
             token: userToken 
@@ -6870,6 +6869,103 @@ window.downloadSpecialLoanImportFile = async () => {
     const statEl = document.getElementById('filterPetStatus');
     const currentStatus = statEl ? statEl.value : 'all';
 
+    showLoading('กำลังเตรียมไฟล์ข้อมูล');
+    try {
+        const res = await callApi("exportGpaPetitionData", { status: currentStatus, adminId: adminId, token: userToken });
+        hideLoading();
+        
+        if (res && res.success && res.data.length > 0) {
+            let csvContent = "\uFEFFรหัสนักศึกษา,ชื่อ-สกุล,คณะ,เกรดเฉลี่ย,หน่วยกิต\n";
+            res.data.forEach(row => {
+                csvContent += `"${row.studentId}","${row.fullName}","${row.faculty}","${row.gpa}","${row.credits}"\n`;
+            });
+            downloadCSV(csvContent, `รายชื่อยื่นกู้นอกรอบ_${currentStatus}.csv`);
+        } else {
+            Swal.fire('แจ้งเตือน', 'ไม่พบข้อมูลคำร้องตามสถานะที่ท่านเลือก', 'warning');
+        }
+    } catch (err) {
+        hideLoading();
+        Swal.fire('Error', err.message, 'error');
+    }
+};
+
+window.uploadSpecialLoanFile = () => {
+    const fileInput = document.getElementById('specialLoanExcelInput');
+    if (!fileInput || !fileInput.files[0]) {
+        return Swal.fire('แจ้งเตือน', 'กรุณาเลือกไฟล์ก่อนกดอัปโหลด', 'warning');
+    }
+    
+    const file = fileInput.files[0];
+    const loanType = document.getElementById('bulkLoanType').value;
+    const reader = new FileReader();
+
+    showLoading('ระบบกำลังอ่านไฟล์');
+    
+    reader.onload = function(e) {
+        try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, {type: 'array'});
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            const jsonData = XLSX.utils.sheet_to_json(firstSheet, {header: 1});
+            
+            if(jsonData.length === 0) throw new Error("ไฟล์ว่างเปล่า");
+            
+            const list = [];
+            const headers = jsonData[0].map(h => String(h).trim());
+            const idIndex = headers.findIndex(k => k.includes('รหัส'));
+            const nameIndex = headers.findIndex(k => k.includes('ชื่อ'));
+
+            if(idIndex === -1 || nameIndex === -1) throw new Error("ไม่พบคอลัมน์ 'รหัสนักศึกษา' หรือ 'ชื่อ-สกุล' ในไฟล์");
+
+            for(let i = 1; i < jsonData.length; i++) {
+                const row = jsonData[i];
+                if (row[idIndex]) {
+                    list.push({
+                        studentId: String(row[idIndex]).trim(),
+                        name: String(row[nameIndex] || '').trim()
+                    });
+                }
+            }
+
+            if(list.length === 0) throw new Error("ไม่พบข้อมูลนักศึกษาในไฟล์");
+
+            Swal.fire({
+                title: 'ยืนยันการนำเข้า',
+                text: `พบข้อมูล ${list.length} รายการ ต้องการให้สิทธิ์กู้ยืมหรือไม่`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'อัปโหลด',
+                confirmButtonColor: '#e65100'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    showLoading('ระบบกำลังบันทึกข้อมูล');
+                    const res = await callApi("bulkGrantSpecialLoanAccess", { list: list, loanType: loanType, adminId: adminId, token: userToken });
+                    hideLoading();
+                    
+                    if (res.success) {
+                        Swal.fire('สำเร็จ', res.message, 'success');
+                        if (typeof loadSpecialLoanList === 'function') loadSpecialLoanList(); 
+                        fileInput.value = '';
+                    } else {
+                        Swal.fire('เกิดข้อผิดพลาด', res.message, 'error');
+                    }
+                }
+            });
+
+        } catch(err) {
+            hideLoading();
+            Swal.fire('เกิดข้อผิดพลาด', 'รูปแบบไฟล์ไม่ถูกต้อง หรือ ' + err.message, 'error');
+        }
+    };
+    reader.readAsArrayBuffer(file);
+};
+
+
+
+window.downloadSpecialLoanImportFile = async () => {
+    const statEl = document.getElementById('filterPetStatus');
+    const currentStatus = statEl ? statEl.value : 'all';
+
     showLoading('กำลังเตรียมไฟล์ข้อมูล...');
     try {
         const res = await callApi("exportGpaPetitionData", { statusFilter: currentStatus, adminId: adminId, token: userToken });
@@ -6892,27 +6988,7 @@ window.downloadSpecialLoanImportFile = async () => {
 
 
 
-window.downloadGpaPetitionXls = async () => {
-    showLoading('กำลังเตรียมไฟล์ข้อมูล...');
-    try {
-        const statusFilter = document.getElementById('filterPetStatus') ? document.getElementById('filterPetStatus').value : 'all';
-        const res = await callApi("exportGpaPetitionData", { adminId: adminId, token: userToken, status: statusFilter });
-        hideLoading();
-        
-        if (res.success && res.data.length > 0) {
-            let csvContent = "\uFEFFรหัสนักศึกษา,ชื่อ-สกุล,สถานะคำร้อง,คณะ,เกรดเฉลี่ย,หน่วยกิต\n";
-            res.data.forEach(row => {
-                csvContent += `"${row.studentId}","${row.fullName}","${row.status}","${row.faculty}","${row.gpa}","${row.credits}"\n`;
-            });
-            downloadCSV(csvContent, `Petition_GPA_${statusFilter}.csv`);
-        } else {
-            Swal.fire('แจ้งเตือน', 'ไม่พบข้อมูลคำร้องตามสถานะที่ท่านเลือก', 'warning');
-        }
-    } catch (err) {
-        hideLoading();
-        Swal.fire('Error', err.message, 'error');
-    }
-};
+
 
 window.uploadSpecialLoanFile = () => {
     const fileInput = document.getElementById('specialLoanExcelInput');
