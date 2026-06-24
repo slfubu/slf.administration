@@ -1630,19 +1630,22 @@
                 ระบบตรวจสอบและจัดการคำร้องออนไลน์
             </h2>
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <button class="btn btn-info" style="background-color: #0288d1; color: white; border-radius: 8px; font-weight: 500;" onclick="downloadGpaPetitionXls()">
-                    <i class="material-icons" style="font-size: 18px; margin-right: 5px;">assessment</i> โหลดไฟล์ประมวลผลเกรด
-                </button>
-                <button class="btn btn-warning" style="background-color: #f59e0b; color: white; border-radius: 8px; font-weight: 500;" onclick="downloadSpecialAccessImportFile()">
-                    <i class="material-icons" style="font-size: 18px; margin-right: 5px;">how_to_reg</i> โหลดไฟล์ให้สิทธิ์นอกรอบ
-                </button>
-                <button class="btn btn-success" style="background-color: #10b981; border-radius: 8px; font-weight: 500;" onclick="downloadFilteredPetitions()">
-                    <i class="material-icons" style="font-size: 18px; margin-right: 5px;">download</i> โหลดข้อมูล (Excel)
-                </button>
-                <button class="btn btn-secondary" style="border-radius: 8px; width: 42px; height: 42px; padding: 0; display: flex; justify-content: center; align-items: center;" onclick="loadAdminPetitions()" title="รีเฟรชข้อมูล">
-                    <i class="material-icons">refresh</i>
-                </button>
-            </div>
+    <button class="btn btn-info" style="background-color: #0288d1; color: white; border-radius: 8px; font-weight: 500;" onclick="downloadGpaPetitionXls()">
+        <i class="material-icons" style="font-size: 18px; margin-right: 5px;">assessment</i> โหลดไฟล์ประมวลผลเกรด
+    </button>
+    <button class="btn btn-warning" style="background-color: #f57c00; color: white; border-radius: 8px; font-weight: 500;" onclick="downloadSpecialLoanImportFile()">
+        <i class="material-icons" style="font-size: 18px; margin-right: 5px;">vpn_key</i> โหลดรายชื่อกู้นอกรอบ
+    </button>
+    <button class="btn btn-warning" style="background-color: #f59e0b; color: white; border-radius: 8px; font-weight: 500;" onclick="downloadSpecialAccessImportFile()">
+        <i class="material-icons" style="font-size: 18px; margin-right: 5px;">how_to_reg</i> โหลดไฟล์ให้สิทธิ์นอกรอบ
+    </button>
+    <button class="btn btn-success" style="background-color: #10b981; border-radius: 8px; font-weight: 500;" onclick="downloadFilteredPetitions()">
+        <i class="material-icons" style="font-size: 18px; margin-right: 5px;">download</i> โหลดข้อมูล (Excel)
+    </button>
+    <button class="btn btn-secondary" style="border-radius: 8px; width: 42px; height: 42px; padding: 0; display: flex; justify-content: center; align-items: center;" onclick="loadAdminPetitions()" title="รีเฟรชข้อมูล">
+        <i class="material-icons">refresh</i>
+    </button>
+</div>
         </div>
 
         <div class="admin-stat-grid" style="margin-bottom: 25px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
@@ -6801,7 +6804,6 @@ window.downloadGpaPetitionXls = async () => {
 
     showLoading('ระบบกำลังประมวลข้อมูล อาจใช้เวลาสักครู่');
     try {
-
         const res = await callApi("exportGpaPetitionData", { 
             statusFilter: currentStatus, 
             adminId: adminId, 
@@ -6810,42 +6812,25 @@ window.downloadGpaPetitionXls = async () => {
         hideLoading();
         
         if (res && res.success) {
-
             if (res.data.length === 0) {
-                let msg = currentStatus === 'all' 
-                    ? 'ไม่พบข้อมูลคำร้องประเภท "ขอประมวลผลเกรดเฉลี่ยฯ" ในระบบ' 
-                    : `ไม่พบข้อมูลคำร้องในสถานะ "${currentStatus}"`;
+                let msg = currentStatus === 'all' ? 'ไม่พบข้อมูลคำร้องประเภท "ขอประมวลผลเกรดเฉลี่ยฯ" ในระบบ' : `ไม่พบข้อมูลคำร้องในสถานะ "${currentStatus}"`;
                 return Swal.fire('แจ้งเตือน', msg, 'info');
             }
-            
 
-            const excelData = [
-                [
-                    "ประทับเวลา",
-                    "คำนำหน้า",
-                    "ชื่อ (ไม่ต้องมีคำนำหน้า)",
-                    "นามสกุล",
-                    "เลขบัตรประจำตัวประชาชน",
-                    "รหัสนักศึกษา",
-                    "สังกัดคณะ",
-                    "สาขา",
-                    "ยอดค่าเทอมที่ต้องชำระ\u200bภาคเรียน\u200bที่\u200b 1/2568\u200b (บาท)\u200b\n(หมายเหตุ หากยังไม่ลงทะเบียนเรียน1/2568 อย่าเพิ่งกรอกยื่นความประสงค์กู้ยืม ให้กรอกหลังลงทะเบียนเรียนเรียบร้อยแล้วเท่านั้น)",
-                    "ผลการเรียนเฉลี่ย (GPAX ไม่ต่ำกว่า 1.50 เท่านั้น)",
-                    "ระบุจำนวนหน่วยกิจกรรมทุกด้านที่เป็นประโยชน์ต่อสังคมหรือสาธารณะ ในระบบทะเบียนกิจกรรมนักศึกษาของปีการศึกษา 2567 (เฉพาะ\u200bผู้ที่มีไม่น้อยกว่า 12 หน่วยกิจกรรม หรือ 36 ชั่วโมง เท่านั้นจึงยื่นความประสงค์\u200bขอกู้ยืมได้)"
-                ]
-            ];
-
+            const excelData = [[
+                "ประทับเวลา", "คำนำหน้า", "ชื่อ (ไม่ต้องมีคำนำหน้า)", "นามสกุล", "เลขบัตรประจำตัวประชาชน",
+                "รหัสนักศึกษา", "สังกัดคณะ", "สาขา", "ยอดค่าเทอมที่ต้องชำระ\u200bภาคเรียน\u200bที่\u200b 1/2568\u200b (บาท)\u200b\n(หมายเหตุ หากยังไม่ลงทะเบียนเรียน1/2568 อย่าเพิ่งกรอกยื่นความประสงค์กู้ยืม ให้กรอกหลังลงทะเบียนเรียนเรียบร้อยแล้วเท่านั้น)",
+                "ผลการเรียนเฉลี่ย (GPAX ไม่ต่ำกว่า 1.50 เท่านั้น)", "ระบุจำนวนหน่วยกิจกรรมทุกด้านที่เป็นประโยชน์ต่อสังคมหรือสาธารณะ ในระบบทะเบียนกิจกรรมนักศึกษาของปีการศึกษา 2567 (เฉพาะ\u200bผู้ที่มีไม่น้อยกว่า 12 หน่วยกิจกรรม หรือ 36 ชั่วโมง เท่านั้นจึงยื่นความประสงค์\u200bขอกู้ยืมได้)"
+            ]];
 
             res.data.forEach(row => {
                 let title = "", fName = "", lName = "";
                 let fullN = String(row.fullName || '').trim();
                 
-
                 if (fullN.startsWith("นาย")) { title = "นาย"; fullN = fullN.substring(3).trim(); }
                 else if (fullN.startsWith("นางสาว")) { title = "นางสาว"; fullN = fullN.substring(6).trim(); }
                 else if (fullN.startsWith("นาง")) { title = "นาง"; fullN = fullN.substring(3).trim(); }
                 
-
                 let parts = fullN.split(/\s+/);
                 if (parts.length >= 2) {
                     lName = parts.pop();
@@ -6854,7 +6839,6 @@ window.downloadGpaPetitionXls = async () => {
                     fName = fullN;
                 }
 
-
                 let formattedDate = "";
                 if (row.timestamp) {
                     const d = new Date(row.timestamp);
@@ -6862,28 +6846,16 @@ window.downloadGpaPetitionXls = async () => {
                 }
 
                 excelData.push([
-                    formattedDate,
-                    title,
-                    fName,
-                    lName,
-                    String(row.idCard || ''),    
-                    String(row.studentId || ''), 
-                    row.faculty || '',
-                    row.curriculum || '',
-                    '',                          
-                    row.gpa || '',
-                    row.credits || ''
+                    formattedDate, title, fName, lName,
+                    String(row.idCard || ''), String(row.studentId || ''), row.faculty || '', row.curriculum || '',
+                    '', row.gpa || '', row.credits || ''
                 ]);
             });
 
-
             const ws = XLSX.utils.aoa_to_sheet(excelData);
             const wb = XLSX.utils.book_new();
-            
-
             XLSX.utils.book_append_sheet(wb, ws, "Data");
-
-            XLSX.writeFile(wb, "ไฟล์นำเข้าตรวจสอบคุณสมบัติ ขอประมวลผลรอบ 2 (รายชื่อผ่านระบบคำร้อง).xls", { bookType: "biff8" });
+            XLSX.writeFile(wb, "ไฟล์นำเข้าตรวจสอบคุณสมบัติ ขอประมวลผลรอบ 2.xls", { bookType: "biff8" });
             
         } else {
             Swal.fire('ข้อผิดพลาด', res.message || 'ไม่สามารถดึงข้อมูลได้', 'error');
@@ -6893,6 +6865,33 @@ window.downloadGpaPetitionXls = async () => {
         Swal.fire('ข้อผิดพลาด', e.message, 'error');
     }
 };
+
+window.downloadSpecialLoanImportFile = async () => {
+    const statEl = document.getElementById('filterPetStatus');
+    const currentStatus = statEl ? statEl.value : 'all';
+
+    showLoading('กำลังเตรียมไฟล์ข้อมูล...');
+    try {
+        const res = await callApi("exportGpaPetitionData", { statusFilter: currentStatus, adminId: adminId, token: userToken });
+        hideLoading();
+        
+        if (res && res.success && res.data.length > 0) {
+            let csvContent = "\uFEFFรหัสนักศึกษา,ชื่อ-สกุล,คณะ,เกรดเฉลี่ย,หน่วยกิต\n";
+            res.data.forEach(row => {
+                csvContent += `"${row.studentId}","${row.fullName}","${row.faculty}","${row.gpa}","${row.credits}"\n`;
+            });
+            downloadCSV(csvContent, `รายชื่อยื่นกู้นอกรอบ_${currentStatus}.csv`);
+        } else {
+            Swal.fire('แจ้งเตือน', 'ไม่พบข้อมูลคำร้องตามสถานะที่ท่านเลือก', 'warning');
+        }
+    } catch (err) {
+        hideLoading();
+        Swal.fire('Error', err.message, 'error');
+    }
+};
+
+
+
 window.downloadGpaPetitionXls = async () => {
     showLoading('กำลังเตรียมไฟล์ข้อมูล...');
     try {
