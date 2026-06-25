@@ -188,7 +188,7 @@ document.addEventListener("DOMContentLoaded", () => {
         e.preventDefault();
         const btnSubmit = document.getElementById('btnLoginSubmit');
         btnSubmit.disabled = true;
-        showLoading('กำลังตรวจสอบข้อมูลและพิกัดตำแหน่ง GPS...');
+        showLoading('กำลังตรวจสอบข้อมูลและพิกัดตำแหน่ง');
         
         const id = document.getElementById('loginStudentId').value.trim();
         const pass = document.getElementById('loginPassword').value;
