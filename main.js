@@ -188,16 +188,28 @@ document.addEventListener("DOMContentLoaded", () => {
         e.preventDefault();
         const btnSubmit = document.getElementById('btnLoginSubmit');
         btnSubmit.disabled = true;
-        showLoading('กำลังตรวจสอบข้อมูลเข้าสู่ระบบ');
+        showLoading('กำลังตรวจสอบข้อมูลและพิกัดตำแหน่ง GPS...');
+        
         const id = document.getElementById('loginStudentId').value.trim();
         const pass = document.getElementById('loginPassword').value;
         
-
         const clientIp = await getClientIp(); 
         const gpsLocation = await getClientLocation(); 
         
+        if (!gpsLocation || gpsLocation.includes("Unknown") || gpsLocation.includes("Not Supported")) {
+            hideLoading();
+            btnSubmit.disabled = false;
+            Swal.fire({
+                icon: 'error',
+                title: 'ปฏิเสธการเข้าถึง',
+                html: 'ระบบไม่อนุญาตให้เข้าสู่ระบบ เนื่องจากคุณไม่ได้อนุญาตให้เข้าถึงตำแหน่ง (GPS)<br><br><span style="font-size: 14px; color: #d32f2f;">นี่คือมาตรการรักษาความปลอดภัยของระบบ กรุณาตรวจสอบการตั้งค่าเบราว์เซอร์เพื่ออนุญาตตำแหน่งและลองอีกครั้ง</span>',
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#d32f2f'
+            });
+            return; 
+        }
+        
         try {
- 
             const res = await callApi("login", { 
                 studentId: id, 
                 password: pass, 
