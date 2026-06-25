@@ -509,8 +509,8 @@ async function checkMyEligibility() {
             document.getElementById('loanStep2').style.display = 'block';
             updateStepper(2, 'loan-step');
             
-            // 👇 [อัปเดตใหม่] ดึงวันที่มาจากการอัปเดตเกรดที่เราส่งมาจากหลังบ้าน
-            let updateDateStr = res.gpaxUpdatedDate ? res.gpaxUpdatedDate : (res.studentInfo.updatedAt ? formatDate(res.studentInfo.updatedAt) : 'ไม่ระบุ');
+            let updateDateStr = (res.gpaxUpdatedDate && res.gpaxUpdatedDate !== 'ไม่ระบุ') ? formatDate(res.gpaxUpdatedDate) : (res.studentInfo.updatedAt ? formatDate(res.studentInfo.updatedAt) : 'ไม่ระบุ');
+            
             
             document.getElementById('loanInfoCard').innerHTML = `
                 <b>ข้อมูลผู้มีสิทธิ์:</b> ${escapeHTML(res.studentInfo.name || (currentUser.prefix + currentUser.firstName + ' ' + currentUser.lastName))}<br>
