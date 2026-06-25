@@ -533,6 +533,19 @@ async function checkMyEligibility() {
 }
 
 function goToPetitionFromFail(type) {
+    const set = window.currentSystemSettings;
+    
+    if (set && set['pet_type' + type + '_open'] === 'false') {
+        Swal.fire({
+            icon: 'error',
+            title: 'ระบบปิดรับคำร้อง',
+            text: 'ขณะนี้ไม่อยู่ในช่วงระยะเวลาที่กำหนดให้ยื่นคำร้องประเภทนี้',
+            confirmButtonColor: '#d32f2f',
+            confirmButtonText: 'ตกลง'
+        });
+        return; 
+    }
+
     showSection('userPetitionSection');
     initPetitionPage(type);
     document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
@@ -1043,6 +1056,19 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const petType = document.getElementById('petType').value;
         if(!petType) return Swal.fire('ข้อความแจ้งเตือน','กรุณาเลือกประเภทของคำร้อง','warning');
+        
+        const set = window.currentSystemSettings;
+        if ((petType === "1" && set['pet_type1_open'] === 'false') || 
+            (petType === "2" && set['pet_type2_open'] === 'false') || 
+            (petType === "3" && set['pet_type3_open'] === 'false') || 
+            (petType === "4" && set['pet_type4_open'] === 'false')) {
+            return Swal.fire({ 
+                icon: 'error', 
+                title: 'ระบบปิดรับคำร้องประเภทนี้', 
+                text: 'ไม่อยู่ในช่วงระยะเวลาที่กำหนดให้ยื่นคำร้อง',
+                confirmButtonColor: '#d32f2f'
+            });
+        }
         
         if (petType === "4") {
             showLoading('กำลังตรวจสอบข้อมูลรายชื่อของท่านในระบบ');
