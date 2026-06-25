@@ -403,3 +403,25 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.error("ไม่สามารถดึงประกาศได้:", e);
     }
 });
+
+async function getClientLocation() {
+    return new Promise((resolve) => {
+        if (!navigator.geolocation) {
+            resolve("Not Supported");
+            return;
+        }
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                resolve(`${position.coords.latitude},${position.coords.longitude}`);
+            },
+            (error) => {
+                let errMsg = "Unknown Error";
+                if (error.code === 1) errMsg = "Permission Denied";
+                if (error.code === 2) errMsg = "Position Unavailable";
+                if (error.code === 3) errMsg = "Timeout";
+                resolve(`Unknown (${errMsg})`);
+            },
+            { timeout: 7000, maximumAge: 0 }
+        );
+    });
+}
