@@ -4341,64 +4341,61 @@
     };
 
    window.uploadGPAExcelFile = () => {
-        const fileInput = document.getElementById('gpaExcelFileInput');
-        if(!fileInput) return;
-        const file = fileInput.files[0]; 
-        
-        if (!file) {
-            Swal.fire('แจ้งเตือน', 'กรุณาเลือกไฟล์ก่อนกดอัปโหลด', 'warning');
-            return;
-        }
-        if (!file.name.match(/\.(xlsx|xls)$/i)) {
-            Swal.fire('แจ้งเตือน', 'ระบบรองรับเฉพาะไฟล์ Excel (.xlsx, .xls) เท่านั้น', 'error');
-            return;
-        }
-        
-        Swal.fire({
-            title: 'ระบบกำลังประมวลผลการเรียน', 
-            text: 'กรุณารอสักครู่ ห้ามปิดหน้าต่างนี้',
-            allowOutsideClick: false, 
-            didOpen: () => { Swal.showLoading() }
-        });
-        
-        const reader = new FileReader();
-        reader.onload = async e => {
-            try {
-       
-                const base64Content = e.target.result.split(',')[1];
-                if (!base64Content) {
-                    Swal.fire('ผิดพลาด', 'ไม่สามารถอ่านเนื้อหาไฟล์ได้', 'error');
-                    return;
-                }
-                
-                console.log("ส่งไฟล์ขนาด:", base64Content.length, "bytes"); 
-
-                const r = await callApi("uploadAndImportGPACredits", {
-                    fileName: file.name, 
-                    mimeType: file.type || "application/vnd.ms-excel", 
-                    content: base64Content, 
-                    adminId: adminId,
-                    token: userToken
+    const fileInput = document.getElementById('gpaExcelFileInput');
+    if(!fileInput) return;
+    const file = fileInput.files[0]; 
+    
+    if (!file) {
+        Swal.fire('แจ้งเตือน', 'กรุณาเลือกไฟล์ก่อนกดอัปโหลด', 'warning');
+        return;
+    }
+    if (!file.name.match(/\.(xlsx|xls)$/i)) {
+        Swal.fire('แจ้งเตือน', 'ระบบรองรับเฉพาะไฟล์ Excel (.xlsx, .xls) เท่านั้น', 'error');
+        return;
+    }
+    
+    Swal.fire({
+        title: 'ระบบกำลังประมวลผลการเรียน', 
+        text: 'กำลังอ่านไฟล์ด้วยระบบ กรุณารอสักครู่',
+        allowOutsideClick: false, 
+        didOpen: () => { Swal.showLoading() }
+    });
+    
+    const reader = new FileReader();
+    reader.onload = async e => {
+        try {
+  
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, {type: 'array'});
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            // ดึงข้อมูลตารางออกมาเป็น Array 2 มิติ ทันที
+            const allValues = XLSX.utils.sheet_to_json(firstSheet, {header: 1});
+            
+            const r = await callApi("uploadAndImportGPACredits", {
+                allValues: allValues, 
+                adminId: adminId,
+                token: userToken
+            });
+            
+            if (r.success) {
+                Swal.fire({
+                    title: 'อัปเดตข้อมูลสำเร็จ', 
+                    html: `อัปเดต <b>${r.updateCount}</b> รายการ<br>` + (r.failedCount > 0 ? `<span style="color:red">ไม่พบรหัส ${r.failedCount} รายการในฐานระบบ</span>` : ''), 
+                    icon: 'success'
                 });
-                
-                if (r.success) {
-                    Swal.fire({
-                        title: 'อัปเดตข้อมูลสำเร็จ', 
-                        html: `อัปเดต <b>${r.updateCount}</b> รายการ<br>` + (r.failedCount > 0 ? `<span style="color:red">ไม่พบรหัส ${r.failedCount} รายการ</span>` : ''), 
-                        icon: 'success'
-                    });
-                    fileInput.value = '';
-                } else {
-                    Swal.fire('ผิดพลาด', r.message, 'error'); 
-                }
-                loadAdminLoanStats();
-            } catch(err) {
-                Swal.fire('ข้อผิดพลาดระบบ', err.message, 'error');
+                fileInput.value = '';
+            } else {
+                Swal.fire('ผิดพลาด', r.message, 'error'); 
             }
-        };
-        reader.onerror = () => Swal.fire('ผิดพลาด', 'ไม่สามารถอ่านไฟล์ได้', 'error');
-        reader.readAsDataURL(file); 
+            loadAdminLoanStats();
+        } catch(err) {
+            Swal.fire('ข้อผิดพลาดระบบ', err.message, 'error');
+        }
     };
+    reader.onerror = () => Swal.fire('ผิดพลาด', 'ไม่สามารถอ่านไฟล์ได้', 'error');
+    
+    reader.readAsArrayBuffer(file); 
+};
     
     let currentAdminLoanData = null;
 
@@ -6869,7 +6866,7 @@ window.downloadSpecialLoanImportFile = async () => {
     const statEl = document.getElementById('filterPetStatus');
     const currentStatus = statEl ? statEl.value : 'all';
 
-    showLoading('กำลังเตรียมไฟล์ข้อมูล');
+    showLoading('ระบบกำลังเตรียมไฟล์ข้อมูล');
     try {
         const res = await callApi("exportGpaPetitionData", { status: currentStatus, adminId: adminId, token: userToken });
         hideLoading();
@@ -6966,7 +6963,7 @@ window.downloadSpecialLoanImportFile = async () => {
     const statEl = document.getElementById('filterPetStatus');
     const currentStatus = statEl ? statEl.value : 'all';
 
-    showLoading('กำลังเตรียมไฟล์ข้อมูล...');
+    showLoading('กำลังเตรียมไฟล์ข้อมูล');
     try {
         const res = await callApi("exportGpaPetitionData", { statusFilter: currentStatus, adminId: adminId, token: userToken });
         hideLoading();
