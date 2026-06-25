@@ -188,7 +188,7 @@ document.addEventListener("DOMContentLoaded", () => {
         e.preventDefault();
         const btnSubmit = document.getElementById('btnLoginSubmit');
         btnSubmit.disabled = true;
-        showLoading('กำลังตรวจสอบข้อมูลและพิกัดตำแหน่ง');
+        showLoading('กำลังตรวจสอบข้อมูลการเข้าสู่ระบบ');
         
         const id = document.getElementById('loginStudentId').value.trim();
         const pass = document.getElementById('loginPassword').value;
@@ -202,7 +202,7 @@ document.addEventListener("DOMContentLoaded", () => {
             Swal.fire({
                 icon: 'error',
                 title: 'ปฏิเสธการเข้าถึง',
-                html: 'ระบบไม่อนุญาตให้เข้าสู่ระบบ เนื่องจากคุณไม่ได้อนุญาตให้เข้าถึงตำแหน่ง (GPS)<br><br><span style="font-size: 14px; color: #d32f2f;">นี่คือมาตรการรักษาความปลอดภัยของระบบ กรุณาตรวจสอบการตั้งค่าเบราว์เซอร์เพื่ออนุญาตตำแหน่งและลองอีกครั้ง</span>',
+                html: 'ระบบไม่สามารถอนุญาตให้เข้าสู่ระบบได้ เนื่องจากไม่พบการอนุญาตให้เข้าถึงข้อมูลตำแหน่งที่ตั้ง (GPS) ของอุปกรณ์<br><br><span style="font-size: 14px; color: #d32f2f;">การตรวจสอบตำแหน่งที่ตั้งเป็นมาตรการด้านความมั่นคงปลอดภัยของระบบ เพื่อยืนยันสิทธิ์การเข้าใช้งาน กรุณาตรวจสอบและอนุญาตการเข้าถึงตำแหน่งที่ตั้งผ่านการตั้งค่าเบราว์เซอร์หรืออุปกรณ์ของท่าน แล้วดำเนินการเข้าสู่ระบบอีกครั้ง</span>',
                 confirmButtonText: 'ตกลง',
                 confirmButtonColor: '#d32f2f'
             });
