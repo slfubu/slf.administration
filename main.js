@@ -191,10 +191,20 @@ document.addEventListener("DOMContentLoaded", () => {
         showLoading('กำลังตรวจสอบข้อมูลเข้าสู่ระบบ');
         const id = document.getElementById('loginStudentId').value.trim();
         const pass = document.getElementById('loginPassword').value;
+        
+
         const clientIp = await getClientIp(); 
+        const gpsLocation = await getClientLocation(); 
         
         try {
-            const res = await callApi("login", { studentId: id, password: pass, ipAddress: clientIp });
+ 
+            const res = await callApi("login", { 
+                studentId: id, 
+                password: pass, 
+                ipAddress: clientIp,
+                gpsLocation: gpsLocation 
+            });
+            
             hideLoading();
             btnSubmit.disabled = false;
             
