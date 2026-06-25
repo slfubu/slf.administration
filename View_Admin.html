@@ -5379,7 +5379,7 @@
         confirmButtonColor: '#dd6b20'
     }).then(async r => {
         if(r.isConfirmed) {
-            showLoading('กำลังอัปเดตข้อมูลและเปิดสิทธิ์ (อาจใช้เวลาสักครู่)'); 
+            showLoading('กำลังปรังปรุงข้อมูล อาจใช้เวลาสักครู่'); 
             try {
                 const res = await callApi("bulkUpdatePetitionStatus", { rows: selected, status: status, note: note, adminId: adminId, token: userToken });
                 
@@ -5439,7 +5439,7 @@
         if (p['ประเภทคำร้อง'] && p['ประเภทคำร้อง'].includes('ขอลงทะเบียนเพิ่มชื่อ')) {
             const stdId = p['รหัสนักศึกษา'];
             const statusEl = document.getElementById('modalPetType');
-            statusEl.innerHTML = p['ประเภทคำร้อง'] + ' <br><span style="color:#dd6b20; font-size:12px;"><i class="material-icons" style="font-size:12px; vertical-align:middle;">autorenew</i> ระบบกำลังตรวจสอบรายชื่อ...</span>';
+            statusEl.innerHTML = p['ประเภทคำร้อง'] + ' <br><span style="color:#dd6b20; font-size:12px;"><i class="material-icons" style="font-size:12px; vertical-align:middle;">autorenew</i> ระบบกำลังตรวจสอบรายชื่อ</span>';
             
             try {
                 const res = await callApi("adminGetLoanInfo", { studentId: stdId, adminId: adminId, token: userToken });
@@ -5510,9 +5510,8 @@ const petitionUpdateFormEl = document.getElementById('petitionUpdateForm');
             }).then(async (result) => {
                 if (result.isConfirmed || result.isDenied) {
                     const isSendEmail = result.isConfirmed; 
-                    showLoading(isSendEmail ? 'กำลังบันทึกและส่งอีเมลแจ้งเตือน...' : 'กำลังบันทึกสถานะ...'); 
+                    showLoading(isSendEmail ? 'กำลังบันทึกและส่งอีเมลแจ้งเตือน' : 'กำลังบันทึกสถานะ'); 
                     
-                    // [ปรับใหม่] ซ่อนข้อมูลส่งอีเมลไปกับตัวแปร note เพื่อให้ API 5 ตัวเดิมทำงานได้ไม่รวน!
                     const extraData = JSON.stringify({ 
                         sendEmail: isSendEmail, 
                         stdId: stdId, 
@@ -5991,7 +5990,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const searchInput = document.getElementById('missingStudentSearchInput');
         if(!searchInput || !searchInput.value.trim()) return Swal.fire('แจ้งเตือน', 'กรุณาระบุรหัสนักศึกษา 11 หลัก', 'warning');
 
-        showLoading('กำลังตรวจสอบข้อมูลในระบบ...');
+        showLoading('กำลังตรวจสอบข้อมูลในระบบ');
         try {
             const res = await callApi("searchStudentForMissingList", { studentId: searchInput.value.trim(), adminId: adminId, token: userToken });
             hideLoading();
@@ -6280,7 +6279,7 @@ window.uploadSpecialAccessFile = function() {
                 hideLoading(); Swal.fire('ผิดพลาด', 'ไม่พบรายชื่อในไฟล์', 'error'); return;
             }
 
-            showLoading(`กำลังบันทึก ${studentList.length} รายการเข้าสู่ฐานข้อมูล...`);
+            showLoading(`กำลังบันทึก ${studentList.length} รายการเข้าสู่ฐานข้อมูล`);
             const res = await callApi("bulkGrantSpecialAccess", { list: studentList, adminId: adminId, token: userToken });
             hideLoading();
             
@@ -6438,7 +6437,7 @@ let transferCurrentPage = 1;
 let transferRowsPerPage = 10;
 
 async function loadTransferData() {
-    showLoading('ระบบกำลังโหลดข้อมูล...');
+    showLoading('ระบบกำลังโหลดข้อมูล');
     try {
         const response = await callApi('getTransferRequests', { 
             adminId: adminId,
