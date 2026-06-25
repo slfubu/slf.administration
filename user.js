@@ -509,7 +509,10 @@ async function checkMyEligibility() {
             document.getElementById('loanStep2').style.display = 'block';
             updateStepper(2, 'loan-step');
             
-            let updateDateStr = (res.gpaxUpdatedDate && res.gpaxUpdatedDate !== 'ไม่ระบุ') ? formatDate(res.gpaxUpdatedDate) : (res.studentInfo.updatedAt ? formatDate(res.studentInfo.updatedAt) : 'ไม่ระบุ');
+
+            let sheetDate = res.studentInfo.updatedAt || res.studentInfo.timestamp;
+            let updateDateStr = (res.gpaxUpdatedDate && res.gpaxUpdatedDate !== 'ไม่ระบุ') 
+            ? formatDate(res.gpaxUpdatedDate) : (sheetDate ? formatDate(sheetDate) : 'ไม่ระบุ');
             
             
             document.getElementById('loanInfoCard').innerHTML = `
@@ -671,7 +674,6 @@ async function checkMyOverEligibility() {
                     }
                 });
             } else {
-                // 👇 เพิ่มการเช็คระบบคำร้องปิด สำหรับหน้ายื่นกู้เกินหลักสูตร
                 const isPetitionClosed = (window.currentSystemSettings['pet_type1_open'] === 'false');
                 
                 if (isPetitionClosed) {
@@ -706,7 +708,9 @@ async function checkMyOverEligibility() {
             document.getElementById('overStep2').style.display = 'block';
             updateStepper(2, 'over-step');
             
-            let updateDateStr = res.gpaxUpdatedDate ? res.gpaxUpdatedDate : (res.studentInfo.updatedAt ? formatDate(res.studentInfo.updatedAt) : 'ไม่ระบุ');
+            let updateDateStr = (res.gpaxUpdatedDate && res.gpaxUpdatedDate !== 'ไม่ระบุ') 
+                ? formatDate(res.gpaxUpdatedDate) 
+                : (res.studentInfo.updatedAt ? formatDate(res.studentInfo.updatedAt) : 'ไม่ระบุ');
             
             document.getElementById('overInfoBox').innerHTML = `
                 <b>ข้อมูลผู้มีสิทธิ์ขอกู้:</b> ${escapeHTML(res.studentInfo.name)}<br>
