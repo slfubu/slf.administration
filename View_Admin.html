@@ -6005,11 +6005,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     showLoading('กำลังบันทึกเบอร์โทรศัพท์');
                     try {
                         const res = await callApi("updateUser", { 
-                            userId: studentId, 
-                            studentId: studentId,
-                            phone: newPhone,
-                            adminId: currentUser.studentId, 
-                            token: userToken 
+                       userId: studentId, 
+                       studentId: studentId,
+                       phone: newPhone,
+                       adminId: currentUser.studentId, 
+                       token: userToken 
                         });
                         
                         hideLoading();
