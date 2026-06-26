@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="th"> 
+<html lang="th">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -6319,7 +6319,7 @@ window.loadLoan2569Stats = async () => {
     showLoading('กำลังโหลดข้อมูลสถิติ');
     try {
         const res = await callApi("getLoanDashboardStatsWithFaculty2569", { adminId, token: userToken });
-        const container = document.getElementById('facultyStatsContainer');
+        const container = document.getElementById('loanStatsContainer');
         container.innerHTML = '';
         
         let grandTotal = 0; let grandSubmitted = 0;
