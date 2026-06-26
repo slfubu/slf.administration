@@ -369,7 +369,6 @@
         </h2>
     </div>
 
-    <!-- Step 1: ส่วนค้นหาข้อมูล -->
     <div class="card" style="border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-radius: 12px; margin-bottom: 20px;">
         <div class="card-body">
             <p style="color: #64748b; font-size: 15px; margin-bottom: 20px;">
@@ -388,28 +387,26 @@
         </div>
     </div>
 
-    <!-- Step 2: ส่วนแสดงผลและจัดการข้อมูล -->
     <div id="adminVerifyStep2" style="display: none; animation: fadeIn 0.5s;">
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px;">
             
-            <!-- การ์ดข้อมูลส่วนตัวนักศึกษา -->
             <div class="card" style="border: 1px solid #e2e8f0; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border-radius: 12px; padding: 20px;">
                 <h3 style="font-size: 16px; color: #334155; border-bottom: 1px dashed #cbd5e1; padding-bottom: 10px; margin-top: 0;">
-                    <i class="material-icons" style="vertical-align: text-bottom; color: #64748b;">badge</i> ข้อมูลนักศึกษา
+                    <i class="material-icons" style="vertical-align: text-bottom; color: #64748b;">badge</i> ข้อมูลนักศึกษาฐานฐานข้อมูลระบบ
                 </h3>
                 
-                <div style="display: flex; gap: 20px; align-items: flex-start; margin-top: 15px;">
-                    <img id="adm_ver_profileImg" src="https://placehold.co/150x150?text=NO+IMAGE" style="width: 100px; height: 125px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); flex-shrink: 0;">
-                    <div style="flex: 1; font-size: 14px; line-height: 1.8; color: #475569;">
-                        <div style="font-size: 18px; font-weight: bold; color: #1e293b; margin-bottom: 5px;" id="adm_ver_name">-</div>
-                        <div><b>รหัสนักศึกษา:</b> <span id="adm_ver_studentId" style="color: #0f172a; font-weight: 500;">-</span></div>
-                        <div><b>เลขประจำตัวประชาชน:</b> <span id="adm_ver_idCard">-</span></div>
+                <div style="display: flex; gap: 20px; align-items: flex-start; margin-top: 15px; flex-wrap: wrap;">
+                    <img id="adm_ver_profileImg" src="https://placehold.co/300x400?text=NO+IMAGE" style="width: 160px; height: 200px; object-fit: cover; border-radius: 8px; border: 1px solid #cbd5e1; box-shadow: 0 4px 10px rgba(0,0,0,0.08); flex-shrink: 0;">
+                    
+                    <div style="flex: 1; min-width: 200px; font-size: 14px; line-height: 1.8; color: #475569;">
+                        <div style="font-size: 20px; font-weight: bold; color: #1e293b; margin-bottom: 8px;" id="adm_ver_name">-</div>
+                        <div style="margin-bottom: 4px;"><b>รหัสนักศึกษา:</b> <span id="adm_ver_studentId" style="color: #0f172a; font-weight: 600;">-</span></div>
+                        <div style="margin-bottom: 4px;"><b>เลขประจำตัวประชาชน:</b> <span id="adm_ver_idCard">-</span></div>
                         
-                        <!-- ส่วนแก้ไขเบอร์โทรศัพท์ที่เพิ่มเข้ามาใหม่ -->
-                        <div style="margin-top: 15px; background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                            <label style="font-weight: 600; font-size: 13px; color: #64748b; margin-bottom: 5px; display: block;">เบอร์โทรศัพท์ (แก้ไขได้)</label>
+                        <div style="margin-top: 15px; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                            <label style="font-weight: 600; font-size: 13px; color: #64748b; margin-bottom: 6px; display: block;">เบอร์โทรศัพท์ (แก้ไขได้)</label>
                             <div style="display: flex; gap: 8px;">
-                                <input type="text" id="adm_ver_phone_input" class="modern-input" style="margin: 0; height: 40px; border-color: #cbd5e1; font-size: 14px;" placeholder="กรอกเบอร์โทรใหม่">
+                                <input type="text" id="adm_ver_phone_input" class="modern-input" style="margin: 0; height: 40px; border-color: #cbd5e1; font-size: 14px; background: #ffffff;" placeholder="กรอกเบอร์โทรใหม่">
                                 <button type="button" id="btnUpdatePhone" class="btn btn-info" style="padding: 0 15px; height: 40px; border-radius: 6px; white-space: nowrap; font-weight: 600; display: flex; align-items: center; gap: 5px;">
                                     <i class="material-icons" style="font-size: 16px;">save</i> บันทึก
                                 </button>
@@ -419,7 +416,6 @@
                 </div>
             </div>
 
-            <!-- การ์ดสถานะและการดำเนินการ -->
             <div class="card" style="border: 1px solid #e2e8f0; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border-radius: 12px; padding: 20px;">
                 <h3 style="font-size: 16px; color: #334155; border-bottom: 1px dashed #cbd5e1; padding-bottom: 10px; margin-top: 0;">
                     <i class="material-icons" style="vertical-align: text-bottom; color: #64748b;">shield</i> สถานะบัญชีและการดำเนินการ
@@ -443,7 +439,6 @@
                     </div>
                 </div>
 
-                <!-- ส่วนดำเนินการรีเซ็ตรหัสผ่าน -->
                 <div id="admAlreadyVerifiedMessage" style="display: none; background: #f0fdf4; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #bbf7d0;">
                     <i class="material-icons" style="color: #22c55e; font-size: 24px; margin-bottom: 5px;">verified</i> 
                     <div style="font-weight: 600; color: #166534; font-size: 15px;">ยืนยันตัวตนเรียบร้อยแล้ว</div>
@@ -466,7 +461,7 @@
             </div>
         </div>
 
-        <div style="text-align: center; margin-top: 20px;">
+        <div style="text-align: center; margin-top: 25px;">
             <button type="button" class="btn btn-secondary" onclick="resetAdminVerifyForm()" style="padding: 10px 25px; font-size: 15px; border-radius: 8px; font-weight: 600; background: #e2e8f0; color: #475569; border: none;">
                 <i class="material-icons" style="vertical-align: middle; font-size: 18px;">refresh</i> ยกเลิก / ค้นหาใหม่
             </button>
