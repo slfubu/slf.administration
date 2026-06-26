@@ -837,82 +837,105 @@
                 </div>
 
                 <div id="suspendSystemSection" class="section">
-                    <div style="margin-bottom: 30px; background: #fff; padding: 25px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid #edf2f7; display: flex; align-items: center; gap: 15px;">
-                        <div style="background: #fee2e2; padding: 15px; border-radius: 14px; display: flex; box-shadow: inset 0 2px 4px rgba(255,255,255,0.5);">
-                            <i class="material-icons" style="color: #e53e3e; font-size: 36px;">security</i>
-                        </div>
-                        <div>
-                            <h2 style="border: none; margin: 0 0 5px 0; color: #1a202c; font-size: 24px; padding: 0;">ระบบจัดการความปลอดภัยและการระงับบัญชี</h2>
-                        </div>
-                    </div>
-                    <div class="security-dashboard">
-                        <div class="security-card">
-                            <div class="security-card-header bg-warning-light">
-                                <div>
-                                    <h3 style="margin: 0; color: #c05621; font-size: 18px; display: flex; align-items: center; gap: 8px;">
-                                        <i class="material-icons">find_replace</i> 1. ตรวจสอบบัญชีซ้ำซ้อน (Duplicate Scanner)
-                                    </h3>
-                                </div>
-                                <button class="btn-pulse-scan" onclick="runDuplicateCheck()">
-                                    <i class="material-icons">radar</i> เริ่มสแกนระบบ
-                                </button>
-                            </div>
-                            <div class="security-card-body">
-                                <div class="search-panel" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 20px;">
-                                    <div style="position: relative; flex: 1;">
-                                        <i class="material-icons" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #a0aec0; font-size: 22px;">search</i>
-                                        <input type="text" id="duplicateSearchInput" class="modern-input" placeholder="ค้นหาจากรหัสนักศึกษา, ชื่อ หรือค่าที่ซ้ำ..." style="padding-left: 45px; background: white; border: 1px solid #cbd5e0;">
-                                    </div>
-                                    <button class="btn btn-secondary" onclick="filterDuplicateResults()" style="border-radius: 8px; font-weight: bold; padding: 0 25px;">กรองข้อมูล</button>
-                                </div>
-                                <div id="duplicateResultArea">
-                                    <div style="text-align: center; padding: 50px 20px; color: #a0aec0; background: #fbfdff; border-radius: 12px; border: 1px dashed #cbd5e0;">
-                                        <h4 style="color: #4a5568; margin: 0 0 5px 0;">ระบบพร้อมทำงาน</h4>
-                                        <p style="margin: 0; font-size: 14px;">กดปุ่ม เริ่มสแกนระบบ ด้านบน</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+    <!-- ส่วนหัว Dashboard และสถิติ -->
+    <div style="margin-bottom: 25px; background: #fff; padding: 25px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid #edf2f7; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px;">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div style="background: #fee2e2; padding: 15px; border-radius: 14px; display: flex; box-shadow: inset 0 2px 4px rgba(255,255,255,0.5);">
+                <i class="material-icons" style="color: #e53e3e; font-size: 36px;">security</i>
+            </div>
+            <div>
+                <h2 style="border: none; margin: 0 0 5px 0; color: #1a202c; font-size: 22px; padding: 0;">ศูนย์จัดการความปลอดภัย (Security Center)</h2>
+                <p style="margin: 0; color: #718096; font-size: 14px;">ตรวจสอบบัญชีที่ถูกระงับและจัดการข้อมูลผู้ใช้งานที่ซ้ำซ้อน</p>
+            </div>
+        </div>
+        <div style="display: flex; gap: 15px;">
+            <div style="background: #fff5f5; border: 1px solid #fed7d7; padding: 10px 20px; border-radius: 10px; text-align: center; min-width: 120px;">
+                <div style="font-size: 13px; color: #c53030; font-weight: bold;">บัญชีที่ถูกระงับ</div>
+                <div id="secStatSuspended" style="font-size: 28px; font-weight: bold; color: #9b2c2c;">0</div>
+            </div>
+            <div style="background: #fffaf0; border: 1px solid #feebc8; padding: 10px 20px; border-radius: 10px; text-align: center; min-width: 120px;">
+                <div style="font-size: 13px; color: #dd6b20; font-weight: bold;">ตรวจพบข้อมูลซ้ำ</div>
+                <div id="secStatDuplicates" style="font-size: 28px; font-weight: bold; color: #c05621;">0</div>
+            </div>
+        </div>
+    </div>
 
-                        <div class="security-card">
-                            <div class="security-card-header bg-danger-light">
-                                <div>
-                                    <h3 style="margin: 0; color: #c53030; font-size: 18px; display: flex; align-items: center; gap: 8px;">
-                                        <i class="material-icons">person_off</i> 2. บัญชีที่ถูกระงับการใช้งานในปัจจุบัน
-                                    </h3>
-                                </div>
-                                <div style="display: flex; gap: 10px;">
-                                    <button class="btn btn-danger" id="btnDeleteSelectedSuspended" onclick="deleteSelectedSuspended()" style="border-radius: 30px; display: none; padding: 8px 20px; align-items: center; gap: 5px; box-shadow: 0 4px 10px rgba(220,53,69,0.2);">
-                                        <i class="material-icons" style="font-size: 18px;">delete_sweep</i> <span>ลบรายการที่เลือก</span>
-                                    </button>
-                                    <button class="btn-outline-gray" onclick="loadSuspendedUsers()">
-                                        <i class="material-icons" style="font-size: 18px;">refresh</i> รีเฟรชรายชื่อ
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="security-card-body" style="padding: 0;">
-                                <div class="table-container" style="margin: 0;">
-                                    <table class="clean-table" id="suspendedUsersTable" style="margin: 0; border: none; border-radius: 0;">
-                                        <thead style="background: #f8fafc;">
-                                            <tr>
-                                                <th style="width: 50px; text-align: center;">
-                                                    <input type="checkbox" id="selectAllSuspended" onclick="toggleAllSuspended(this)" style="cursor: pointer; width: 16px; height: 16px;">
-                                                </th>
-                                                <th style="width: 150px; padding-left: 10px;">รหัสนักศึกษา</th>
-                                                <th>ชื่อ-นามสกุล</th>
-                                                <th>สาเหตุการระงับ</th>
-                                                <th style="width: 180px; text-align: center; padding-right: 25px;">การจัดการ</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr><td colspan="5" style="text-align: center; color: #a0aec0; padding: 60px;">กำลังโหลดข้อมูล</td></tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
+    <div class="security-dashboard">
+        <!-- 1. กล่องจัดการบัญชีที่ถูกระงับ (ย้ายขึ้นมาด้านบน) -->
+        <div class="security-card">
+            <div class="security-card-header bg-danger-light">
+                <div>
+                    <h3 style="margin: 0; color: #c53030; font-size: 18px; display: flex; align-items: center; gap: 8px;">
+                        <i class="material-icons">person_off</i> บัญชีที่ถูกระงับการใช้งานในปัจจุบัน
+                    </h3>
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn btn-success" id="btnUnlockSelectedSuspended" onclick="unlockSelectedSuspended()" style="border-radius: 30px; display: none; padding: 8px 20px; align-items: center; gap: 5px; box-shadow: 0 4px 10px rgba(40,167,69,0.2);">
+                        <i class="material-icons" style="font-size: 18px;">lock_open</i> <span>ปลดล็อกที่เลือก</span>
+                    </button>
+                    <button class="btn btn-danger" id="btnDeleteSelectedSuspended" onclick="deleteSelectedSuspended()" style="border-radius: 30px; display: none; padding: 8px 20px; align-items: center; gap: 5px; box-shadow: 0 4px 10px rgba(220,53,69,0.2);">
+                        <i class="material-icons" style="font-size: 18px;">delete_sweep</i> <span>ลบที่เลือก</span>
+                    </button>
+                    <button class="btn-outline-gray" onclick="loadSuspendedUsers()">
+                        <i class="material-icons" style="font-size: 18px;">refresh</i> รีเฟรชข้อมูล
+                    </button>
+                </div>
+            </div>
+            <div class="security-card-body" style="padding: 0;">
+                <div class="table-container" style="margin: 0; border: none;">
+                    <table class="clean-table" id="suspendedUsersTable" style="margin: 0; border: none; border-radius: 0;">
+                        <thead style="background: #f8fafc;">
+                            <tr>
+                                <th style="width: 50px; text-align: center;">
+                                    <input type="checkbox" id="selectAllSuspended" onclick="toggleAllSuspended(this)" style="cursor: pointer; width: 16px; height: 16px; accent-color: #e53e3e;">
+                                </th>
+                                <th style="width: 150px; padding-left: 10px;">รหัสนักศึกษา</th>
+                                <th>ชื่อ-นามสกุล</th>
+                                <th>สาเหตุการระงับ</th>
+                                <th style="width: 180px; text-align: center; padding-right: 25px;">การจัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="5" style="text-align: center; color: #a0aec0; padding: 60px;">กำลังโหลดข้อมูล</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. กล่องสแกนข้อมูลซ้ำซ้อน -->
+        <div class="security-card">
+            <div class="security-card-header bg-warning-light">
+                <div>
+                    <h3 style="margin: 0; color: #c05621; font-size: 18px; display: flex; align-items: center; gap: 8px;">
+                        <i class="material-icons">find_replace</i> เครื่องมือตรวจสอบบัญชีซ้ำซ้อน (Duplicate Scanner)
+                    </h3>
+                </div>
+                <button class="btn-pulse-scan" onclick="runDuplicateCheck()">
+                    <i class="material-icons">radar</i> เริ่มสแกนทั้งระบบ
+                </button>
+            </div>
+            <div class="security-card-body">
+                <div class="search-panel" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 20px;">
+                    <div style="position: relative; flex: 1;">
+                        <i class="material-icons" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #a0aec0; font-size: 22px;">search</i>
+                        <input type="text" id="duplicateSearchInput" class="modern-input" placeholder="ค้นหาจากรหัสนักศึกษา, ชื่อ หรือค่าที่ซ้ำ..." style="padding-left: 45px; background: white; border: 1px solid #cbd5e0; margin-bottom: 0;">
+                    </div>
+                    <button class="btn btn-secondary" onclick="filterDuplicateResults()" style="border-radius: 8px; font-weight: bold; padding: 0 25px; height: 45px;">กรองข้อมูล</button>
+                </div>
+                <div id="duplicateResultArea">
+                    <div style="text-align: center; padding: 50px 20px; color: #a0aec0; background: #fbfdff; border-radius: 12px; border: 1px dashed #cbd5e0;">
+                        <i class="material-icons" style="font-size: 48px; color: #e2e8f0; margin-bottom: 10px;">document_scanner</i>
+                        <h4 style="color: #4a5568; margin: 0 0 5px 0;">ระบบพร้อมสแกนข้อมูล</h4>
+                        <p style="margin: 0; font-size: 14px;">กดปุ่ม "เริ่มสแกนทั้งระบบ" เพื่อค้นหาบัญชีที่ซ้ำซ้อน</p>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+               
 
                 <div id="adminLoan2569Section" class="section">
                     <div class="card">
@@ -3226,20 +3249,73 @@
         checkSuspendedSelection();
     };
 
-    window.checkSuspendedSelection = () => {
-        const chks = document.querySelectorAll('.chk-suspended');
-        const checked = document.querySelectorAll('.chk-suspended:checked');
-        const sa = document.getElementById('selectAllSuspended');
-        if(sa) sa.checked = (chks.length > 0 && chks.length === checked.length);
-        toggleDeleteButton(checked.length);
-    };
-
-    function toggleDeleteButton(count) {
-        const btn = document.getElementById('btnDeleteSelectedSuspended');
-        if(!btn) return;
-        btn.style.display = count > 0 ? 'inline-flex' : 'none';
-        if (count > 0) btn.innerHTML = '<i class="material-icons" style="font-size:18px;">delete_sweep</i> ลบรายการที่เลือก (' + count + ')';
+window.checkSuspendedSelection = () => {
+    const chks = document.querySelectorAll('.chk-suspended');
+    const checked = document.querySelectorAll('.chk-suspended:checked');
+    const sa = document.getElementById('selectAllSuspended');
+    if(sa) sa.checked = (chks.length > 0 && chks.length === checked.length);
+    
+    const btnDel = document.getElementById('btnDeleteSelectedSuspended');
+    const btnUnlock = document.getElementById('btnUnlockSelectedSuspended');
+    
+    if(btnDel) {
+        btnDel.style.display = checked.length > 0 ? 'inline-flex' : 'none';
+        btnDel.innerHTML = '<i class="material-icons" style="font-size:18px;">delete_sweep</i> <span>ลบที่เลือก (' + checked.length + ')</span>';
     }
+    if(btnUnlock) {
+        btnUnlock.style.display = checked.length > 0 ? 'inline-flex' : 'none';
+        btnUnlock.innerHTML = '<i class="material-icons" style="font-size:18px;">lock_open</i> <span>ปลดล็อก (' + checked.length + ')</span>';
+    }
+};
+
+window.unlockSelectedSuspended = () => {
+    const ids = Array.from(document.querySelectorAll('.chk-suspended:checked')).map(chk => chk.value);
+    if (ids.length === 0) return;
+    
+    Swal.fire({
+        title: 'ยืนยันปลดระงับหลายรายการ', 
+        html: 'ต้องการปลดระงับบัญชีจำนวน <b>' + ids.length + '</b> บัญชี เพื่อให้กลับมาใช้งานได้ปกติใช่หรือไม่', 
+        icon: 'question', 
+        showCancelButton: true, 
+        confirmButtonText: 'ยืนยันปลดระงับ', 
+        confirmButtonColor: '#28a745' 
+    }).then(async r => {
+        if (r.isConfirmed) {
+            showLoading('กำลังดำเนินการปลดระงับบัญชี');
+            try {
+                const promises = ids.map(id => callApi("updateUser", { userId: id, status: 'Active', suspendReason: '', adminId: adminId, token: userToken }));
+                await Promise.all(promises);
+                
+                hideLoading(); 
+                Swal.fire('ปลดระงับสำเร็จ', 'บัญชีที่เลือกสามารถเข้าใช้งานระบบได้ตามปกติแล้ว', 'success'); 
+                loadSuspendedUsers(); 
+                if (typeof loadUsersForAdmin === 'function') loadUsersForAdmin(false); 
+            } catch(err) {
+                hideLoading();
+                Swal.fire('ผิดพลาด', err.message, 'error');
+            }
+        }
+    });
+};
+
+const originalLoadSuspendedUsers = window.loadSuspendedUsers;
+window.loadSuspendedUsers = async () => {
+    await originalLoadSuspendedUsers();
+    setTimeout(() => {
+        const rowCount = document.querySelectorAll('#suspendedUsersTable tbody .chk-suspended').length;
+        const statEl = document.getElementById('secStatSuspended');
+        if (statEl) statEl.textContent = rowCount;
+    }, 500);
+};
+
+const originalRunDuplicateCheck = window.runDuplicateCheck;
+window.runDuplicateCheck = async () => {
+    await originalRunDuplicateCheck();
+    setTimeout(() => {
+        const statEl = document.getElementById('secStatDuplicates');
+        if (statEl) statEl.textContent = cachedDuplicateGroups.length;
+    }, 500);
+};
 
     window.deleteSelectedSuspended = () => {
         const ids = Array.from(document.querySelectorAll('.chk-suspended:checked')).map(chk => chk.value);
