@@ -422,20 +422,21 @@
                 </h3>
                 
                 <div style="display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 20px; margin-bottom: 20px;">
-                    <div style="background: #f8fafc; padding: 16px; border-radius: 10px; border: 1px solid #e2e8f0;">
-                        <div style="font-size: 13px; color: #64748b; font-weight: 700; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
-                            <span>สถานะการเข้าใช้งานระบบ</span>
-                            <button type="button" id="btnAdminUnlockAccount" style="display: none; padding: 4px 12px; background: #10b981; color: white; border: none; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; transition: background 0.2s;">
-                                ปลดล็อกบัญชี
-                            </button>
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 6px;">
-                            <span id="adm_ver_accountStatus" style="font-size: 16px; font-weight: 700;">-</span>
-                            <div id="adm_ver_suspendReasonContainer" style="display: none; font-size: 13px; color: #ef4444; background: #fef2f2; border: 1px solid #fee2e2; padding: 8px 12px; border-radius: 6px; margin-top: 4px;">
-                                <strong>สาเหตุที่ถูกระงับ:</strong> <span id="adm_ver_suspendReason">-</span>
-                            </div>
-                        </div>
-                    </div>
+
+<div style="background: #f8fafc; padding: 16px; border-radius: 10px; border: 1px solid #e2e8f0;">
+    <div style="font-size: 13px; color: #64748b; font-weight: 700; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
+        <span>สถานะการเข้าใช้งานระบบ</span>
+        <button type="button" id="btnAdminUnlockAccount" style="display: none; padding: 4px 12px; background: #10b981; color: white; border: none; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer;">
+            ปลดล็อกบัญชี
+        </button>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 6px;">
+        <span id="adm_ver_accountStatus" style="font-size: 16px; font-weight: 700;">-</span>
+        <div id="adm_ver_suspendReasonContainer" style="display: none; font-size: 13px; color: #ef4444; background: #fef2f2; border: 1px solid #fee2f2; padding: 8px 12px; border-radius: 6px; margin-top: 4px;">
+            <strong>สาเหตุที่ถูกระงับ:</strong> <span id="adm_ver_suspendReason">-</span>
+        </div>
+    </div>
+</div>
                     
                     <div style="background: #f8fafc; padding: 16px; border-radius: 10px; border: 1px solid #e2e8f0;">
                         <div style="font-size: 13px; color: #64748b; font-weight: 700; margin-bottom: 4px;">ข้อมูลสิทธิ์ประวัติ กยศ. ในระบบ</div>
@@ -5786,23 +5787,31 @@ const petitionUpdateFormEl = document.getElementById('petitionUpdateForm');
     }
 
 function resetAdminVerifyForm() {
-    document.getElementById('adminVerifyStep1').style.display = 'block';
+    const step1 = document.getElementById('adminVerifyStep1');
+    if (step1) step1.style.display = 'block';
+    
     const checkIdInput = document.getElementById('adminCheckStudentId');
-    if(checkIdInput) {
+    if (checkIdInput) {
         checkIdInput.readOnly = false;
         checkIdInput.value = '';
     }
     
-    document.getElementById('adminVerifyStep2').style.display = 'none';
+    const step2 = document.getElementById('adminVerifyStep2');
+    if (step2) step2.style.display = 'none';
+    
     const idCardInput = document.getElementById('adminVerifyIdCardInput');
-    if(idCardInput) idCardInput.value = '';
+    if (idCardInput) idCardInput.value = '';
 }
+
 document.addEventListener("DOMContentLoaded", () => {
     
+    // 1. ตรวจสอบรหัสนักศึกษา (Check & Verify)
     const btnCheckVerify = document.getElementById('btnAdminCheckVerify');
     if (btnCheckVerify) {
         btnCheckVerify.onclick = async () => {
-            const studentId = document.getElementById('adminCheckStudentId').value.trim();
+            const studentIdInput = document.getElementById('adminCheckStudentId');
+            const studentId = studentIdInput ? studentIdInput.value.trim() : '';
+            
             if (!studentId) return showAlert('กรุณากรอกรหัสนักศึกษา', 'warning');
             
             showLoading('กำลังตรวจสอบรายการจากฐานข้อมูล');
@@ -5817,10 +5826,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (res.success) {
                     document.getElementById('adminVerifyStep1').style.display = 'none';
                     document.getElementById('adminVerifyStep2').style.display = 'block';
+                    
                     document.getElementById('adm_ver_name').textContent = res.data.name;
                     document.getElementById('adm_ver_studentId').textContent = res.data.studentId;            
-                    const phoneInput = document.getElementById('adm_ver_phone_input');if(phoneInput) phoneInput.value = res.data.phone;
+                    
+                    const phoneInput = document.getElementById('adm_ver_phone_input');
+                    if (phoneInput) phoneInput.value = res.data.phone;
 
+                    // จัดการแสดงผลรูปโปรไฟล์
                     const imgVerEl = document.getElementById('adm_ver_profileImg');
                     if (res.data.profileImage && res.data.profileImage !== 'undefined' && res.data.profileImage !== "") {
                         let imageId = res.data.profileImage;
@@ -5831,47 +5844,57 @@ document.addEventListener("DOMContentLoaded", () => {
                         const driveSrc = `https://drive.google.com/uc?export=view&id=${imageId}`;
                         const fallbackSrc = `https://drive.google.com/thumbnail?id=${imageId}&sz=w200`;
                         
-                        if(imgVerEl) {
+                        if (imgVerEl) {
                             imgVerEl.src = driveSrc;
-                            imgVerEl.onerror = function() { this.onerror = null; this.src = fallbackSrc; };
+                            imgVerEl.onerror = function() { 
+                                this.onerror = null; 
+                                this.src = fallbackSrc; 
+                            };
                         }
                     } else {
-                        if(imgVerEl) imgVerEl.src = "https://placehold.co/150x150?text=NO+IMAGE";
+                        if (imgVerEl) imgVerEl.src = "https://placehold.co/150x150?text=NO+IMAGE";
                     }
 
+                    // จัดการแสดงผลสถานะบัญชี (Suspended / Normal)
                     const accStatusEl = document.getElementById('adm_ver_accountStatus');
+                    const suspendContainer = document.getElementById('adm_ver_suspendReasonContainer');
+                    const suspendReasonEl = document.getElementById('adm_ver_suspendReason');
                     const unlockBtn = document.getElementById('btnAdminUnlockAccount');
-                    
-                    if (res.data.status === 'suspended' || res.data.status === 'Suspended') {
-                        if(accStatusEl) accStatusEl.innerHTML = '<span style="color: #dc3545; font-weight: bold;"><i class="material-icons" style="font-size:14px; vertical-align:middle;">lock</i> ถูกระงับการใช้งาน</span>';
-                        if(unlockBtn) unlockBtn.style.display = 'block';
-                    } else {
-                        if(accStatusEl) accStatusEl.innerHTML = '<span style="color: #28a745; font-weight: bold;"><i class="material-icons" style="font-size:14px; vertical-align:middle;">check_circle</i> ใช้งานปกติ</span>';
-                        if(unlockBtn) unlockBtn.style.display = 'none';
-                    }
 
+                    const isSuspended = (res.data.status === 'suspended' || res.data.status === 'Suspended');
+
+                    if (isSuspended) {
+                        if (accStatusEl) accStatusEl.innerHTML = '<span style="color: #dc3545; font-weight: bold;"><i class="material-icons" style="font-size:14px; vertical-align:middle;">lock</i> ถูกระงับการใช้งาน</span>';
+                        if (suspendContainer) suspendContainer.style.display = 'block';
+                        if (suspendReasonEl) suspendReasonEl.textContent = res.data.suspendReason || 'ไม่ระบุสาเหตุ';
+                        if (unlockBtn) unlockBtn.style.display = 'block';
+                    } else {
+                        if (accStatusEl) accStatusEl.innerHTML = '<span style="color: #28a745; font-weight: bold;"><i class="material-icons" style="font-size:14px; vertical-align:middle;">check_circle</i> ใช้งานปกติ</span>';
+                        if (suspendContainer) suspendContainer.style.display = 'none';
+                        if (unlockBtn) unlockBtn.style.display = 'none';
+                    }
+                    
+                    // จัดการแสดงผลสถานะการยืนยันตัวตน (Verified Status)
                     if (res.isVerified) {
                         document.getElementById('adm_ver_idCard').innerHTML = `<span style="color:#0d47a1; font-weight:bold;">${res.data.idCard}</span>`;
+                        document.getElementById('admAlreadyVerifiedMessage').style.display = 'block';
+                        document.getElementById('adminVerifyIdentityForm').style.display = 'none';
                     } else {
                         document.getElementById('adm_ver_idCard').innerHTML = '<span style="color:#d32f2f;">ยังไม่ได้ยืนยันตัวตน</span>';
+                        document.getElementById('admAlreadyVerifiedMessage').style.display = 'none';
+                        document.getElementById('adminVerifyIdentityForm').style.display = 'block';
                     }
                     
+                    // จัดการแสดงผลสถานะโปรไฟล์ (Profile Status)
                     const pStatus = document.getElementById('adm_ver_profileStatus');
                     if (res.data.hasProfile) {
                         pStatus.innerHTML = '<span style="color: #2e7d32; font-weight:bold;">บันทึกข้อมูลแล้ว</span>';
-                        document.getElementById('adm_ver_updatedAt').textContent = formatDate ? formatDate(res.data.updatedAt) : res.data.updatedAt;
+                        document.getElementById('adm_ver_updatedAt').textContent = (typeof formatDate === 'function') ? formatDate(res.data.updatedAt) : res.data.updatedAt;
                     } else {
                         pStatus.innerHTML = '<span style="color: #d32f2f; font-weight:bold;">ยังไม่ได้บันทึกข้อมูล</span>';
                         document.getElementById('adm_ver_updatedAt').textContent = '-';
                     }
-                    
-                    if (res.isVerified) {
-                        document.getElementById('admAlreadyVerifiedMessage').style.display = 'block';
-                        document.getElementById('adminVerifyIdentityForm').style.display = 'none';
-                    } else {
-                        document.getElementById('admAlreadyVerifiedMessage').style.display = 'none';
-                        document.getElementById('adminVerifyIdentityForm').style.display = 'block';
-                    }
+
                 } else {
                     showAlert(res.message, 'error');
                 }
@@ -5882,6 +5905,7 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     }
 
+    // 2. ปลดล็อกบัญชีที่ถูกระงับ (Unlock Account)
     const btnUnlockAcc = document.getElementById('btnAdminUnlockAccount');
     if (btnUnlockAcc) {
         btnUnlockAcc.onclick = async () => {
@@ -5920,6 +5944,7 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     }
 
+    // 3. บังคับรีเซ็ตรหัสผ่าน (Force Reset Password)
     const btnForceReset = document.getElementById('btnAdminForceReset');
     if (btnForceReset) {
         btnForceReset.onclick = async () => {
@@ -5959,48 +5984,50 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     }
 
+    // 4. อัปเดตเบอร์โทรศัพท์ (Update Phone Number)
     const btnUpdatePhone = document.getElementById('btnUpdatePhone');
-if (btnUpdatePhone) {
-    btnUpdatePhone.onclick = async () => {
-        const studentId = document.getElementById('adm_ver_studentId').textContent;
-        const newPhone = document.getElementById('adm_ver_phone_input').value.trim();
+    if (btnUpdatePhone) {
+        btnUpdatePhone.onclick = async () => {
+            const studentId = document.getElementById('adm_ver_studentId').textContent;
+            const newPhone = document.getElementById('adm_ver_phone_input').value.trim();
 
-        if (!newPhone) return showAlert('กรุณากรอกเบอร์โทรศัพท์', 'warning');
+            if (!newPhone) return showAlert('กรุณากรอกเบอร์โทรศัพท์', 'warning');
 
-        Swal.fire({
-            title: 'ยืนยันการแก้ไข',
-            text: `ต้องการเปลี่ยนเบอร์โทรศัพท์เป็น ${newPhone} ใช่หรือไม่`,
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'ใช่, บันทึกเลย',
-            confirmButtonColor: '#3b82f6'
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                showLoading('กำลังบันทึกเบอร์โทรศัพท์');
-                try {
-                    const res = await callApi("updateUser", { 
-                        userId: studentId, 
-                        studentId: studentId,
-                        phone: newPhone,
-                        adminId: currentUser.studentId, 
-                        token: userToken 
-                    });
-                    
-                    hideLoading();
-                    if (res.success) {
-                        Swal.fire('สำเร็จ', 'อัปเดตเบอร์โทรศัพท์เรียบร้อยแล้ว', 'success');
-                    } else {
-                        showAlert(res.message, 'error');
+            Swal.fire({
+                title: 'ยืนยันการแก้ไข',
+                text: `ต้องการเปลี่ยนเบอร์โทรศัพท์เป็น ${newPhone} ใช่หรือไม่`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'ใช่, บันทึกเลย',
+                confirmButtonColor: '#3b82f6'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    showLoading('กำลังบันทึกเบอร์โทรศัพท์');
+                    try {
+                        const res = await callApi("updateUser", { 
+                            userId: studentId, 
+                            studentId: studentId,
+                            phone: newPhone,
+                            adminId: currentUser.studentId, 
+                            token: userToken 
+                        });
+                        
+                        hideLoading();
+                        if (res.success) {
+                            Swal.fire('สำเร็จ', 'อัปเดตเบอร์โทรศัพท์เรียบร้อยแล้ว', 'success');
+                        } else {
+                            showAlert(res.message, 'error');
+                        }
+                    } catch (err) {
+                        hideLoading();
+                        showAlert(err.message, 'error');
                     }
-                } catch (err) {
-                    hideLoading();
-                    showAlert(err.message, 'error');
                 }
-            }
-        });
-    };
-}
+            });
+        };
+    }
 
+    // 5. ส่งฟอร์มยืนยันตัวตน (Submit Identity Verification)
     const verifyForm = document.getElementById('adminVerifyIdentityForm');
     if (verifyForm) {
         verifyForm.onsubmit = async (e) => {
@@ -6046,9 +6073,7 @@ if (btnUpdatePhone) {
             });
         };
     }
-
-}); 
-
+});
 
     let currentSpecialLoanStudent = null;
 
