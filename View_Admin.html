@@ -3317,6 +3317,12 @@ window.runDuplicateCheck = async () => {
     }, 500);
 };
 
+window.toggleDeleteButton = function(count) {
+    if (typeof window.checkSuspendedSelection === 'function') {
+        window.checkSuspendedSelection();
+    }
+};
+
     window.deleteSelectedSuspended = () => {
         const ids = Array.from(document.querySelectorAll('.chk-suspended:checked')).map(chk => chk.value);
         if (ids.length === 0) return;
