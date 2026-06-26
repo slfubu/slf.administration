@@ -5814,7 +5814,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (reasonText) {
         reasonText.textContent = '-';
     }
-}
+});
 
 document.addEventListener("DOMContentLoaded", () => {
     
@@ -5824,7 +5824,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const studentId = document.getElementById('adminCheckStudentId').value.trim();
             if (!studentId) return showAlert('กรุณากรอกรหัสนักศึกษา', 'warning');
             
-            showLoading('กำลังตรวจสอบข้อมูล...');
+            showLoading('กำลังตรวจสอบข้อมูล');
             try {
                 const res = await callApi("checkStudentForVerification", { 
                     studentId: studentId,
@@ -5881,7 +5881,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 confirmButtonText: 'ปลดล็อก'
             }).then(async (result) => {
                 if (result.isConfirmed) {
-                    showLoading('กำลังปลดล็อก...');
+                    showLoading('กำลังปลดล็อก');
                     const res = await callApi("adminUnlockAccount", { studentId: studentId, adminId: currentUser.studentId, token: userToken });
                     hideLoading();
                     if (res.success) {
@@ -5932,7 +5932,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             Swal.fire({
                 title: 'ยืนยันการอัปเดตข้อมูล',
-                text: `ต้องการเปลี่ยนเบอร์โทรศัพท์เป็น ${newPhone} ใช่หรือไม่?`,
+                text: `ต้องการเปลี่ยนเบอร์โทรศัพท์เป็น ${newPhone} ใช่หรือไม่`,
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonText: 'บันทึกข้อมูล',
