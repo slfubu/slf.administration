@@ -399,11 +399,18 @@
         </div>
 
         <div id="verifyResultCard" style="background: #fff; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01); display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px;">
                 <h3 style="margin: 0; font-size: 16px; color: #1e293b; display: flex; align-items: center; gap: 8px;">
                     <i class="material-icons" style="color: #10b981;">manage_accounts</i> ข้อมูลและฟอร์มการแก้ไข
                 </h3>
                 <span id="verifyUserBadge" style="padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold;"></span>
+            </div>
+
+            <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                <div style="width: 110px; height: 135px; border-radius: 8px; overflow: hidden; background: #e2e8f0; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
+                    <img id="verifyStudentPhoto" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                    <i id="verifyPhotoPlaceholder" class="material-icons" style="font-size: 48px; color: #94a3b8;">account_box</i>
+                </div>
             </div>
 
             <input type="hidden" id="editInternalUserId">
@@ -7136,7 +7143,7 @@ window.searchUserForVerification = async () => {
         return;
     }
 
-    showLoading('กำลังค้นหาข้อมูลผู้ใช้งาน');
+    showLoading('กำลังค้นหาข้อมูลผู้ใช้งาน...');
     try {
         const res = await callApi('searchUserDetail', { keyword: searchVal, adminId: adminId, token: userToken });
         hideLoading();
@@ -7146,6 +7153,19 @@ window.searchUserForVerification = async () => {
             document.getElementById('editStudentId').value = res.data.studentId || '';
             document.getElementById('editFullName').value = res.data.name || '';
             document.getElementById('editPhoneNumber').value = res.data.phoneNumber || '';
+
+            const photoImg = document.getElementById('verifyStudentPhoto');
+            const placeholderIcon = document.getElementById('verifyPhotoPlaceholder');
+            
+            if (res.data.photo && res.data.photo !== '-' && res.data.photo !== '') {
+                photoImg.src = res.data.photo;
+                photoImg.style.display = 'block';
+                placeholderIcon.style.display = 'none';
+            } else {
+                photoImg.src = '';
+                photoImg.style.display = 'none';
+                placeholderIcon.style.display = 'block';
+            }
 
             const badge = document.getElementById('verifyUserBadge');
             if (res.data.status === 'Active') {
@@ -7168,9 +7188,17 @@ window.searchUserForVerification = async () => {
 };
 
 window.readThaiIDCard = async () => {
-    showLoading('กำลังเชื่อมต่อเครื่องอ่านบัตรประชาชน');
+    showLoading('กำลังเชื่อมต่อเครื่องอ่านบัตรประชาชน...');
     try {
-        const response = await fetch('http://localhost:8080/api/read-card', { method: 'GET' });
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+
+        const response = await fetch('http://localhost:8080/api/read-card', { 
+            method: 'GET',
+            signal: controller.signal 
+        });
+        clearTimeout(timeoutId);
+        
         const cardResult = await response.json();
         hideLoading();
 
@@ -7191,7 +7219,28 @@ window.readThaiIDCard = async () => {
         }
     } catch (err) {
         hideLoading();
-        Swal.fire('ไม่สามารถเชื่อมต่อเครื่องอ่าน', 'ไม่พบโปรแกรมช่วยอ่านบัตรประชาชนที่เครื่องคอมพิวเตอร์ของคุณ', 'error');
+        
+        Swal.fire({
+            title: 'ไม่สามารถเชื่อมต่อเครื่องอ่านบัตร',
+            html: `<div style="text-align: left; font-size: 14px; color: #4a5568;">
+                    <p style="margin-bottom: 8px; font-weight: bold; color: #e53e3e;">ไม่พบโปรแกรมช่วยอ่านบัตร (Local Agent) กำลังทำงานอยู่</p>
+                    <ol style="padding-left: 20px; margin: 0;">
+                        <li>กรุณาตรวจสอบว่าได้เสียบเครื่องอ่านบัตรเข้ากับพอร์ต USB หรือยัง</li>
+                        <li>กรุณาเปิดโปรแกรม <b>ThaiIDCardLocalAgent.exe</b> ในเครื่องคอมพิวเตอร์ของคุณ</li>
+                        <li>หากยังไม่มีโปรแกรม กรุณาติดต่อฝ่ายเทคโนโลยีเพื่อติดตั้ง</li>
+                    </ol>
+                   </div>`,
+            icon: 'error',
+            showCancelButton: true,
+            confirmButtonText: 'ลองอีกครั้ง',
+            cancelButtonText: 'ใช้การพิมพ์ค้นหาแทน',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#718096'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.readThaiIDCard();
+            }
+        });
     }
 };
 
