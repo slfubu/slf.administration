@@ -5790,12 +5790,14 @@ const petitionUpdateFormEl = document.getElementById('petitionUpdateForm');
 function resetAdminVerifyForm() {
     document.getElementById('adminVerifyStep1').style.display = 'block';
     const checkIdInput = document.getElementById('adminCheckStudentId');
-    if(checkIdInput) {
-        checkIdInput.readOnly = false;
-        checkIdInput.value = '';
-    }
+    if(checkIdInput) { checkIdInput.readOnly = false; checkIdInput.value = ''; }
     
     document.getElementById('adminVerifyStep2').style.display = 'none';
+    const reasonContainer = document.getElementById('adm_ver_suspendReasonContainer');
+    if(reasonContainer) reasonContainer.style.display = 'none';
+}
+
+document.addEventListener("DOMContentLoaded", () => {
     
     const idCardInput = document.getElementById('adminVerifyIdCardInput');
     if(idCardInput) idCardInput.value = '';
@@ -5822,7 +5824,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const studentId = document.getElementById('adminCheckStudentId').value.trim();
             if (!studentId) return showAlert('กรุณากรอกรหัสนักศึกษา', 'warning');
             
-            showLoading('กำลังตรวจสอบรายการจากฐานข้อมูล');
+            showLoading('กำลังตรวจสอบข้อมูล...');
             try {
                 const res = await callApi("checkStudentForVerification", { 
                     studentId: studentId,
@@ -5836,72 +5838,25 @@ document.addEventListener("DOMContentLoaded", () => {
                     document.getElementById('adminVerifyStep2').style.display = 'block';
                     
                     document.getElementById('adm_ver_name').textContent = res.data.name;
-                    document.getElementById('adm_ver_studentId').textContent = res.data.studentId;            
+                    document.getElementById('adm_ver_studentId').textContent = res.data.studentId;
                     
-                    const phoneInput = document.getElementById('adm_ver_phone_input');
-                    if (phoneInput) phoneInput.value = res.data.phone || '';
-
-                    const imgVerEl = document.getElementById('adm_ver_profileImg');
-                    if (res.data.profileImage && res.data.profileImage !== 'undefined' && res.data.profileImage !== "") {
-                        let imageId = res.data.profileImage;
-                        if (imageId.includes('id=')) imageId = imageId.split('id=')[1].split('&')[0];
-                        else if (imageId.includes('/d/')) imageId = imageId.split('/d/')[1].split('/')[0];
-                        else if (imageId.includes('picture/0')) imageId = imageId.split('picture/0')[1];
-
-                        const driveSrc = `https://drive.google.com/uc?export=view&id=${imageId}`;
-                        const fallbackSrc = `https://drive.google.com/thumbnail?id=${imageId}&sz=w400`;
-                        
-                        if(imgVerEl) {
-                            imgVerEl.src = driveSrc;
-                            imgVerEl.onerror = function() { this.onerror = null; this.src = fallbackSrc; };
-                        }
-                    } else {
-                        if(imgVerEl) imgVerEl.src = "https://placehold.co/300x400?text=NO+IMAGE";
-                    }
-
-                    const accStatusEl = document.getElementById('adm_ver_accountStatus');
-                    const unlockBtn = document.getElementById('btnAdminUnlockAccount');
+                    // แสดงสาเหตุการระงับ (ดึงจากคอลัมน์ P / res.data.suspendReason)
                     const reasonContainer = document.getElementById('adm_ver_suspendReasonContainer');
                     const reasonText = document.getElementById('adm_ver_suspendReason');
-                    
-                    if (res.data.status === 'suspended' || res.data.status === 'Suspended') {
-                        if(accStatusEl) accStatusEl.innerHTML = '<span style="color: #ef4444;"><i class="material-icons" style="font-size:16px; vertical-align:text-bottom;">block</i> ถูกระงับการใช้งาน</span>';
-                        if(unlockBtn) unlockBtn.style.display = 'inline-block';
-                        
-                        if (reasonContainer && reasonText) {
-                            reasonText.textContent = res.data.suspendReason || 'ไม่ได้ระบุสาเหตุ (แอดมินสั่งระงับชั่วคราว)';
-                            reasonContainer.style.display = 'block';
-                        }
-                    } else {
-                        if(accStatusEl) accStatusEl.innerHTML = '<span style="color: #10b981;"><i class="material-icons" style="font-size:16px; vertical-align:text-bottom;">check_circle</i> ใช้งานได้ปกติ</span>';
-                        if(unlockBtn) unlockBtn.style.display = 'none';
-                        
-                        if (reasonContainer) {
-                            reasonContainer.style.display = 'none';
-                        }
-                    }
+                    const accStatusEl = document.getElementById('adm_ver_accountStatus');
+                    const unlockBtn = document.getElementById('btnAdminUnlockAccount');
 
-                    if (res.isVerified) {
-                        document.getElementById('adm_ver_idCard').innerHTML = `<span style="color:#0f172a; font-weight:700; letter-spacing: 0.5px;">${res.data.idCard}</span>`;
+                    if (res.data.status === 'suspended' || res.data.status === 'Suspended') {
+                        accStatusEl.innerHTML = '<span style="color: #ef4444; font-weight:bold;">ถูกระงับ</span>';
+                        if(unlockBtn) unlockBtn.style.display = 'inline-block';
+                        if(reasonContainer) {
+                            reasonContainer.style.display = 'block';
+                            reasonText.textContent = res.data.suspendReason || 'ไม่ได้ระบุสาเหตุ';
+                        }
                     } else {
-                        document.getElementById('adm_ver_idCard').innerHTML = '<span style="color:#ef4444;">ยังไม่ได้ยืนยันตัวตน</span>';
-                    }
-                    
-                    const pStatus = document.getElementById('adm_ver_profileStatus');
-                    if (res.data.hasProfile) {
-                        pStatus.innerHTML = '<span style="color: #10b981; font-weight:700;"><i class="material-icons" style="font-size:16px; vertical-align:text-bottom;">task_alt</i> บันทึกข้อมูลแล้ว</span>';
-                        document.getElementById('adm_ver_updatedAt').textContent = formatDate ? formatDate(res.data.updatedAt) : res.data.updatedAt;
-                    } else {
-                        pStatus.innerHTML = '<span style="color: #ef4444; font-weight:700;"><i class="material-icons" style="font-size:16px; vertical-align:text-bottom;">error_outline</i> ยังไม่ได้บันทึกข้อมูล</span>';
-                        document.getElementById('adm_ver_updatedAt').textContent = '-';
-                    }
-                    
-                    if (res.isVerified) {
-                        document.getElementById('admAlreadyVerifiedMessage').style.display = 'block';
-                        document.getElementById('adminVerifyIdentityForm').style.display = 'none';
-                    } else {
-                        document.getElementById('admAlreadyVerifiedMessage').style.display = 'none';
-                        document.getElementById('adminVerifyIdentityForm').style.display = 'block';
+                        accStatusEl.innerHTML = '<span style="color: #10b981; font-weight:bold;">ปกติ</span>';
+                        if(unlockBtn) unlockBtn.style.display = 'none';
+                        if(reasonContainer) reasonContainer.style.display = 'none';
                     }
                 } else {
                     showAlert(res.message, 'error');
@@ -5912,6 +5867,60 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         };
     }
+
+    const btnUnlockAcc = document.getElementById('btnAdminUnlockAccount');
+    if (btnUnlockAcc) {
+        btnUnlockAcc.onclick = async () => {
+            const studentId = document.getElementById('adm_ver_studentId').textContent;
+            Swal.fire({
+                title: 'ยืนยันการปลดล็อก',
+                text: `ต้องการปลดล็อกบัญชี ${studentId} ใช่หรือไม่?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                confirmButtonText: 'ปลดล็อก'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    showLoading('กำลังปลดล็อก...');
+                    const res = await callApi("adminUnlockAccount", { studentId: studentId, adminId: currentUser.studentId, token: userToken });
+                    hideLoading();
+                    if (res.success) {
+                        showAlert('ปลดล็อกสำเร็จ', 'success');
+                        document.getElementById('btnAdminCheckVerify').click();
+                    } else {
+                        showAlert(res.message, 'error');
+                    }
+                }
+            });
+        };
+    }
+
+    const btnForceReset = document.getElementById('btnAdminForceReset');
+    if (btnForceReset) {
+        btnForceReset.onclick = async () => {
+            const studentId = document.getElementById('adm_ver_studentId').textContent;
+            Swal.fire({
+                title: 'ยืนยันการรีเซ็ตรหัสผ่าน',
+                text: `รีเซ็ตรหัสผ่านของ ${studentId} ให้เป็นเลขบัตร ปชช. ใช่หรือไม่?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#f59e0b',
+                confirmButtonText: 'รีเซ็ต'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    showLoading('กำลังรีเซ็ต...');
+                    const res = await callApi("adminForceResetPassword", { studentId: studentId, adminId: currentUser.studentId, token: userToken });
+                    hideLoading();
+                    if (res.success) {
+                        showAlert('รีเซ็ตรหัสผ่านสำเร็จ', 'success');
+                    } else {
+                        showAlert(res.message, 'error');
+                    }
+                }
+            });
+        };
+    }
+});
     
     const btnUpdatePhone = document.getElementById('btnUpdatePhone');
     if (btnUpdatePhone) {
