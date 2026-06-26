@@ -361,81 +361,115 @@
                     </div>
                 </div>
 
-    <div id="section-admin-verify" class="section">
-    <div class="header-with-action">
-        <h2 class="section-title"><i class="material-icons" style="vertical-align: middle;">manage_accounts</i> บริการยืนยันตัวตนและรีเซ็ตรหัสผ่าน</h2>
+<div id="section-admin-verify" class="section">
+    <div class="header-with-action" style="margin-bottom: 25px;">
+        <h2 class="section-title" style="margin: 0; display: flex; align-items: center; gap: 10px; color: #1e293b; font-size: 22px;">
+            <i class="material-icons" style="color: #3b82f6; background: #eff6ff; padding: 8px; border-radius: 10px;">manage_accounts</i> 
+            บริการยืนยันตัวตนและรีเซ็ตรหัสผ่าน
+        </h2>
     </div>
 
-    <div class="card" style="max-width: 600px; margin: 0 auto;">
+    <!-- Step 1: ส่วนค้นหาข้อมูล -->
+    <div class="card" style="border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-radius: 12px; margin-bottom: 20px;">
         <div class="card-body">
-            <p style="color: #666; font-size: 14px; margin-bottom: 20px;">
-               กรอกรหัสนักศึกษาเพื่อตรวจสอบประวัติ และกรอกเลขบัตรประจำตัวประชาชนเพื่อยืนยันสิทธิ์และรีเซ็ตรหัสผ่านให้กับนักศึกษา
+            <p style="color: #64748b; font-size: 15px; margin-bottom: 20px;">
+               <i class="material-icons" style="vertical-align: middle; font-size: 18px;">info</i> กรอกรหัสนักศึกษาเพื่อตรวจสอบประวัติ และกรอกเลขบัตรประจำตัวประชาชนเพื่อยืนยันสิทธิ์หรือรีเซ็ตรหัสผ่าน
             </p>
             
-            <div id="adminVerifyStep1">
-                <div class="modern-input-group">
-                    <input type="text" id="adminCheckStudentId" class="modern-input" placeholder=" " required>
+            <div id="adminVerifyStep1" style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                <div class="modern-input-group" style="margin: 0; flex: 1; min-width: 250px;">
+                    <input type="text" id="adminCheckStudentId" class="modern-input" placeholder=" " style="font-size: 16px; border: 2px solid #cbd5e1;" required>
                     <label for="adminCheckStudentId" class="modern-label">กรอกรหัสนักศึกษา 11 หลัก</label>
                 </div>
-                <button type="button" id="btnAdminCheckVerify" class="btn-primary" style="width: 100%; padding: 12px; font-size: 16px;">
-                    <i class="material-icons" style="vertical-align: middle; font-size: 18px;">search</i> ตรวจสอบข้อมูลในระบบ
+                <button type="button" id="btnAdminCheckVerify" class="btn-primary" style="height: 50px; padding: 0 30px; font-size: 16px; border-radius: 8px; font-weight: 600; white-space: nowrap;">
+                    <i class="material-icons" style="vertical-align: middle; font-size: 20px; margin-right: 5px;">search</i> ตรวจสอบข้อมูล
                 </button>
             </div>
+        </div>
+    </div>
 
-            <div id="adminVerifyStep2" style="display: none; animation: fadeIn 0.5s; margin-top: 25px;">
+    <!-- Step 2: ส่วนแสดงผลและจัดการข้อมูล -->
+    <div id="adminVerifyStep2" style="display: none; animation: fadeIn 0.5s;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px;">
+            
+            <!-- การ์ดข้อมูลส่วนตัวนักศึกษา -->
+            <div class="card" style="border: 1px solid #e2e8f0; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border-radius: 12px; padding: 20px;">
+                <h3 style="font-size: 16px; color: #334155; border-bottom: 1px dashed #cbd5e1; padding-bottom: 10px; margin-top: 0;">
+                    <i class="material-icons" style="vertical-align: text-bottom; color: #64748b;">badge</i> ข้อมูลนักศึกษา
+                </h3>
                 
-                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid var(--secondary-color); margin-bottom: 20px; font-size: 14px; line-height: 1.6;">
-                    <div style="display: flex; gap: 20px; align-items: flex-start;">
-                        <img id="adm_ver_profileImg" src="https://placehold.co/150x150?text=NO+IMAGE" style="width: 120px; height: 150px; object-fit: cover; border-radius: 8px; border: 2px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.15); flex-shrink: 0;">
-                        <div style="flex: 1;">
-                            <div><b>ชื่อ-สกุล:</b> <span id="adm_ver_name">-</span></div>
-                            <div><b>รหัสนักศึกษา:</b> <span id="adm_ver_studentId">-</span></div>
-                            <div><b>เบอร์โทรศัพท์:</b> <span id="adm_ver_phone">-</span></div>
-                            <div><b>เลขประจำตัวประชาชน:</b> <span id="adm_ver_idCard">-</span></div>
-                            <hr style="border: 0; border-top: 1px dashed #ccc; margin: 8px 0;">
-                            
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                                <div><b>สถานะบัญชี:</b> <span id="adm_ver_accountStatus">-</span></div>
-                                <button type="button" id="btnAdminUnlockAccount" style="display: none; padding: 5px 12px; background: #28a745; color: white; border: none; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                                    <i class="material-icons" style="font-size: 14px; vertical-align: middle;">lock_open</i> ปลดล็อกบัญชี
+                <div style="display: flex; gap: 20px; align-items: flex-start; margin-top: 15px;">
+                    <img id="adm_ver_profileImg" src="https://placehold.co/150x150?text=NO+IMAGE" style="width: 100px; height: 125px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); flex-shrink: 0;">
+                    <div style="flex: 1; font-size: 14px; line-height: 1.8; color: #475569;">
+                        <div style="font-size: 18px; font-weight: bold; color: #1e293b; margin-bottom: 5px;" id="adm_ver_name">-</div>
+                        <div><b>รหัสนักศึกษา:</b> <span id="adm_ver_studentId" style="color: #0f172a; font-weight: 500;">-</span></div>
+                        <div><b>เลขประจำตัวประชาชน:</b> <span id="adm_ver_idCard">-</span></div>
+                        
+                        <!-- ส่วนแก้ไขเบอร์โทรศัพท์ที่เพิ่มเข้ามาใหม่ -->
+                        <div style="margin-top: 15px; background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                            <label style="font-weight: 600; font-size: 13px; color: #64748b; margin-bottom: 5px; display: block;">เบอร์โทรศัพท์ (แก้ไขได้)</label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" id="adm_ver_phone_input" class="modern-input" style="margin: 0; height: 40px; border-color: #cbd5e1; font-size: 14px;" placeholder="กรอกเบอร์โทรใหม่">
+                                <button type="button" id="btnUpdatePhone" class="btn btn-info" style="padding: 0 15px; height: 40px; border-radius: 6px; white-space: nowrap; font-weight: 600; display: flex; align-items: center; gap: 5px;">
+                                    <i class="material-icons" style="font-size: 16px;">save</i> บันทึก
                                 </button>
                             </div>
-
-                            <div><b>สถานะประวัติ กยศ.:</b> <span id="adm_ver_profileStatus">-</span></div>
-                            <div><b>ปรับปรุงล่าสุดเมื่อ:</b> <span id="adm_ver_updatedAt">-</span></div>
                         </div>
                     </div>
                 </div>
-                
-                <div id="admAlreadyVerifiedMessage" style="display: none; background: #e8f5e9; color: #2e7d32; padding: 20px; border-radius: 6px; text-align: center; margin-bottom: 15px; border: 1px solid #c8e6c9;">
-                    <i class="material-icons" style="vertical-align: middle; font-size: 28px; display: block; margin-bottom: 10px;">verified</i> 
-                    <b style="font-size: 16px;">บัญชีนี้ได้รับการยืนยันตัวตนเรียบร้อยแล้ว</b>
-                    <p style="font-size: 13px; color: #555; margin: 10px 0 15px 0;">หากนักศึกษาลืมรหัสผ่าน ท่านสามารถบังคับรีเซ็ตให้กลับไปเป็นเลขบัตร ปชช. ได้ทันที</p>
-                    <button type="button" id="btnAdminForceReset" style="width: 100%; padding: 12px; font-size: 15px; font-weight: bold; background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); color: #fff; border: none; border-radius: 6px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                        <i class="material-icons" style="vertical-align: middle; font-size: 20px;">lock_reset</i> รีเซ็ตรหัสผ่านเป็นเลขบัตร ปชช.
-                    </button>
-                </div>
-
-                <form id="adminVerifyIdentityForm" style="display: none;">
-                    <div class="modern-input-group">
-                        <input type="text" id="adminVerifyIdCardInput" class="modern-input" maxlength="13" placeholder=" " required>
-                        <label for="adminVerifyIdCardInput" class="modern-label">กรอกเลขบัตรประจำตัวประชาชน 13 หลัก</label>
-                    </div>
-                    <button type="submit" id="btnAdminSubmitVerify" class="btn-success" style="width: 100%; padding: 12px; font-size: 16px;">
-                        <i class="material-icons" style="vertical-align: middle; font-size: 18px;">save</i> บันทึกยืนยันและรีเซ็ตรหัสผ่าน
-                    </button>
-                    <p style="font-size: 13px; color: #d32f2f; text-align: center; margin-top: 10px;">
-                        ระบบจะทำการรีเซ็ตรหัสผ่านของนักศึกษาให้เป็น "เลขบัตร ปชช. 13 หลัก" ทันที
-                    </p>
-                </form>
-
-                <div style="text-align: center; margin-top: 20px;">
-                    <button type="button" class="btn-danger" onclick="resetAdminVerifyForm()" style="padding: 8px 15px; font-size: 14px;">
-                        ยกเลิก / ค้นหาใหม่
-                    </button>
-                </div>
             </div>
 
+            <!-- การ์ดสถานะและการดำเนินการ -->
+            <div class="card" style="border: 1px solid #e2e8f0; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border-radius: 12px; padding: 20px;">
+                <h3 style="font-size: 16px; color: #334155; border-bottom: 1px dashed #cbd5e1; padding-bottom: 10px; margin-top: 0;">
+                    <i class="material-icons" style="vertical-align: text-bottom; color: #64748b;">shield</i> สถานะบัญชีและการดำเนินการ
+                </h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; margin-bottom: 20px;">
+                    <div style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                        <div style="font-size: 13px; color: #64748b; font-weight: 600; margin-bottom: 4px;">สถานะการเข้าใช้งาน</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span id="adm_ver_accountStatus" style="font-size: 14px;">-</span>
+                            <button type="button" id="btnAdminUnlockAccount" style="display: none; padding: 4px 10px; background: #10b981; color: white; border: none; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer;">
+                                ปลดล็อก
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                        <div style="font-size: 13px; color: #64748b; font-weight: 600; margin-bottom: 4px;">ข้อมูลประวัติ กยศ.</div>
+                        <div id="adm_ver_profileStatus" style="font-size: 14px;">-</div>
+                        <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">อัปเดต: <span id="adm_ver_updatedAt">-</span></div>
+                    </div>
+                </div>
+
+                <!-- ส่วนดำเนินการรีเซ็ตรหัสผ่าน -->
+                <div id="admAlreadyVerifiedMessage" style="display: none; background: #f0fdf4; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #bbf7d0;">
+                    <i class="material-icons" style="color: #22c55e; font-size: 24px; margin-bottom: 5px;">verified</i> 
+                    <div style="font-weight: 600; color: #166534; font-size: 15px;">ยืนยันตัวตนเรียบร้อยแล้ว</div>
+                    <p style="font-size: 13px; color: #15803d; margin: 8px 0 15px 0;">สามารถบังคับรีเซ็ตรหัสผ่านให้กลับไปเป็นเลขบัตร ปชช. ได้ทันที</p>
+                    <button type="button" id="btnAdminForceReset" class="btn btn-warning" style="width: 100%; padding: 12px; font-size: 15px; font-weight: bold; border-radius: 8px; color: white; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border: none;">
+                        <i class="material-icons" style="vertical-align: middle; font-size: 20px;">lock_reset</i> รีเซ็ตรหัสผ่าน
+                    </button>
+                </div>
+
+                <form id="adminVerifyIdentityForm" style="display: none; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <div class="modern-input-group" style="margin-bottom: 15px;">
+                        <input type="text" id="adminVerifyIdCardInput" class="modern-input" maxlength="13" placeholder=" " style="background: white;" required>
+                        <label for="adminVerifyIdCardInput" class="modern-label">กรอกเลขบัตร ปชช. 13 หลัก</label>
+                    </div>
+                    <button type="submit" id="btnAdminSubmitVerify" class="btn-success" style="width: 100%; padding: 12px; font-size: 15px; font-weight: bold; border-radius: 8px;">
+                        <i class="material-icons" style="vertical-align: middle; font-size: 18px;">how_to_reg</i> บันทึกยืนยันและรีเซ็ตรหัสผ่าน
+                    </button>
+                </form>
+
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <button type="button" class="btn btn-secondary" onclick="resetAdminVerifyForm()" style="padding: 10px 25px; font-size: 15px; border-radius: 8px; font-weight: 600; background: #e2e8f0; color: #475569; border: none;">
+                <i class="material-icons" style="vertical-align: middle; font-size: 18px;">refresh</i> ยกเลิก / ค้นหาใหม่
+            </button>
         </div>
     </div>
 </div>
@@ -5783,7 +5817,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     document.getElementById('adminVerifyStep2').style.display = 'block';
                     document.getElementById('adm_ver_name').textContent = res.data.name;
                     document.getElementById('adm_ver_studentId').textContent = res.data.studentId;            
-                    document.getElementById('adm_ver_phone').textContent = res.data.phone;
+                    const phoneInput = document.getElementById('adm_ver_phone_input');if(phoneInput) phoneInput.value = res.data.phone;
 
                     const imgVerEl = document.getElementById('adm_ver_profileImg');
                     if (res.data.profileImage && res.data.profileImage !== 'undefined' && res.data.profileImage !== "") {
@@ -5922,6 +5956,48 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         };
     }
+
+    const btnUpdatePhone = document.getElementById('btnUpdatePhone');
+if (btnUpdatePhone) {
+    btnUpdatePhone.onclick = async () => {
+        const studentId = document.getElementById('adm_ver_studentId').textContent;
+        const newPhone = document.getElementById('adm_ver_phone_input').value.trim();
+
+        if (!newPhone) return showAlert('กรุณากรอกเบอร์โทรศัพท์', 'warning');
+
+        Swal.fire({
+            title: 'ยืนยันการแก้ไข',
+            text: `ต้องการเปลี่ยนเบอร์โทรศัพท์เป็น ${newPhone} ใช่หรือไม่`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'ใช่, บันทึกเลย',
+            confirmButtonColor: '#3b82f6'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                showLoading('กำลังบันทึกเบอร์โทรศัพท์');
+                try {
+                    const res = await callApi("updateUser", { 
+                        userId: studentId, 
+                        studentId: studentId,
+                        phone: newPhone,
+                        adminId: currentUser.studentId, 
+                        token: userToken 
+                    });
+                    
+                    hideLoading();
+                    if (res.success) {
+                        Swal.fire('สำเร็จ', 'อัปเดตเบอร์โทรศัพท์เรียบร้อยแล้ว', 'success');
+                    } else {
+                        showAlert(res.message, 'error');
+                    }
+                } catch (err) {
+                    hideLoading();
+                    showAlert(err.message, 'error');
+                }
+            }
+        });
+    };
+}
 
     const verifyForm = document.getElementById('adminVerifyIdentityForm');
     if (verifyForm) {
