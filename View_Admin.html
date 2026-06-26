@@ -362,88 +362,80 @@
                 </div>
 
     <div id="section-admin-verify" class="section">
-    <div style="margin-bottom: 25px; background: #fff; padding: 25px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid #edf2f7; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px;">
-        <div style="display: flex; align-items: center; gap: 15px;">
-            <div style="background: #e0f2fe; padding: 15px; border-radius: 14px; display: flex;">
-                <i class="material-icons" style="color: #0284c7; font-size: 36px;">badge</i>
-            </div>
-            <div>
-                <h2 style="border: none; margin: 0 0 5px 0; color: #1a202c; font-size: 22px; padding: 0;">ระบบบริการยืนยันตัวตนและจัดการข้อมูล</h2>
-                <p style="margin: 0; color: #718096; font-size: 14px;">ค้นหา ตรวจสอบ แก้ไขข้อมูลผู้ใช้งาน และยืนยันตัวตนด้วยบัตรประชาชน Smart Card</p>
-            </div>
-        </div>
+    <div class="header-with-action">
+        <h2 class="section-title"><i class="material-icons" style="vertical-align: middle;">manage_accounts</i> บริการยืนยันตัวตนและรีเซ็ตรหัสผ่าน</h2>
     </div>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; align-items: start;">
-        <div style="background: #fff; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01);">
-            <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #1e293b; display: flex; align-items: center; gap: 8px;">
-                <i class="material-icons" style="color: #3b82f6;">search</i> ค้นหาผู้ใช้งาน
-            </h3>
+    <div class="card" style="max-width: 600px; margin: 0 auto;">
+        <div class="card-body">
+            <p style="color: #666; font-size: 14px; margin-bottom: 20px;">
+               กรอกรหัสนักศึกษาเพื่อตรวจสอบประวัติ และกรอกเลขบัตรประจำตัวประชาชนเพื่อยืนยันสิทธิ์และรีเซ็ตรหัสผ่านให้กับนักศึกษา
+            </p>
             
-            <div style="margin-bottom: 15px;">
-                <input type="text" id="verifySearchInput" class="modern-input" placeholder="รหัสนักศึกษา หรือ ชื่อ-นามสกุล..." style="margin-bottom: 0; width: 100%; box-sizing: border-box;">
-            </div>
-            
-            <button class="btn btn-secondary" onclick="searchUserForVerification()" style="width: 100%; height: 45px; font-weight: bold; border-radius: 10px; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                <i class="material-icons">search</i> ค้นหาในระบบ
-            </button>
-            
-            <div style="text-align: center; margin: 15px 0; color: #94a3b8; font-size: 13px; position: relative;">
-                <span style="background: #fff; padding: 0 10px; position: relative; z-index: 1;">หรือยืนยันตัวตนผ่านฮาร์ดแวร์</span>
-                <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: #e2e8f0; z-index: 0;"></div>
+            <div id="adminVerifyStep1">
+                <div class="modern-input-group">
+                    <input type="text" id="adminCheckStudentId" class="modern-input" placeholder=" " required>
+                    <label for="adminCheckStudentId" class="modern-label">กรอกรหัสนักศึกษา 11 หลัก</label>
+                </div>
+                <button type="button" id="btnAdminCheckVerify" class="btn-primary" style="width: 100%; padding: 12px; font-size: 16px;">
+                    <i class="material-icons" style="vertical-align: middle; font-size: 18px;">search</i> ตรวจสอบข้อมูลในระบบ
+                </button>
             </div>
 
-            <button class="btn" onclick="readThaiIDCard()" style="width: 100%; height: 50px; font-weight: bold; border-radius: 10px; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: white; display: flex; align-items: center; justify-content: center; gap: 8px; border: none; cursor: pointer;">
-                <i class="material-icons" style="animation: pulse 1.5s infinite;">contactless</i> เสียบบัตรประชาชนเพื่อค้นหาชื่อ
-            </button>
-        </div>
+            <div id="adminVerifyStep2" style="display: none; animation: fadeIn 0.5s; margin-top: 25px;">
+                
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid var(--secondary-color); margin-bottom: 20px; font-size: 14px; line-height: 1.6;">
+                    <div style="display: flex; gap: 20px; align-items: flex-start;">
+                        <img id="adm_ver_profileImg" src="https://placehold.co/150x150?text=NO+IMAGE" style="width: 120px; height: 150px; object-fit: cover; border-radius: 8px; border: 2px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.15); flex-shrink: 0;">
+                        <div style="flex: 1;">
+                            <div><b>ชื่อ-สกุล:</b> <span id="adm_ver_name">-</span></div>
+                            <div><b>รหัสนักศึกษา:</b> <span id="adm_ver_studentId">-</span></div>
+                            <div><b>เบอร์โทรศัพท์:</b> <span id="adm_ver_phone">-</span></div>
+                            <div><b>เลขประจำตัวประชาชน:</b> <span id="adm_ver_idCard">-</span></div>
+                            <hr style="border: 0; border-top: 1px dashed #ccc; margin: 8px 0;">
+                            
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                <div><b>สถานะบัญชี:</b> <span id="adm_ver_accountStatus">-</span></div>
+                                <button type="button" id="btnAdminUnlockAccount" style="display: none; padding: 5px 12px; background: #28a745; color: white; border: none; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                    <i class="material-icons" style="font-size: 14px; vertical-align: middle;">lock_open</i> ปลดล็อกบัญชี
+                                </button>
+                            </div>
 
-        <div id="verifyResultCard" style="background: #fff; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01); display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px;">
-                <h3 style="margin: 0; font-size: 16px; color: #1e293b; display: flex; align-items: center; gap: 8px;">
-                    <i class="material-icons" style="color: #10b981;">manage_accounts</i> ข้อมูลและฟอร์มการแก้ไข
-                </h3>
-                <span id="verifyUserBadge" style="padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold;"></span>
-            </div>
+                            <div><b>สถานะประวัติ กยศ.:</b> <span id="adm_ver_profileStatus">-</span></div>
+                            <div><b>ปรับปรุงล่าสุดเมื่อ:</b> <span id="adm_ver_updatedAt">-</span></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="admAlreadyVerifiedMessage" style="display: none; background: #e8f5e9; color: #2e7d32; padding: 20px; border-radius: 6px; text-align: center; margin-bottom: 15px; border: 1px solid #c8e6c9;">
+                    <i class="material-icons" style="vertical-align: middle; font-size: 28px; display: block; margin-bottom: 10px;">verified</i> 
+                    <b style="font-size: 16px;">บัญชีนี้ได้รับการยืนยันตัวตนเรียบร้อยแล้ว</b>
+                    <p style="font-size: 13px; color: #555; margin: 10px 0 15px 0;">หากนักศึกษาลืมรหัสผ่าน ท่านสามารถบังคับรีเซ็ตให้กลับไปเป็นเลขบัตร ปชช. ได้ทันที</p>
+                    <button type="button" id="btnAdminForceReset" style="width: 100%; padding: 12px; font-size: 15px; font-weight: bold; background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); color: #fff; border: none; border-radius: 6px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <i class="material-icons" style="vertical-align: middle; font-size: 20px;">lock_reset</i> รีเซ็ตรหัสผ่านเป็นเลขบัตร ปชช.
+                    </button>
+                </div>
 
-            <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0;">
-                <div style="width: 110px; height: 135px; border-radius: 8px; overflow: hidden; background: #e2e8f0; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
-                    <img id="verifyStudentPhoto" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
-                    <i id="verifyPhotoPlaceholder" class="material-icons" style="font-size: 48px; color: #94a3b8;">account_box</i>
+                <form id="adminVerifyIdentityForm" style="display: none;">
+                    <div class="modern-input-group">
+                        <input type="text" id="adminVerifyIdCardInput" class="modern-input" maxlength="13" placeholder=" " required>
+                        <label for="adminVerifyIdCardInput" class="modern-label">กรอกเลขบัตรประจำตัวประชาชน 13 หลัก</label>
+                    </div>
+                    <button type="submit" id="btnAdminSubmitVerify" class="btn-success" style="width: 100%; padding: 12px; font-size: 16px;">
+                        <i class="material-icons" style="vertical-align: middle; font-size: 18px;">save</i> บันทึกยืนยันและรีเซ็ตรหัสผ่าน
+                    </button>
+                    <p style="font-size: 13px; color: #d32f2f; text-align: center; margin-top: 10px;">
+                        ระบบจะทำการรีเซ็ตรหัสผ่านของนักศึกษาให้เป็น "เลขบัตร ปชช. 13 หลัก" ทันที
+                    </p>
+                </form>
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <button type="button" class="btn-danger" onclick="resetAdminVerifyForm()" style="padding: 8px 15px; font-size: 14px;">
+                        ยกเลิก / ค้นหาใหม่
+                    </button>
                 </div>
             </div>
 
-            <input type="hidden" id="editInternalUserId">
-            
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; font-size: 12px; color: #64748b; font-weight: 600; margin-bottom: 5px;">รหัสนักศึกษา</label>
-                <input type="text" id="editStudentId" class="modern-input" style="margin-bottom: 0; width: 100%; box-sizing: border-box; background: #f8fafc;">
-            </div>
-
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; font-size: 12px; color: #64748b; font-weight: 600; margin-bottom: 5px;">ชื่อ - นามสกุล</label>
-                <input type="text" id="editFullName" class="modern-input" style="margin-bottom: 0; width: 100%; box-sizing: border-box;">
-            </div>
-
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; font-size: 12px; color: #64748b; font-weight: 600; margin-bottom: 5px;">เบอร์โทรศัพท์</label>
-                <input type="text" id="editPhoneNumber" class="modern-input" style="margin-bottom: 0; width: 100%; box-sizing: border-box;">
-            </div>
-
-            <div style="display: flex; gap: 10px; border-top: 1px solid #f1f5f9; padding-top: 15px;">
-                <button class="btn btn-success" onclick="saveVerifiedUserData()" style="flex: 1; height: 42px; font-weight: bold; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 5px;">
-                    <i class="material-icons">save</i> บันทึก
-                </button>
-                <button class="btn btn-danger" onclick="triggerResetPasswordFromVerify()" style="flex: 1; height: 42px; font-weight: bold; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 5px;">
-                    <i class="material-icons">lock_reset</i> รีเซ็ตรหัสผ่าน
-                </button>
-            </div>
-        </div>
-
-        <div id="verifyEmptyCard" style="background: #f8fafc; padding: 40px 20px; border-radius: 16px; border: 2px dashed #e2e8f0; text-align: center; color: #94a3b8;">
-            <i class="material-icons" style="font-size: 48px; margin-bottom: 10px; color: #cbd5e1;">account_box</i>
-            <h4 style="margin: 0 0 5px 0; color: #475569;">พร้อมตรวจสอบข้อมูล</h4>
-            <p style="margin: 0; font-size: 13px;">กรุณากรอกรหัสนักศึกษา, ชื่อ หรือเสียบบัตรประชาชนเพื่อเริ่มดำเนินการ</p>
         </div>
     </div>
 </div>
@@ -7128,6 +7120,87 @@ window.uploadSpecialLoanFile = () => {
     reader.readAsArrayBuffer(file);
 };
 
+window.loadFacultyLoanStats = async () => {
+    const container = document.getElementById('loanStatsContainer');
+    if (!container) return; 
+
+    try {
+        const res = await callApi('getLoanStatistics', { adminId: adminId, token: userToken });
+        
+        if (res.success && res.data && res.data.length > 0) {
+            let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; padding: 5px 0;">';
+            
+            res.data.forEach(item => {
+                let theme = {};
+                if (item.percent >= 80) {
+                    theme = { bg: '#ecfdf5', text: '#059669', grad1: '#10b981', grad2: '#34d399', shadow: 'rgba(16, 185, 129, 0.4)' };
+                } else if (item.percent >= 40) {
+                    theme = { bg: '#fffbeb', text: '#d97706', grad1: '#f59e0b', grad2: '#fbbf24', shadow: 'rgba(245, 158, 11, 0.4)' };
+                } else {
+                    theme = { bg: '#fef2f2', text: '#dc2626', grad1: '#ef4444', grad2: '#f87171', shadow: 'rgba(239, 68, 68, 0.4)' };
+                }
+                
+                html += `
+                    <div style="background: #ffffff; border: 1px solid #eef2f6; border-radius: 16px; padding: 16px; box-shadow: 0 4px 15px -5px rgba(0,0,0,0.05); transition: transform 0.2s; position: relative; overflow: hidden; cursor: default;" 
+                         onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 20px -8px rgba(0,0,0,0.1)';" 
+                         onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px -5px rgba(0,0,0,0.05)';">
+                        
+                        <div style="position: absolute; top: -15px; right: -15px; width: 70px; height: 70px; background: linear-gradient(135deg, ${theme.grad1}22, ${theme.grad2}11); border-radius: 50%; pointer-events: none;"></div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; position: relative; z-index: 1;">
+                            <div style="flex: 1; padding-right: 10px;">
+                                <div style="display: flex; align-items: flex-start; gap: 6px;">
+                                    <span style="background: ${theme.bg}; color: ${theme.text}; padding: 4px; border-radius: 8px; display: inline-flex; margin-top: 2px;">
+                                        <i class="material-icons" style="font-size: 14px;">business</i>
+                                    </span>
+                                    <h4 style="margin: 0; color: #1e293b; font-size: 14px; font-weight: 600; line-height: 1.3;">${item.faculty}</h4>
+                                </div>
+                            </div>
+                            <div style="text-align: right; min-width: 50px;">
+                                <div style="font-size: 20px; font-weight: 800; color: ${theme.text}; line-height: 1;">
+                                    ${item.percent}<span style="font-size: 12px; font-weight: 600;">%</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="background: #f1f5f9; border-radius: 10px; height: 6px; margin-bottom: 16px; overflow: visible; position: relative;">
+                            <div style="background: linear-gradient(90deg, ${theme.grad1}, ${theme.grad2}); height: 100%; width: ${item.percent}%; border-radius: 10px; transition: width 1s ease-in-out; box-shadow: 0 0 8px ${theme.shadow};"></div>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 10px 12px; border-radius: 10px; border: 1px solid #f1f5f9;">
+                            <div style="display: flex; flex-direction: column;">
+                                <span style="font-size: 11px; color: #64748b; font-weight: 600; margin-bottom: 2px;">ยื่นคำร้องแล้ว</span>
+                                <span style="font-size: 14px; color: #0f172a; font-weight: 700; display: flex; align-items: center; gap: 4px;">
+                                    <i class="material-icons" style="font-size: 14px; color: ${theme.grad1};">how_to_reg</i> ${item.submitted}
+                                </span>
+                            </div>
+                            <div style="height: 25px; width: 1px; background: #e2e8f0;"></div>
+                            <div style="display: flex; flex-direction: column; text-align: right;">
+                                <span style="font-size: 11px; color: #64748b; font-weight: 600; margin-bottom: 2px;">มีสิทธิ์ทั้งหมด</span>
+                                <span style="font-size: 14px; color: #0f172a; font-weight: 700; display: flex; align-items: center; justify-content: flex-end; gap: 4px;">
+                                    ${item.total} <i class="material-icons" style="font-size: 14px; color: #94a3b8;">groups</i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+        } else {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 30px 20px; background: #f8fafc; border-radius: 16px; border: 2px dashed #cbd5e0;">
+                    <i class="material-icons" style="font-size: 40px; color: #a0aec0; margin-bottom: 10px;">folder_off</i>
+                    <p style="margin: 0; color: #718096; font-size: 14px;">${res.message || 'ไม่พบข้อมูลสถิติ'}</p>
+                </div>
+            `;
+        }
+    } catch (err) {
+        container.innerHTML = `<div style="color: #ef4444; text-align: center; padding: 15px; background: #fef2f2; border-radius: 12px; font-size: 14px;">เกิดข้อผิดพลาด: ${err.message}</div>`;
+    }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         if(typeof window.loadFacultyLoanStats === 'function') {
@@ -7135,177 +7208,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, 2000); 
 });
-
-window.searchUserForVerification = async () => {
-    const searchVal = document.getElementById('verifySearchInput').value.trim();
-    if (!searchVal) {
-        Swal.fire('คำแนะนำ', 'กรุณากรอกรหัสนักศึกษา หรือ ชื่อ-นามสกุล', 'warning');
-        return;
-    }
-
-    showLoading('กำลังค้นหาข้อมูลผู้ใช้งาน...');
-    try {
-        const res = await callApi('searchUserDetail', { keyword: searchVal, adminId: adminId, token: userToken });
-        hideLoading();
-
-        if (res.success && res.data) {
-            document.getElementById('editInternalUserId').value = res.data.id || '';
-            document.getElementById('editStudentId').value = res.data.studentId || '';
-            document.getElementById('editFullName').value = res.data.name || '';
-            document.getElementById('editPhoneNumber').value = res.data.phoneNumber || '';
-
-            const photoImg = document.getElementById('verifyStudentPhoto');
-            const placeholderIcon = document.getElementById('verifyPhotoPlaceholder');
-            
-            if (res.data.photo && res.data.photo !== '-' && res.data.photo !== '') {
-                photoImg.src = res.data.photo;
-                photoImg.style.display = 'block';
-                placeholderIcon.style.display = 'none';
-            } else {
-                photoImg.src = '';
-                photoImg.style.display = 'none';
-                placeholderIcon.style.display = 'block';
-            }
-
-            const badge = document.getElementById('verifyUserBadge');
-            if (res.data.status === 'Active') {
-                badge.style.background = '#ecfdf5'; badge.style.color = '#059669'; badge.textContent = 'ปกติ';
-            } else {
-                badge.style.background = '#fef2f2'; badge.style.color = '#dc2626'; badge.textContent = 'ถูกระงับ';
-            }
-
-            document.getElementById('verifyEmptyCard').style.display = 'none';
-            document.getElementById('verifyResultCard').style.display = 'block';
-        } else {
-            Swal.fire('ไม่พบข้อมูล', res.message || 'ไม่พบผู้ใช้งานรายนี้ในระบบ', 'error');
-            document.getElementById('verifyResultCard').style.display = 'none';
-            document.getElementById('verifyEmptyCard').style.display = 'block';
-        }
-    } catch (err) {
-        hideLoading();
-        Swal.fire('ผิดพลาด', err.message, 'error');
-    }
-};
-
-window.readThaiIDCard = async () => {
-    showLoading('กำลังเชื่อมต่อเครื่องอ่านบัตรประชาชน...');
-    try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3000);
-
-        const response = await fetch('http://localhost:8080/api/read-card', { 
-            method: 'GET',
-            signal: controller.signal 
-        });
-        clearTimeout(timeoutId);
-        
-        const cardResult = await response.json();
-        hideLoading();
-
-        if (cardResult && cardResult.success) {
-            const fullName = cardResult.fullNameTH.trim();
-            Swal.fire({
-                title: 'อ่านบัตรสำเร็จ',
-                html: `พบข้อมูล: <b>${fullName}</b><br>กำลังค้นหาข้อมูลในระบบ`,
-                icon: 'success',
-                timer: 2000,
-                showConfirmButton: false
-            });
-
-            document.getElementById('verifySearchInput').value = fullName;
-            setTimeout(() => { searchUserForVerification(); }, 2000);
-        } else {
-            Swal.fire('อุปกรณ์แจ้งเตือน', cardResult.message || 'ไม่สามารถอ่านหน้าบัตรได้ กรุณาเสียบบัตรให้สนิทอีกครั้ง', 'warning');
-        }
-    } catch (err) {
-        hideLoading();
-        
-        Swal.fire({
-            title: 'ไม่สามารถเชื่อมต่อเครื่องอ่านบัตร',
-            html: `<div style="text-align: left; font-size: 14px; color: #4a5568;">
-                    <p style="margin-bottom: 8px; font-weight: bold; color: #e53e3e;">ไม่พบโปรแกรมช่วยอ่านบัตร (Local Agent) กำลังทำงานอยู่</p>
-                    <ol style="padding-left: 20px; margin: 0;">
-                        <li>กรุณาตรวจสอบว่าได้เสียบเครื่องอ่านบัตรเข้ากับพอร์ต USB หรือยัง</li>
-                        <li>กรุณาเปิดโปรแกรม <b>ThaiIDCardLocalAgent.exe</b> ในเครื่องคอมพิวเตอร์ของคุณ</li>
-                        <li>หากยังไม่มีโปรแกรม กรุณาติดต่อฝ่ายเทคโนโลยีเพื่อติดตั้ง</li>
-                    </ol>
-                   </div>`,
-            icon: 'error',
-            showCancelButton: true,
-            confirmButtonText: 'ลองอีกครั้ง',
-            cancelButtonText: 'ใช้การพิมพ์ค้นหาแทน',
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#718096'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.readThaiIDCard();
-            }
-        });
-    }
-};
-
-window.saveVerifiedUserData = async () => {
-    const payload = {
-        userId: document.getElementById('editInternalUserId').value,
-        studentId: document.getElementById('editStudentId').value.trim(),
-        name: document.getElementById('editFullName').value.trim(),
-        phoneNumber: document.getElementById('editPhoneNumber').value.trim(),
-        adminId: adminId,
-        token: userToken
-    };
-
-    if (!payload.studentId || !payload.name) {
-        Swal.fire('แจ้งเตือน', 'กรุณากรอกรหัสนักศึกษา และ ชื่อ-นามสกุล ให้ครบถ้วน', 'warning');
-        return;
-    }
-
-    showLoading('กำลังบันทึกข้อมูลแก้ไข');
-    try {
-        const res = await callApi('saveEditedUserDetail', payload);
-        hideLoading();
-
-        if (res.success) {
-            Swal.fire('สำเร็จ', 'อัปเดตข้อมูลผู้ใช้งานเรียบร้อยแล้ว', 'success');
-            if (typeof loadUsersForAdmin === 'function') loadUsersForAdmin(false);
-        } else {
-            Swal.fire('ไม่สำเร็จ', res.message, 'error');
-        }
-    } catch (err) {
-        hideLoading();
-        Swal.fire('เกิดข้อผิดพลาด', err.message, 'error');
-    }
-};
-
-window.triggerResetPasswordFromVerify = () => {
-    const userId = document.getElementById('editInternalUserId').value;
-    const studentId = document.getElementById('editStudentId').value;
-    
-    Swal.fire({
-        title: 'ยืนยันการรีเซ็ตรหัสผ่าน',
-        text: `ต้องการรีเซ็ตรหัสผ่านของนักศึกษารหัส ${studentId} กลับเป็นค่าเริ่มต้น (เลขบัตรประชาชน) ใช่หรือไม่`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'ยืนยันการรีเซ็ต',
-        confirmButtonColor: '#d33'
-    }).then(async (result) => {
-        if (result.isConfirmed) {
-            showLoading('กำลังดำเนินการรีเซ็ตรหัสผ่าน');
-            try {
-                const res = await callApi('resetUserPassword', { targetUserId: userId, adminId: adminId, token: userToken });
-                hideLoading();
-                if (res.success) {
-                    Swal.fire('สำเร็จ', 'รีเซ็ตรหัสผ่านกลับเป็นรหัสเริ่มต้นให้เรียบร้อยแล้ว', 'success');
-                } else {
-                    Swal.fire('ล้มเหลว', res.message, 'error');
-                }
-            } catch (err) {
-                hideLoading();
-                Swal.fire('ผิดพลาด', err.message, 'error');
-            }
-        }
-    });
-};
-
 </script>
 </body>
 </html>
