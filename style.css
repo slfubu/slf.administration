@@ -1,15 +1,4 @@
 <style>  
-        #userModalContentForce { 
-            max-width: 95vw !important; 
-            width: 1400px !important; 
-            border-radius: 16px !important; 
-            overflow: hidden !important; 
-            border: none !important; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3) !important; 
-            background: #f8fafc !important; 
-            margin: 2vh auto !important; 
-        }
-        
         #userModal .custom-input { width: 100% !important; height: 42px !important; padding: 8px 15px !important; border: 1px solid #cbd5e1 !important; border-radius: 8px !important; font-family: 'Sarabun', sans-serif !important; font-size: 15px !important; box-sizing: border-box !important; background-color: #f8fafc !important; transition: 0.3s !important; }
         #userModal .custom-input:focus { border-color: #3b82f6 !important; outline: none !important; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important; background-color: #fff !important; }
         #userModal .custom-label { font-weight: 600 !important; color: #475569 !important; display: flex !important; align-items: center !important; gap: 6px !important; margin-bottom: 8px !important; font-size: 14px !important; }
