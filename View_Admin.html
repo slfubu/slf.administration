@@ -5984,7 +5984,6 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     }
 
-    // 4. อัปเดตเบอร์โทรศัพท์ (Update Phone Number)
     const btnUpdatePhone = document.getElementById('btnUpdatePhone');
     if (btnUpdatePhone) {
         btnUpdatePhone.onclick = async () => {
@@ -7310,6 +7309,60 @@ document.addEventListener('DOMContentLoaded', () => {
             window.loadFacultyLoanStats();
         }
     }, 2000); 
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    
+    const btnUpdatePhone = document.getElementById('btnUpdatePhone'); 
+    
+    if (btnUpdatePhone) {
+        btnUpdatePhone.addEventListener('click', function() {
+            const studentId = document.getElementById('adm_ver_studentId').innerText.trim() || document.getElementById('adm_ver_studentId').value.trim();
+            
+            const newPhone = document.getElementById('adm_ver_phone_input').value.trim();
+            
+            if (!studentId) {
+                Swal.fire('แจ้งเตือน', 'ไม่พบรหัสนักศึกษา กรุณาทำรายการใหม่', 'warning');
+                return;
+            }
+            if (!newPhone || newPhone.length < 9) {
+                Swal.fire('แจ้งเตือน', 'กรุณากรอกเบอร์โทรศัพท์ให้ครบถ้วน', 'warning');
+                return;
+            }
+
+            const sessionString = sessionStorage.getItem('user_session') || '{}';
+            const adminData = JSON.parse(sessionString);
+            const adminId = adminData.studentId || adminData.userId || 'Admin';
+            const token = adminData.token || '';
+
+            Swal.fire({
+                title: 'กำลังบันทึกข้อมูล',
+                text: 'กรุณารอสักครู่',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            google.script.run
+                .withSuccessHandler(function(response) {
+                    if (response.success) {
+                        Swal.fire('ทำรายการสำเร็จ', response.message, 'success').then(() => {
+                            const displayPhone = document.getElementById('display_current_phone');
+                            if(displayPhone) displayPhone.innerText = newPhone;
+                            
+                            document.getElementById('adm_ver_phone_input').value = ''; 
+                        });
+                    } else {
+                        Swal.fire('เกิดข้อผิดพลาด', response.message, 'error');
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    Swal.fire('ระบบขัดข้อง', error.message, 'error');
+                })
+                .adminUpdatePhone(studentId, newPhone, adminId, token); 
+        });
+    }
 });
 </script>
 </body>
