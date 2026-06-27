@@ -190,36 +190,33 @@ async function updateUserDashboard() {
                 token: userToken
             });
             
-// กรณีที่ 1: ยื่นคำร้องเรียบร้อยแล้ว (res.status === 'submitted')
-if (res && res.status === 'submitted') {
+            // กรณีที่ 1: ยื่นคำร้องเรียบร้อยแล้ว (res.status === 'submitted')
+            if (res && res.status === 'submitted') {
+                let submitDate = res.data.timestamp || res.data.date || '-';
+                
+                // แปลงรูปแบบวันที่และเวลาให้เป็นภาษาไทยอ่านง่าย
+                if (submitDate !== '-') {
+                    const d = new Date(submitDate);
+                    if (!isNaN(d)) {
+                        submitDate = d.toLocaleDateString('th-TH', { 
+                            year: 'numeric', month: 'short', day: 'numeric',
+                            hour: '2-digit', minute: '2-digit' 
+                        }) + ' น.';
+                    }
+                }
 
-    let submitDate = res.data.timestamp || res.data.date || '-';
-
-    if (submitDate !== '-') {
-        const d = new Date(submitDate);
-        if (!isNaN(d)) {
-            submitDate = d.toLocaleDateString('th-TH', { 
-                year: 'numeric', 
-                month: 'short', 
-                day: 'numeric',
-                hour: '2-digit', 
-                minute: '2-digit' 
-            }) + ' น.';
-        }
-    }
-
-    loanStatusEl.innerHTML = `
-        <div style="display: inline-flex; flex-direction: column; gap: 2px;">
-            <span style="color: #2e7d32; font-weight: bold; display: inline-flex; align-items: center; gap: 4px;">
-                <i class="material-icons" style="font-size:16px;">check_circle</i> ยื่นคำร้องเรียบร้อยแล้ว
-            </span>
-            <span style="font-size: 13px; color: #555; font-weight: normal; margin-left: 20px;">
-                เวลาที่บันทึก: ${submitDate}
-            </span>
-        </div>
-    `;
-}
-
+                loanStatusEl.innerHTML = `
+                    <div style="display: inline-flex; flex-direction: column; gap: 2px;">
+                        <span style="color: #2e7d32; font-weight: bold; display: inline-flex; align-items: center; gap: 4px;">
+                            <i class="material-icons" style="font-size:16px;">check_circle</i> ยื่นคำร้องเรียบร้อยแล้ว
+                        </span>
+                        <span style="font-size: 13px; color: #555; font-weight: normal; margin-left: 20px;">
+                            เวลาที่บันทึก: ${submitDate}
+                        </span>
+                    </div>
+                `;
+            } 
+            // กรณีที่ 2: มีสิทธิ์แต่ "ยังไม่ได้กดยื่นกู้เข้ามา" หรือ "ยังไม่บันทึกประวัติ"
             else if (res && (res.status === 'eligible_check' || res.status === 'no_profile')) {
                 loanStatusEl.innerHTML = `
                     <span style="color: #c62828; font-weight: bold; display: inline-flex; align-items: center; gap: 4px;">
@@ -227,9 +224,19 @@ if (res && res.status === 'submitted') {
                     </span>
                 `;
             } 
-            else {
-                loanStatusEl.innerHTML = `<span style="color: #777;">ไม่พบข้อมูลสิทธิ์กู้ยืมในระบบ</span>`;
+            // กรณีที่ 3: ไม่พบข้อมูลสิทธิ์ในระบบปกติ (res.status === 'not_found')
+            else if (res && res.status === 'not_found') {
+                loanStatusEl.innerHTML = `
+                    <span style="color: #777; display: inline-flex; align-items: center; gap: 4px;">
+                        <i class="material-icons" style="font-size:16px;">remove_circle_outline</i> ไม่พบสิทธิ์กู้ยืมในระบบปกติ
+                    </span>
+                `;
             }
+            // กรณีเกิดข้อผิดพลาดอื่นๆ
+            else {
+                loanStatusEl.innerHTML = `<span style="color: #777;">ไม่พบข้อมูลสิทธิ์กู้ยืมในระบบปกติ</span>`;
+            }
+
         } catch (error) {
             console.error("Dashboard Loan Status Error:", error);
             loanStatusEl.innerHTML = `<span style="color: #d32f2f;">เกิดข้อผิดพลาดในการโหลดข้อมูล</span>`;
