@@ -190,9 +190,23 @@ async function updateUserDashboard() {
                 token: userToken
             });
             
-            // กรณีที่ 1: ยื่นคำร้องเรียบร้อยแล้ว (res.status === 'submitted')
+// กรณีที่ 1: ยื่นคำร้องเรียบร้อยแล้ว (res.status === 'submitted')
 if (res && res.status === 'submitted') {
-    const submitDate = (res.data && (res.data.timestamp || res.data.date || '-'));
+
+    let submitDate = res.data.timestamp || res.data.date || '-';
+
+    if (submitDate !== '-') {
+        const d = new Date(submitDate);
+        if (!isNaN(d)) {
+            submitDate = d.toLocaleDateString('th-TH', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit', 
+                minute: '2-digit' 
+            }) + ' น.';
+        }
+    }
 
     loanStatusEl.innerHTML = `
         <div style="display: inline-flex; flex-direction: column; gap: 2px;">
@@ -200,7 +214,7 @@ if (res && res.status === 'submitted') {
                 <i class="material-icons" style="font-size:16px;">check_circle</i> ยื่นคำร้องเรียบร้อยแล้ว
             </span>
             <span style="font-size: 13px; color: #555; font-weight: normal; margin-left: 20px;">
-                วันที่ยื่นคำร้อง: ${submitDate}
+                เวลาที่บันทึก: ${submitDate}
             </span>
         </div>
     `;
@@ -214,7 +228,7 @@ if (res && res.status === 'submitted') {
                 `;
             } 
             else {
-                loanStatusEl.innerHTML = `<span style="color: #777;">ไม่พบข้อมูลสิทธิ์กู้ยืมในระบบปกติ</span>`;
+                loanStatusEl.innerHTML = `<span style="color: #777;">ไม่พบข้อมูลสิทธิ์กู้ยืมในระบบ</span>`;
             }
         } catch (error) {
             console.error("Dashboard Loan Status Error:", error);
