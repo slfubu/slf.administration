@@ -182,6 +182,7 @@ async function updateUserDashboard() {
     }
 
 
+    // ส่วนดึงสถานะการยื่นกู้ปี 2569 มาแสดงผลบน Dashboard
     const loanStatusEl = document.getElementById('cardLoanStatus');
     if (loanStatusEl) {
         try {
@@ -224,7 +225,7 @@ async function updateUserDashboard() {
                     </span>
                 `;
             } 
-            // กรณีที่ 3: ไม่พบข้อมูลสิทธิ์ในระบบปกติ (res.status === 'not_found')
+            // กรณีที่ 3: ไม่พบข้อมูลสิทธิ์ในระบบ (res.status === 'not_found')
             else if (res && res.status === 'not_found') {
                 loanStatusEl.innerHTML = `
                     <span style="color: #777; display: inline-flex; align-items: center; gap: 4px;">
@@ -232,7 +233,7 @@ async function updateUserDashboard() {
                     </span>
                 `;
             }
-            // กรณีเกิดข้อผิดพลาดอื่นๆ
+            // กรณีเกิดข้อผิดพลาดอื่นๆ หรือสถานะที่ไม่รู้จัก
             else {
                 loanStatusEl.innerHTML = `<span style="color: #777;">ไม่พบสิทธิ์รายชื่อเป็นผู้กู้ยืมในระบบ</span>`;
             }
@@ -242,7 +243,7 @@ async function updateUserDashboard() {
             loanStatusEl.innerHTML = `<span style="color: #d32f2f;">เกิดข้อผิดพลาดในการโหลดข้อมูล</span>`;
         }
     }
-}
+    }
 
 async function loadUserProfile() {
     document.getElementById('epStudentId').value = currentUser.studentId;
