@@ -158,7 +158,7 @@ async function applyStudentMenuSettings() {
     }
 }
 
-function updateUserDashboard() {
+async function updateUserDashboard() {
     document.getElementById('cardFullName').textContent = `${currentUser.prefix || ''}${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim();
     document.getElementById('cardStudentId').textContent = currentUser.studentId || '-';
     document.getElementById('cardFaculty').textContent = currentUser.faculty || '-';
@@ -179,6 +179,47 @@ function updateUserDashboard() {
         };
     } else {
         imgEl.style.display = 'none'; 
+    }
+
+
+    const loanStatusEl = document.getElementById('cardLoanStatus');
+    if (loanStatusEl) {
+        try {
+            const res = await callApi('checkStudentEligibility2569', {
+                studentId: currentUser.studentId,
+                token: userToken
+            });
+            
+            // กรณีที่ 1: ยื่นคำร้องเรียบร้อยแล้ว (res.status === 'submitted')
+if (res && res.status === 'submitted') {
+    const submitDate = (res.data && (res.data.timestamp || res.data.date || '-'));
+
+    loanStatusEl.innerHTML = `
+        <div style="display: inline-flex; flex-direction: column; gap: 2px;">
+            <span style="color: #2e7d32; font-weight: bold; display: inline-flex; align-items: center; gap: 4px;">
+                <i class="material-icons" style="font-size:16px;">check_circle</i> ยื่นคำร้องเรียบร้อยแล้ว
+            </span>
+            <span style="font-size: 13px; color: #555; font-weight: normal; margin-left: 20px;">
+                วันที่ยื่นคำร้อง: ${submitDate}
+            </span>
+        </div>
+    `;
+}
+
+            else if (res && (res.status === 'eligible_check' || res.status === 'no_profile')) {
+                loanStatusEl.innerHTML = `
+                    <span style="color: #c62828; font-weight: bold; display: inline-flex; align-items: center; gap: 4px;">
+                        <i class="material-icons" style="font-size:16px;">error_outline</i> ยังไม่ได้ยื่นคำร้อง
+                    </span>
+                `;
+            } 
+            else {
+                loanStatusEl.innerHTML = `<span style="color: #777;">ไม่พบข้อมูลสิทธิ์กู้ยืมในระบบปกติ</span>`;
+            }
+        } catch (error) {
+            console.error("Dashboard Loan Status Error:", error);
+            loanStatusEl.innerHTML = `<span style="color: #d32f2f;">เกิดข้อผิดพลาดในการโหลดข้อมูล</span>`;
+        }
     }
 }
 
