@@ -234,7 +234,7 @@ async function updateUserDashboard() {
             }
             // กรณีเกิดข้อผิดพลาดอื่นๆ
             else {
-                loanStatusEl.innerHTML = `<span style="color: #777;">ไม่พบข้อมูลสิทธิ์กู้ยืมในระบบปกติ</span>`;
+                loanStatusEl.innerHTML = `<span style="color: #777;">ไม่พบสิทธิ์รายชื่อเป็นผู้กู้ยืมในระบบ</span>`;
             }
 
         } catch (error) {
