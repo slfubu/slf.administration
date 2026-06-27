@@ -1,10 +1,25 @@
 <style>  
-        #userModal .custom-input { width: 100% !important; height: 42px !important; padding: 8px 15px !important; border: 1px solid #cbd5e1 !important; border-radius: 8px !important; font-family: 'Sarabun', sans-serif !important; font-size: 15px !important; box-sizing: border-box !important; background-color: #f8fafc !important; transition: 0.3s !important; }
-        #userModal .custom-input:focus { border-color: #3b82f6 !important; outline: none !important; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important; background-color: #fff !important; }
-        #userModal .custom-label { font-weight: 600 !important; color: #475569 !important; display: flex !important; align-items: center !important; gap: 6px !important; margin-bottom: 8px !important; font-size: 14px !important; }
-        #userModal .custom-grid-2 { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 20px !important; width: 100% !important; }
-        #userModal .custom-grid-3 { display: grid !important; grid-template-columns: 120px 1fr 1fr !important; gap: 15px !important; width: 100% !important; }
+.modal-content-wide { 
+        width: 96vw !important; 
+        max-width: 2500px !important; 
+        background: #f8fafc !important;
+        border-radius: 16px !important; 
+        overflow: hidden !important; 
+        border: none !important; 
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3) !important; 
+        margin: 2vh auto !important; 
+    }
 
+    .modal-content-wide .custom-input { width: 100% !important; height: 42px !important; padding: 8px 15px !important; border: 1px solid #cbd5e1 !important; border-radius: 8px !important; font-family: 'Sarabun', sans-serif !important; font-size: 15px !important; box-sizing: border-box !important; background-color: #f8fafc !important; transition: 0.3s !important; }
+    .modal-content-wide .custom-input:focus { border-color: #3b82f6 !important; outline: none !important; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important; background-color: #fff !important; }
+    .modal-content-wide .custom-label { font-weight: 600 !important; color: #475569 !important; display: flex !important; align-items: center !important; gap: 6px !important; margin-bottom: 8px !important; font-size: 14px !important; }
+    .modal-content-wide .custom-grid-2 { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 20px !important; width: 100% !important; }
+    .modal-content-wide .custom-grid-3 { display: grid !important; grid-template-columns: 120px 1fr 1fr !important; gap: 15px !important; width: 100% !important; }
+
+    /* สำหรับหน้าจอมือถือ */
+    @media (max-width: 768px) {
+        .modal-content-wide .custom-grid-2, .modal-content-wide .custom-grid-3 { grid-template-columns: 1fr !important; gap: 15px !important; }
+    }
 .sidebar.collapsed .nav-header,
 .sidebar.collapsed .arrow-icon {
     display: none !important;
