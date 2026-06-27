@@ -228,7 +228,7 @@ async function updateUserDashboard() {
             else if (res && res.status === 'not_found') {
                 loanStatusEl.innerHTML = `
                     <span style="color: #777; display: inline-flex; align-items: center; gap: 4px;">
-                        <i class="material-icons" style="font-size:16px;">remove_circle_outline</i> ไม่พบสิทธิ์กู้ยืมในระบบปกติ
+                        <i class="material-icons" style="font-size:16px;">remove_circle_outline</i> ไม่พบสิทธิ์รายชื่อเป็นผู้กู้ยืมในระบบ
                     </span>
                 `;
             }
