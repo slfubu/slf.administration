@@ -403,14 +403,10 @@
                         <div style="margin-bottom: 4px;"><b>รหัสนักศึกษา:</b> <span id="adm_ver_studentId" style="color: #3b82f6; font-weight: 700;">-</span></div>
                         <div style="margin-bottom: 6px;"><b>เลขประจำตัวประชาชน:</b> <span id="adm_ver_idCard" style="letter-spacing: 0.5px;">-</span></div>
                         
-                        <div style="margin-top: 18px; background: #f8fafc; padding: 12px 16px; border-radius: 10px; border: 1px solid #e2e8f0;">
-                            <label style="font-weight: 700; font-size: 13px; color: #475569; margin-bottom: 6px; display: block;">เบอร์โทรศัพท์ (สามารถแก้ไขได้)</label>
-                            <div style="display: flex; gap: 8px;">
-                                <input type="text" id="adm_ver_phone_input" class="modern-input" style="margin: 0; height: 42px; border-color: #cbd5e1; font-size: 15px; background: #ffffff; border-radius: 6px;" placeholder="กรอกเบอร์โทรใหม่">
-                                <button type="button" id="btnUpdatePhone" class="btn btn-info" style="padding: 0 16px; height: 42px; border-radius: 6px; white-space: nowrap; font-weight: 600; display: flex; align-items: center; gap: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                                    <i class="material-icons" style="font-size: 18px;">save</i> บันทึก
-                                </button>
-                            </div>
+                        <div style="margin-top: 18px;">
+                            <button type="button" id="btnGoToManageUser" class="btn btn-warning" style="width: 100%; padding: 12px; border-radius: 8px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 6px rgba(245, 158, 11, 0.15); border: none; color: #fff; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                                <i class="material-icons" style="font-size: 20px;">manage_accounts</i> ไปหน้าจัดการบัญชีเพื่อแก้ไขข้อมูลอัตโนมัติ
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -5984,48 +5980,6 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     }
 
-    const btnUpdatePhone = document.getElementById('btnUpdatePhone');
-    if (btnUpdatePhone) {
-        btnUpdatePhone.onclick = async () => {
-            const studentId = document.getElementById('adm_ver_studentId').textContent;
-            const newPhone = document.getElementById('adm_ver_phone_input').value.trim();
-
-            if (!newPhone) return showAlert('กรุณากรอกเบอร์โทรศัพท์', 'warning');
-
-            Swal.fire({
-                title: 'ยืนยันการแก้ไข',
-                text: `ต้องการเปลี่ยนเบอร์โทรศัพท์เป็น ${newPhone} ใช่หรือไม่`,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'ใช่, บันทึกเลย',
-                confirmButtonColor: '#3b82f6'
-            }).then(async (result) => {
-                if (result.isConfirmed) {
-                    showLoading('กำลังบันทึกเบอร์โทรศัพท์');
-                    try {
-                        const res = await callApi("updateUser", { 
-                       userId: studentId, 
-                       studentId: studentId,
-                       phone: newPhone,
-                       adminId: currentUser.studentId, 
-                       token: userToken 
-                        });
-                        
-                        hideLoading();
-                        if (res.success) {
-                            Swal.fire('สำเร็จ', 'อัปเดตเบอร์โทรศัพท์เรียบร้อยแล้ว', 'success');
-                        } else {
-                            showAlert(res.message, 'error');
-                        }
-                    } catch (err) {
-                        hideLoading();
-                        showAlert(err.message, 'error');
-                    }
-                }
-            });
-        };
-    }
-
     // 5. ส่งฟอร์มยืนยันตัวตน (Submit Identity Verification)
     const verifyForm = document.getElementById('adminVerifyIdentityForm');
     if (verifyForm) {
@@ -7311,59 +7265,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 2000); 
 });
 
-document.addEventListener('DOMContentLoaded', function() {
-    
-    const btnUpdatePhone = document.getElementById('btnUpdatePhone'); 
-    
-    if (btnUpdatePhone) {
-        btnUpdatePhone.addEventListener('click', function() {
-            const studentId = document.getElementById('adm_ver_studentId').innerText.trim() || document.getElementById('adm_ver_studentId').value.trim();
+// 4. เด้งไปหน้าจัดการบัญชี เพื่อค้นหาอัตโนมัติ
+    const btnGoToManageUser = document.getElementById('btnGoToManageUser');
+    if (btnGoToManageUser) {
+        btnGoToManageUser.onclick = () => {
+            const studentId = document.getElementById('adm_ver_studentId').textContent;
             
-            const newPhone = document.getElementById('adm_ver_phone_input').value.trim();
-            
-            if (!studentId) {
-                Swal.fire('แจ้งเตือน', 'ไม่พบรหัสนักศึกษา กรุณาทำรายการใหม่', 'warning');
-                return;
-            }
-            if (!newPhone || newPhone.length < 9) {
-                Swal.fire('แจ้งเตือน', 'กรุณากรอกเบอร์โทรศัพท์ให้ครบถ้วน', 'warning');
-                return;
+            if (!studentId || studentId === '-') {
+                return showAlert('ไม่พบรหัสนักศึกษา', 'warning');
             }
 
-            const sessionString = sessionStorage.getItem('user_session') || '{}';
-            const adminData = JSON.parse(sessionString);
-            const adminId = adminData.studentId || adminData.userId || 'Admin';
-            const token = adminData.token || '';
-
-            Swal.fire({
-                title: 'กำลังบันทึกข้อมูล',
-                text: 'กรุณารอสักครู่',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
+            // สลับไปยังหน้าจัดการบัญชี
+            showPage('manageUsersSection');
+            
+            // หน่วงเวลาเล็กน้อยเพื่อให้หน้าโหลด แล้วกรอกรหัสพร้อมกดค้นหา
+            setTimeout(() => {
+                const searchInput = document.getElementById('userSearchInput');
+                const searchBtn = document.getElementById('btnSearchUsers');
+                
+                if (searchInput && searchBtn) {
+                    searchInput.value = studentId;
+                    searchBtn.click();
                 }
-            });
-
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    if (response.success) {
-                        Swal.fire('ทำรายการสำเร็จ', response.message, 'success').then(() => {
-                            const displayPhone = document.getElementById('display_current_phone');
-                            if(displayPhone) displayPhone.innerText = newPhone;
-                            
-                            document.getElementById('adm_ver_phone_input').value = ''; 
-                        });
-                    } else {
-                        Swal.fire('เกิดข้อผิดพลาด', response.message, 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    Swal.fire('ระบบขัดข้อง', error.message, 'error');
-                })
-                .adminUpdatePhone(studentId, newPhone, adminId, token); 
-        });
+            }, 300);
+        };
     }
-});
 </script>
 </body>
 </html>
