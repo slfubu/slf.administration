@@ -2113,105 +2113,105 @@
             </footer>
 
         </div> </div> <div id="userModal" class="modal">
-        <div class="modal-content admin-modal-custom">
-            
-            <div style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); padding: 20px 25px; display: flex; justify-content: space-between; align-items: center;">
-                <h3 style="margin: 0; display: flex; align-items: center; gap: 12px; font-size: 20px; font-weight: 600; color: white;">
-                    <i class="material-icons" style="font-size: 26px; background: rgba(255,255,255,0.2); padding: 6px; border-radius: 8px;">manage_accounts</i> จัดการบัญชีผู้ใช้งาน
+        <div class="modal-content modern-admin-modal" style="max-width: 700px; width: 95%;">
+            <div class="admin-modal-header">
+                <h3 id="userModalTitle" style="margin: 0; display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 600;">
+                    <i class="material-icons" style="font-size: 24px;">person_add</i> จัดการบัญชีผู้ใช้งาน
                 </h3>
-                <span onclick="document.getElementById('userModal').style.display='none'" style="color: white; font-size: 28px; cursor: pointer; line-height: 1;">&times;</span>
+                <span class="close-button" onclick="document.getElementById('userModal').style.display='none'" style="position: relative; top: auto; right: auto; color: white; opacity: 0.8; font-size: 28px;">×</span>
             </div>
-
-            <form id="userForm" style="margin: 0; display: flex; flex-direction: column;">
-                <div style="padding: 25px; overflow-y: auto; max-height: 75vh;">
+            <form id="userForm" style="margin: 0;">
+                <div class="admin-modal-body">
                     <input type="hidden" id="userId">
                     
-                    <div id="modalStatusContainer" style="display:none; justify-content:space-between; align-items:center; background: white; padding: 15px 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                        <div style="display: flex; align-items: center; gap: 15px;">
-                            <div style="background: #f1f5f9; padding: 10px; border-radius: 50%;">
-                                <i class="material-icons" style="color: #64748b; font-size: 24px;">shield</i>
-                            </div>
-                            <div>
-                                <span style="font-size: 12px; color: #64748b; font-weight: 600; display: block; margin-bottom: 2px;">สถานะบัญชีปัจจุบัน</span>
-                                <div id="modalUserStatusDisplay" style="font-size: 16px; font-weight: bold; color: #0f172a;">-</div>
-                            </div>
+                    <div id="modalStatusContainer" style="display:none; justify-content:space-between; align-items:center; background:#f8fafc; padding:15px 20px; border-radius:12px; border:1px solid #e2e8f0; margin-bottom:20px;">
+                        <div>
+                            <span style="font-size:12px; color:#718096; font-weight:bold; display:block; margin-bottom:5px;">สถานะบัญชีปัจจุบัน</span>
+                            <div id="modalUserStatusDisplay" style="font-size:16px; font-weight:bold;">-</div>
                         </div>
-                        <button type="button" id="modalBtnSuspend" class="btn" style="border-radius: 8px; padding: 8px 16px; font-weight: bold;">
+                        <button type="button" id="modalBtnSuspend" class="btn" style="border-radius:30px; padding:8px 20px; font-weight:bold; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
                             ระงับบัญชี
                         </button>
                     </div>
-
-                    <div style="background: white; padding: 20px 25px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                        <h4 style="margin: 0 0 15px 0; color: #1e293b; font-size: 16px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;">
-                            <i class="material-icons" style="color: #3b82f6; font-size: 20px;">login</i> ข้อมูลการเข้าสู่ระบบ
-                        </h4>
-                        
-                        <div class="custom-grid-2">
-                            <div>
-                                <label class="custom-label"><i class="material-icons" style="font-size: 16px;">badge</i> รหัสนักศึกษา / Username <span style="color:red;">*</span></label>
-                                <input type="text" id="modalUserStudentId" class="custom-input" required>
+                    <div class="admin-form-section">
+                        <div class="admin-form-section-title" style="font-size: 16px;">
+                            <i class="material-icons">manage_accounts</i> ข้อมูลการเข้าสู่ระบบ
+                        </div>
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label>รหัสนักศึกษา / Username</label>
+                                    <input type="text" id="modalUserStudentId" class="floating-input" required>
+                                </div>
                             </div>
-                            <div>
-                                <label class="custom-label"><i class="material-icons" style="font-size: 16px;">vpn_key</i> รหัสผ่านใหม่</label>
-                                <input type="password" id="modalUserPassword" class="custom-input" placeholder="เว้นว่างไว้หากไม่ต้องการเปลี่ยน">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label>รหัสผ่าน</label>
+                                    <input type="password" id="modalUserPassword" class="floating-input" placeholder="เว้นว่างไว้หากไม่ต้องการเปลี่ยนรหัส">
+                                </div>
                             </div>
                         </div>
-                        
-                        <div style="margin-top: 15px;">
-                            <label class="custom-label"><i class="material-icons" style="font-size: 16px;">admin_panel_settings</i> สิทธิ์การใช้งาน (Role)</label>
-                            <select id="modalUserRole" class="custom-input" style="font-weight: bold; color: #1976D2; background-color: #eff6ff; border-color: #bfdbfe;">
+                        <div class="form-group">
+                            <label>สิทธิ์การใช้งาน (Role)</label>
+                            <select id="modalUserRole" class="floating-input" style="font-weight: bold; color: #1976D2;">
                                 <option value="user">นักศึกษาผู้กู้ยืม (User)</option>
                                 <option value="admin">ผู้ทำรายการระดับสถานศึกษา (Admin)</option>
                             </select>
                         </div>
                     </div>
 
-                    <div style="background: white; padding: 20px 25px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                        <h4 style="margin: 0 0 15px 0; color: #1e293b; font-size: 16px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;">
-                            <i class="material-icons" style="color: #10b981; font-size: 20px;">account_circle</i> ข้อมูลส่วนตัว
-                        </h4>
-                        
-                        <div class="custom-grid-3" style="margin-bottom: 15px;">
-                            <div>
-                                <label class="custom-label">คำนำหน้า</label>
-                                <select id="modalUserPrefix" class="custom-input">
-                                    <option value="นาย">นาย</option>
-                                    <option value="นาง">นาง</option>
-                                    <option value="นางสาว">นางสาว</option>
-                                </select>
+                    <div class="admin-form-section" style="margin-bottom: 0;">
+                        <div class="admin-form-section-title" style="font-size: 16px;">
+                            <i class="material-icons">badge</i> ข้อมูลส่วนตัว
+                        </div>
+                        <div class="form-row" style="grid-template-columns: 1fr 2fr 2fr;">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label>คำนำหน้า</label>
+                                    <select id="modalUserPrefix" class="floating-input">
+                                        <option value="นาย">นาย</option>
+                                        <option value="นาง">นาง</option>
+                                        <option value="นางสาว">นางสาว</option>
+                                    </select>
+                                </div>
                             </div>
-                            <div>
-                                <label class="custom-label">ชื่อ <span style="color:red;">*</span></label>
-                                <input type="text" id="modalUserFirstName" class="custom-input" required>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label>ชื่อ</label>
+                                    <input type="text" id="modalUserFirstName" class="floating-input" required>
+                                </div>
                             </div>
-                            <div>
-                                <label class="custom-label">นามสกุล <span style="color:red;">*</span></label>
-                                <input type="text" id="modalUserLastName" class="custom-input" required>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label>นามสกุล</label>
+                                    <input type="text" id="modalUserLastName" class="floating-input" required>
+                                </div>
                             </div>
                         </div>
-                        
-                        <div style="margin-bottom: 15px;">
-                            <label class="custom-label"><i class="material-icons" style="font-size: 16px;">email</i> บัญชีอีเมล <span style="color:red;">*</span></label>
-                            <input type="email" id="modalUserGmail" class="custom-input" required>
+                        <div class="form-group">
+                            <label>บัญชีอีเมล</label>
+                            <input type="email" id="modalUserGmail" class="floating-input" required>
                         </div>
-                        
-                        <div class="custom-grid-2">
-                            <div>
-                                <label class="custom-label"><i class="material-icons" style="font-size: 16px;">school</i> คณะ / สังกัด <span style="color:red;">*</span></label>
-                                <input type="text" id="modalUserFaculty" class="custom-input" required>
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label>คณะ / สังกัด</label>
+                                    <input type="text" id="modalUserFaculty" class="floating-input" required>
+                                </div>
                             </div>
-                            <div>
-                                <label class="custom-label"><i class="material-icons" style="font-size: 16px;">phone</i> เบอร์โทรศัพท์ <span style="color:red;">*</span></label>
-                                <input type="tel" id="modalUserPhone" class="custom-input" required>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label>เบอร์โทรศัพท์</label>
+                                    <input type="tel" id="modalUserPhone" class="floating-input" required>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <div style="background: white; border-top: 1px solid #edf2f7; padding: 15px 25px; display: flex; justify-content: flex-end; gap: 12px; border-radius: 0 0 16px 16px;">
-                    <button type="button" class="btn" onclick="document.getElementById('userModal').style.display='none'" style="background: #f1f5f9; color: #475569; padding: 10px 20px; border-radius: 8px; font-weight: bold; border: 1px solid #e2e8f0;">ยกเลิก</button>
-                    <button type="submit" class="btn btn-login-new" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); padding: 10px 25px; border-radius: 8px; color: white; font-weight: bold; border: none; display: flex; align-items: center; gap: 8px;">
-                        <i class="material-icons" style="font-size: 18px;">save</i> บันทึกข้อมูล
+                <div class="admin-modal-footer">
+                    <button type="button" class="btn" onclick="document.getElementById('userModal').style.display='none'" style="background: #e2e8f0; color: #4a5568; padding: 10px 25px; border-radius: 8px; font-weight: bold;">ยกเลิก</button>
+                    <button type="submit" class="btn btn-login-new" style="width: auto; padding: 10px 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(13, 71, 161, 0.2);">
+                        <i class="material-icons" style="font-size: 18px; margin-right: 5px;">save</i> บันทึกข้อมูล
                     </button>
                 </div>
             </form>
@@ -7265,6 +7265,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 2000); 
 });
 
+// 4. เด้งไปหน้าจัดการบัญชี เพื่อค้นหาอัตโนมัติ
     const btnGoToManageUser = document.getElementById('btnGoToManageUser');
     if (btnGoToManageUser) {
         btnGoToManageUser.onclick = () => {
@@ -7274,8 +7275,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 return showAlert('ไม่พบรหัสนักศึกษา', 'warning');
             }
 
+            // สลับไปยังหน้าจัดการบัญชี
             showPage('manageUsersSection');
             
+            // หน่วงเวลาเล็กน้อยเพื่อให้หน้าโหลด แล้วกรอกรหัสพร้อมกดค้นหา
             setTimeout(() => {
                 const searchInput = document.getElementById('userSearchInput');
                 const searchBtn = document.getElementById('btnSearchUsers');
