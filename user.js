@@ -1114,7 +1114,7 @@ document.addEventListener('DOMContentLoaded', () => {
             (val==="2" && set['pet_type2_open']==='false') || 
             (val==="3" && set['pet_type3_open']==='false') || 
             (val==="4" && set['pet_type4_open']==='false')) {
-            Swal.fire({ icon:'error', title:'ระบบปิดรับคำร้องประเภทนี้', text:'ไม่อยู่ในช่วงระยะเวลาที่กำหนดให้ยื่นคำร้อง' });
+            Swal.fire({ icon:'error', title:'ไม่สามารถทำรายการได้', text:'ไม่อยู่ในช่วงระยะเวลาที่สถานศึกษากำหนดให้ยื่นคำร้อง' });
             this.value = "";
         }
     });
@@ -1131,8 +1131,8 @@ document.addEventListener('DOMContentLoaded', () => {
             (petType === "4" && set['pet_type4_open'] === 'false')) {
             return Swal.fire({ 
                 icon: 'error', 
-                title: 'ระบบปิดรับคำร้องประเภทนี้', 
-                text: 'ไม่อยู่ในช่วงระยะเวลาที่กำหนดให้ยื่นคำร้อง',
+                title: 'ไม่สามารถทำรายการได้', 
+                text: 'ไม่อยู่ในช่วงระยะเวลาที่สถานศึกษากำหนดให้ยื่นคำร้อง',
                 confirmButtonColor: '#d32f2f'
             });
         }
