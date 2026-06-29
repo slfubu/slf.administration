@@ -844,6 +844,19 @@
         </div>
     </div>
 </div>
+<div class="admin-card" id="specialQueueSection">
+    <h3><i class="material-icons">how_to_reg</i> กำหนดสิทธิจองคิวรายบุคคล (กรณีพิเศษ)</h3>
+    <p style="font-size: 14px; color: #666; margin-bottom: 15px;">
+        เพิ่มรหัสนักศึกษาเพื่อให้สิทธิ์ในการเข้าถึงการจองคิวนอกรอบปกติ
+    </p>
+    
+    <div style="display: flex; gap: 10px; max-width: 400px;">
+        <input type="text" id="specialQueueStudentId" placeholder="กรอกรหัสนักศึกษา 11 หลัก" class="form-control">
+        <button id="btnGrantSpecialQueue" class="btn-primary" style="white-space: nowrap;">
+            <i class="material-icons">add_circle</i> เพิ่มสิทธิ์
+        </button>
+    </div>
+</div>
 
                 <div id="adminQueue" class="section">
                     <div class="card">
@@ -7325,7 +7338,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 2000); 
 });
 
-// 4. เด้งไปหน้าจัดการบัญชี เพื่อค้นหาอัตโนมัติ
     const btnGoToManageUser = document.getElementById('btnGoToManageUser');
     if (btnGoToManageUser) {
         btnGoToManageUser.onclick = () => {
@@ -7335,10 +7347,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 return showAlert('ไม่พบรหัสนักศึกษา', 'warning');
             }
 
-            // สลับไปยังหน้าจัดการบัญชี
             showPage('manageUsersSection');
             
-            // หน่วงเวลาเล็กน้อยเพื่อให้หน้าโหลด แล้วกรอกรหัสพร้อมกดค้นหา
             setTimeout(() => {
                 const searchInput = document.getElementById('userSearchInput');
                 const searchBtn = document.getElementById('btnSearchUsers');
@@ -7350,6 +7360,41 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 300);
         };
     }
+    document.getElementById('btnGrantSpecialQueue').addEventListener('click', async () => {
+    const studentIdInput = document.getElementById('specialQueueStudentId').value.trim();
+    
+    if (!studentIdInput || studentIdInput.length < 10) {
+        Swal.fire('แจ้งเตือน', 'กรุณากรอกรหัสนักศึกษาให้ถูกต้อง', 'warning');
+        return;
+    }
+
+    const adminId = currentAdmin ? currentAdmin.adminId : 'ADMIN'; 
+    const adminToken = sessionStorage.getItem('ubu_admin_token'); 
+
+    showLoading('กำลังบันทึกสิทธิ์...');
+
+    try {
+        const payload = {
+            action: 'setSpecialQueuePermission',
+            adminId: adminId,
+            studentId: studentIdInput,
+            token: adminToken
+        };
+
+        const res = await callApi('setSpecialQueuePermission', payload);
+        hideLoading();
+
+        if (res && res.success) {
+            Swal.fire('สำเร็จ!', res.message, 'success');
+            document.getElementById('specialQueueStudentId').value = ''; 
+        } else {
+            Swal.fire('ข้อผิดพลาด', res.message || 'ไม่สามารถเพิ่มสิทธิ์ได้', 'error');
+        }
+    } catch (err) {
+        hideLoading();
+        Swal.fire('ข้อผิดพลาด', 'เกิดปัญหาการเชื่อมต่อระบบ: ' + err.message, 'error');
+    }
+});
 </script>
 </body>
 </html>
