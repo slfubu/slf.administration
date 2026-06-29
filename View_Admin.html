@@ -89,6 +89,9 @@
                                 <i class="material-icons" style="font-size: 18px;">vpn_key</i><span style="font-size: 14px;">ให้สิทธิ์ยื่นคำขอกู้ยืม (พิเศษ)</span>
                             </a>
                         </li>
+                        <li id="menuSpecialQueue" onclick="showPage('specialQueueSection')">
+                        <i class="material-icons">how_to_reg</i><span>ให้สิทธิ์จองคิวออนไลน์ (พิเศษ)</span>
+                        </li>
                     </ul>
                 </li>
 
@@ -844,17 +847,19 @@
         </div>
     </div>
 </div>
-<div class="admin-card" id="specialQueueSection">
-    <h3><i class="material-icons">how_to_reg</i> กำหนดสิทธิจองคิวรายบุคคล (กรณีพิเศษ)</h3>
-    <p style="font-size: 14px; color: #666; margin-bottom: 15px;">
-        เพิ่มรหัสนักศึกษาเพื่อให้สิทธิ์ในการเข้าถึงการจองคิวนอกรอบปกติ
-    </p>
+<div id="specialQueueSection" style="display: none;">
+    <h2 style="color: #1976D2; margin-top: 0;"><i class="material-icons" style="vertical-align: bottom;">how_to_reg</i> กำหนดสิทธิจองคิวรายบุคคล</h2>
+    <p style="color: #666; margin-bottom: 20px;">ใช้สำหรับเพิ่มรหัสนักศึกษาเพื่อให้สิทธิ์ในการเข้าถึงการจองคิว (กรณีพิเศษ/นอกรอบปกติ)</p>
     
-    <div style="display: flex; gap: 10px; max-width: 400px;">
-        <input type="text" id="specialQueueStudentId" placeholder="กรอกรหัสนักศึกษา 11 หลัก" class="form-control">
-        <button id="btnGrantSpecialQueue" class="btn-primary" style="white-space: nowrap;">
-            <i class="material-icons">add_circle</i> เพิ่มสิทธิ์
-        </button>
+    <div class="admin-card" style="padding: 25px;">
+        <h3 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px;">เพิ่มสิทธิ์นักศึกษา</h3>
+        <div style="display: flex; gap: 10px; max-width: 500px; margin-top: 15px;">
+            <input type="text" id="specialQueueStudentId" placeholder="กรอกรหัสนักศึกษา 11 หลัก" class="form-control" style="flex: 1;" maxlength="11">
+            <button id="btnGrantSpecialQueue" class="btn-primary" style="white-space: nowrap;">
+                <i class="material-icons" style="vertical-align: middle; font-size: 18px;">add_circle</i> เพิ่มสิทธิ์
+            </button>
+        </div>
+        <div id="specialQueueResultMsg" style="margin-top: 15px; font-weight: 500;"></div>
     </div>
 </div>
 
@@ -7393,6 +7398,56 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (err) {
         hideLoading();
         Swal.fire('ข้อผิดพลาด', 'เกิดปัญหาการเชื่อมต่อระบบ: ' + err.message, 'error');
+    }
+});
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // ตั้งค่าปุ่มเพิ่มสิทธิ์
+    const btnGrantSpecialQueue = document.getElementById('btnGrantSpecialQueue');
+    if (btnGrantSpecialQueue) {
+        btnGrantSpecialQueue.addEventListener('click', async () => {
+            const studentIdInput = document.getElementById('specialQueueStudentId').value.trim();
+            
+            if (!studentIdInput || studentIdInput.length < 10) {
+                Swal.fire('แจ้งเตือน', 'กรุณากรอกรหัสนักศึกษาให้ถูกต้อง', 'warning');
+                return;
+            }
+
+            // ดึงข้อมูล Admin จาก Session (อิงตามระบบปัจจุบันของคุณ)
+            const adminDataStr = sessionStorage.getItem('ubu_admin_data');
+            let adminId = 'ADMIN';
+            try {
+                if (adminDataStr) {
+                    const adminData = JSON.parse(adminDataStr);
+                    adminId = adminData.adminId || 'ADMIN';
+                }
+            } catch(e) {}
+            const adminToken = sessionStorage.getItem('ubu_admin_token');
+
+            showLoading('กำลังบันทึกสิทธิ์...');
+
+            try {
+                const payload = {
+                    action: 'setSpecialQueuePermission',
+                    adminId: adminId,
+                    studentId: studentIdInput,
+                    token: adminToken
+                };
+
+                const res = await callApi('setSpecialQueuePermission', payload);
+                hideLoading();
+
+                if (res && res.success) {
+                    Swal.fire('สำเร็จ!', res.message, 'success');
+                    document.getElementById('specialQueueStudentId').value = ''; // ล้างช่อง
+                } else {
+                    Swal.fire('ข้อผิดพลาด', res.message || 'ไม่สามารถเพิ่มสิทธิ์ได้', 'error');
+                }
+            } catch (err) {
+                hideLoading();
+                Swal.fire('ข้อผิดพลาด', 'เกิดปัญหาการเชื่อมต่อระบบ: ' + err.message, 'error');
+            }
+        });
     }
 });
 </script>
