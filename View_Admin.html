@@ -4447,10 +4447,12 @@ window.toggleDeleteButton = function(count) {
         };
     }
 
+    // ---------------- ส่วนของตัวแปรระบบคิว ----------------
     let adminQueueCache = [];
     let currentQueueTab = 'current';
-    let currentQueueFormMode = null;
+    let currentQueueFormMode = null; 
 
+    // 1. ฟังก์ชันสลับการกาง/หุบ ฟอร์มสร้างคิว
     window.toggleQueueMode = function(mode) {
         const bBulk = document.getElementById('btnModeBulk');
         const bSingle = document.getElementById('btnModeSingle');
@@ -4480,6 +4482,33 @@ window.toggleDeleteButton = function(count) {
         }
     };
 
+    // 2. ฟังก์ชันโหลดข้อมูลคิว (ที่หายไป)
+    window.loadAdminQueueSlots = async () => { 
+        showLoading(); 
+        try {
+            const s = await callApi("getQueueSlots", { role: 'admin', studentId: adminId, token: userToken });
+            if(checkAuthError(s)) { hideLoading(); return; }
+            hideLoading(); 
+            
+            adminQueueCache = safeArray(s); 
+            renderAdminQueueGrouped(adminQueueCache); 
+        } catch(err) {
+            hideLoading();
+            console.error(err);
+        }
+    };
+
+    // 3. ฟังก์ชันสลับแท็บปัจจุบันและอดีต (ที่หายไป)
+    window.switchQueueTab = (tab) => { 
+        currentQueueTab = tab; 
+        const tbCurr = document.getElementById('tabQueueCurrent');
+        const tbHist = document.getElementById('tabQueueHistory');
+        if(tbCurr) tbCurr.classList.toggle('active', tab === 'current');
+        if(tbHist) tbHist.classList.toggle('active', tab === 'history');
+        renderAdminQueueGrouped(adminQueueCache); 
+    };
+
+    // 4. ฟังก์ชันแสดงการ์ดข้อมูลคิวรายวัน
     function renderAdminQueueGrouped(slots) {
         const container = document.getElementById('adminQueueSlotsContainer'); 
         if(!container) return;
@@ -4544,6 +4573,7 @@ window.toggleDeleteButton = function(count) {
         });
     }
 
+    // 5. ฟังก์ชันเปิดหน้าต่างรายละเอียดคิว
     window.openQueueDateDetails = (dateStr) => {
         const slots = adminQueueCache.filter(s => s.date === dateStr);
         if(!slots || slots.length === 0) return;
@@ -4594,7 +4624,6 @@ window.toggleDeleteButton = function(count) {
         document.getElementById('queueDateDetailsModal').style.display = 'flex';
     };
 
-    // ฟังก์ชันเสริมสำหรับปิด Modal เวลาแอดมินลบ/แก้ไขคิวในหน้าต่าง
     window.toggleQueueStatusAndCloseModal = function(id, status) {
         document.getElementById('queueDateDetailsModal').style.display = 'none';
         toggleQueueStatus(id, status);
