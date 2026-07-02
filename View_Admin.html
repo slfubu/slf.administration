@@ -89,6 +89,11 @@
                                 <i class="material-icons" style="font-size: 18px;">vpn_key</i><span style="font-size: 14px;">ให้สิทธิ์ยื่นคำขอกู้ยืม (พิเศษ)</span>
                             </a>
                         </li>
+                        <li>
+                            <a href="#" id="navAdminSpecialQueueAccess" class="nav-link" style="padding-left: 50px;">
+                                <i class="material-icons" style="font-size: 18px;">event_available</i><span style="font-size: 14px;">ให้สิทธิ์ลงทะเบียนจองคิว (พิเศษ)</span>
+                            </a>
+                        </li>
                     </ul>
                 </li>
 
@@ -844,6 +849,75 @@
         </div>
     </div>
 </div>
+
+<div id="adminSpecialQueueAccessSection" class="section">
+                    <div class="card">
+                        <h2><i class="material-icons" style="color: #00897b;">event_available</i> อนุญาตให้สิทธิ์จองคิวส่งเอกสารนอกระยะเวลาที่กำหนด</h2>
+                        
+                        <div class="admin-search-box" style="margin-bottom: 20px;">
+                            <div class="search-wrapper">
+                                <div class="modern-input-group" style="margin-bottom: 0; flex: 1;">
+                                    <input type="text" id="specialQueueSearchInput" class="modern-input" placeholder=" ">
+                                    <label class="modern-label">ระบุรหัสนักศึกษา 11 หลัก</label>
+                                </div>
+                                <button class="btn btn-primary" onclick="searchForSpecialQueue()" style="height: 50px; padding: 0 30px; border-radius: 8px;">
+                                    <i class="material-icons" style="margin-right: 5px;">search</i> ค้นหา
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="specialQueueResultArea" style="display: none; background: #e0f2f1; padding: 20px; border-radius: 8px; border: 1px solid #b2dfdb; margin-bottom: 30px; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                            <div>
+                                <div style="font-weight: bold; font-size: 18px; color: #00695c;" id="sq_name">-</div>
+                                <div style="color: #555; margin-top: 5px;">
+                                    รหัสนักศึกษา: <span id="sq_id" style="font-weight:bold;">-</span> | คณะ: <span id="sq_faculty">-</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-success" onclick="grantSpecialQueue()" style="height: 40px; border-radius: 20px; background: #00897b; border: none; box-shadow: 0 2px 8px rgba(0,137,123,0.3);">
+                                <i class="material-icons" style="margin-right: 5px;">verified</i> อนุญาตให้สิทธิ์
+                            </button>
+                        </div>
+
+                        <hr style="border: 0; border-top: 1px dashed #ddd; margin: 30px 0;">
+
+                        <div style="background: #e0f2f1; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #b2dfdb;">
+                            <label style="font-weight:bold; font-size:16px; color:#00695c; display: flex; align-items: center; gap: 5px;">
+                                <i class="material-icons">upload_file</i> 
+                                นำเข้าไฟล์รายชื่อผู้ได้รับสิทธิ์จองคิวแบบกลุ่ม (.csv หรือ .xlsx)
+                            </label>
+                            <div style="display:flex; gap:10px; align-items:center; margin-top:15px; flex-wrap: wrap;">
+                                <input type="file" id="specialQueueExcelInput" accept=".xlsx, .csv" class="modern-input" style="background:white; padding:10px; flex: 1; min-width: 250px; margin-bottom: 0;">
+                                <button class="btn btn-success" onclick="uploadSpecialQueueFile()" style="height: 45px; white-space: nowrap; background-color: #00897b; border: none;">
+                                    <i class="material-icons">cloud_upload</i> อัปโหลดรายชื่อทั้งหมด
+                                </button>
+                            </div>
+                            <small style="color: #666; display: block; margin-top: 5px;">* รองรับไฟล์ Excel ที่มีคอลัมน์ "รหัสนักศึกษา" และ "ชื่อ-สกุล"</small>
+                        </div>
+
+                        <hr style="border: 0; border-top: 1px dashed #ddd; margin: 30px 0;">
+
+                        <h3 style="color: #333; margin-bottom: 15px; font-size: 18px;">
+                            <i class="material-icons" style="vertical-align: text-bottom; font-size: 20px;">format_list_bulleted</i> รายชื่อนักศึกษาที่ได้รับสิทธิ์จองคิวนอกรอบ
+                        </h3>
+                        <div class="table-container">
+                            <table class="clean-table" id="specialQueueTable">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 10%; text-align: center;">ลำดับ</th>
+                                        <th style="width: 15%;">รหัสนักศึกษา</th>
+                                        <th style="width: 25%;">ชื่อ-สกุล</th>
+                                        <th style="width: 20%;">คณะ</th>
+                                        <th style="width: 15%;">วันที่ให้สิทธิ์</th>
+                                        <th style="width: 15%; text-align: center;">จัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="specialQueueListBody">
+                                    <tr><td colspan="6" style="text-align:center; padding: 20px; color: #999;">กำลังโหลด</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
 
                 <div id="adminQueue" class="section">
                     <div class="card">
@@ -2777,23 +2851,22 @@
         if (customLoader) customLoader.style.display = 'none'; 
     }
     
-    // ฟังก์ชันแจ้งเตือน showAlert สไตล์มาตรฐานตามภาพ
     function showAlert(msg, type = 'success') { 
         let titleText = 'แจ้งเตือน';
-        let btnColor = '#7066e0'; // สีปุ่มค่าเริ่มต้น
+        let btnColor = '#7066e0'; 
         
         if (type === 'success') {
             titleText = 'ทำรายการสำเร็จ';
-            btnColor = '#28a745'; // สีเขียวเหมือนในรูปเป๊ะ
+            btnColor = '#28a745'; 
         } else if (type === 'error') {
             titleText = 'เกิดข้อผิดพลาด';
-            btnColor = '#dc3545'; // สีแดง
+            btnColor = '#dc3545'; 
         } else if (type === 'warning') {
             titleText = 'แจ้งเตือน';
-            btnColor = '#ffc107'; // สีเหลือง
+            btnColor = '#ffc107'; 
         } else if (type === 'info') {
             titleText = 'ข้อมูลระบบ';
-            btnColor = '#17a2b8'; // สีฟ้า
+            btnColor = '#17a2b8'; 
         }
 
         Swal.fire({ 
@@ -7350,6 +7423,165 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 300);
         };
     }
+    // 1. ตั้งค่าการคลิกเมนู
+const navAdminSpecialQueueAccess = document.getElementById('navAdminSpecialQueueAccess');
+if(navAdminSpecialQueueAccess) {
+    navAdminSpecialQueueAccess.addEventListener('click', (e) => {
+        e.preventDefault();
+        showPage('adminSpecialQueueAccessSection');
+        loadSpecialQueueList();
+    });
+}
+
+// 2. ฟังก์ชันค้นหารายบุคคล (ค้นหาเพื่อเตรียมให้สิทธิ์)
+async function searchForSpecialQueue() {
+    const input = document.getElementById('specialQueueSearchInput');
+    const studentId = input.value.trim();
+    if (!studentId) return Swal.fire('แจ้งเตือน', 'กรุณาระบุรหัสนักศึกษา', 'warning');
+
+    showLoading('กำลังค้นหา...');
+    try {
+        const payload = createSecurePayload({ action: 'searchStudentForSpecialQueue', studentId: studentId });
+        const res = await callApi('searchStudentForSpecialQueue', payload);
+        hideLoading();
+        
+        if (res && res.success) {
+            document.getElementById('specialQueueResultArea').style.display = 'flex';
+            document.getElementById('sq_name').textContent = res.data.name;
+            document.getElementById('sq_id').textContent = res.data.studentId;
+            document.getElementById('sq_faculty').textContent = res.data.faculty;
+        } else {
+            document.getElementById('specialQueueResultArea').style.display = 'none';
+            Swal.fire('ไม่พบข้อมูล', res.message || 'ไม่พบรหัสนักศึกษาในระบบ', 'warning');
+        }
+    } catch (err) {
+        hideLoading();
+        Swal.fire('ข้อผิดพลาด', err.message, 'error');
+    }
+}
+
+// 3. ฟังก์ชันให้สิทธิ์รายบุคคล
+async function grantSpecialQueue() {
+    const studentId = document.getElementById('sq_id').textContent;
+    if (!studentId || studentId === '-') return;
+
+    showLoading('กำลังบันทึกข้อมูล...');
+    try {
+        const payload = createSecurePayload({ action: 'grantSpecialQueueAccess', studentId: studentId });
+        const res = await callApi('grantSpecialQueueAccess', payload);
+        hideLoading();
+        
+        if (res && res.success) {
+            Swal.fire('สำเร็จ', res.message, 'success');
+            document.getElementById('specialQueueSearchInput').value = '';
+            document.getElementById('specialQueueResultArea').style.display = 'none';
+            loadSpecialQueueList();
+        } else {
+            Swal.fire('ข้อผิดพลาด', res.message, 'error');
+        }
+    } catch (err) {
+        hideLoading();
+        Swal.fire('เกิดข้อผิดพลาด', err.message, 'error');
+    }
+}
+
+// 4. โหลดตารางรายชื่อผู้ได้รับสิทธิ์
+async function loadSpecialQueueList() {
+    const tbody = document.getElementById('specialQueueListBody');
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">กำลังโหลด...</td></tr>';
+    
+    try {
+        const payload = createSecurePayload({ action: 'getSpecialQueueAccessList' });
+        const res = await callApi('getSpecialQueueAccessList', payload);
+        
+        if (res && res.success) {
+            if (res.data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#666;">ไม่มีข้อมูลผู้ได้รับสิทธิ์</td></tr>';
+                return;
+            }
+            tbody.innerHTML = '';
+            res.data.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="text-align:center;">${index + 1}</td>
+                    <td style="text-align:center; font-weight:bold; color:#00897b;">${escapeHTML(item.studentId)}</td>
+                    <td>${escapeHTML(item.name)}</td>
+                    <td>${escapeHTML(item.faculty)}</td>
+                    <td>${escapeHTML(item.grantedAt)}</td>
+                    <td style="text-align:center;">
+                        <button class="btn btn-danger btn-sm" onclick="revokeSpecialQueue('${escapeHTML(item.studentId)}')">
+                            <i class="material-icons" style="font-size:16px;">delete</i> ยกเลิกสิทธิ์
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red;">${err.message}</td></tr>`;
+    }
+}
+
+// 5. ยกเลิกสิทธิ์
+window.revokeSpecialQueue = async function(studentId) {
+    const confirm = await Swal.fire({
+        title: 'ยืนยันการยกเลิก?', text: `ต้องการยกเลิกสิทธิ์จองคิวของ ${studentId}?`, icon: 'warning',
+        showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ใช่, ยกเลิก'
+    });
+
+    if (confirm.isConfirmed) {
+        showLoading('กำลังดำเนินการ...');
+        try {
+            const payload = createSecurePayload({ action: 'revokeSpecialQueueAccess', studentId: studentId });
+            const res = await callApi('revokeSpecialQueueAccess', payload);
+            hideLoading();
+            if (res && res.success) {
+                Swal.fire('สำเร็จ', res.message, 'success');
+                loadSpecialQueueList();
+            } else {
+                Swal.fire('ข้อผิดพลาด', res.message, 'error');
+            }
+        } catch (err) { hideLoading(); Swal.fire('ข้อผิดพลาด', err.message, 'error'); }
+    }
+};
+
+// 6. อัปโหลดไฟล์แบบกลุ่ม (Bulk Upload)
+async function uploadSpecialQueueFile() {
+    const fileInput = document.getElementById('specialQueueExcelInput');
+    if (!fileInput.files || fileInput.files.length === 0) {
+        return Swal.fire('แจ้งเตือน', 'กรุณาเลือกไฟล์ Excel/CSV ก่อน', 'warning');
+    }
+
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        showLoading('กำลังนำเข้าข้อมูล กรุณารอสักครู่...');
+        try {
+            const base64Data = e.target.result.split(',')[1];
+            const payload = createSecurePayload({
+                action: 'bulkGrantSpecialQueueAccess',
+                fileName: file.name,
+                mimeType: file.type || 'application/octet-stream',
+                content: base64Data
+            });
+
+            const res = await callApi('bulkGrantSpecialQueueAccess', payload);
+            hideLoading();
+            
+            if (res && res.success) {
+                Swal.fire('สำเร็จ', res.message, 'success');
+                fileInput.value = '';
+                loadSpecialQueueList();
+            } else {
+                Swal.fire('ข้อผิดพลาด', res.message, 'error');
+            }
+        } catch (err) {
+            hideLoading();
+            Swal.fire('ข้อผิดพลาดระบบ', err.message, 'error');
+        }
+    };
+    reader.readAsDataURL(file);
+}
 </script>
 </body>
 </html>
