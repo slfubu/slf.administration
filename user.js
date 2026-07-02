@@ -449,24 +449,41 @@ window.loadMyQueue = async function() {
             document.getElementById('ticketTime').innerText = t.time || '-';
             document.getElementById('ticketName').innerText = t.name || '-';
             
-            let dayOfWeek = new Date().getDay();
-            if (t.date) {
-                const parts = t.date.split('/');
-                if(parts.length === 3) {
-                    let y = parseInt(parts[2]); 
-                    if(y > 2500) y -= 543;
-                    dayOfWeek = new Date(y, parseInt(parts[1])-1, parseInt(parts[0])).getDay();
+            // 1. คำนวณวัน (อัปเดต: รองรับการเช็คชื่อวันภาษาไทย เพื่อไม่ให้เป็นสีส้มตลอด)
+            let dayOfWeek = new Date().getDay(); // ค่าเริ่มต้นคือวันนี้
+            if (t.date && typeof t.date === 'string') {
+                if (t.date.includes('อาทิตย์')) dayOfWeek = 0;
+                else if (t.date.includes('จันทร์')) dayOfWeek = 1;
+                else if (t.date.includes('อังคาร')) dayOfWeek = 2;
+                else if (t.date.includes('พุธ')) dayOfWeek = 3;
+                else if (t.date.includes('พฤหัส')) dayOfWeek = 4;
+                else if (t.date.includes('ศุกร์')) dayOfWeek = 5;
+                else if (t.date.includes('เสาร์')) dayOfWeek = 6;
+                else {
+                    // ถ้าไม่มีชื่อวันภาษาไทย ให้เช็คจากรูปแบบตัวเลข DD/MM/YYYY
+                    const parts = t.date.split('/');
+                    if(parts.length === 3) {
+                        let y = parseInt(parts[2]); 
+                        if(y > 2500) y -= 543;
+                        dayOfWeek = new Date(y, parseInt(parts[1])-1, parseInt(parts[0])).getDay();
+                    } 
+                    // เช็คจากรูปแบบตัวเลข YYYY-MM-DD
+                    else if (t.date.includes('-')) {
+                        const d = new Date(t.date);
+                        if (!isNaN(d.getTime())) dayOfWeek = d.getDay();
+                    }
                 }
             }
 
+            // 2. กำหนดสี: bg = พื้นหลัง, text = สีตัวอักษร, water = สีลายน้ำ
             const themes = {
-                0: { bg: 'linear-gradient(135deg, #d32f2f, #f44336)', text: '#ffffff', water: 'rgba(255,255,255,0.2)' },
-                1: { bg: 'linear-gradient(135deg, #fbc02d, #fdd835)', text: '#212121', water: 'rgba(0,0,0,0.15)' },
-                2: { bg: 'linear-gradient(135deg, #c2185b, #e91e63)', text: '#ffffff', water: 'rgba(255,255,255,0.2)' },
-                3: { bg: 'linear-gradient(135deg, #2e7d32, #4caf50)', text: '#ffffff', water: 'rgba(255,255,255,0.2)' },
-                4: { bg: 'linear-gradient(135deg, #ef6c00, #ff9800)', text: '#ffffff', water: 'rgba(255,255,255,0.2)' },
-                5: { bg: 'linear-gradient(135deg, #1565c0, #1e88e5)', text: '#ffffff', water: 'rgba(255,255,255,0.2)' },
-                6: { bg: 'linear-gradient(135deg, #7b1fa2, #9c27b0)', text: '#ffffff', water: 'rgba(255,255,255,0.2)' }
+                0: { bg: 'linear-gradient(135deg, #d32f2f, #f44336)', text: '#ffffff', water: 'rgba(255,255,255,0.2)' }, // อาทิตย์
+                1: { bg: 'linear-gradient(135deg, #fbc02d, #fdd835)', text: '#212121', water: 'rgba(0,0,0,0.15)' },    // จันทร์
+                2: { bg: 'linear-gradient(135deg, #c2185b, #e91e63)', text: '#ffffff', water: 'rgba(255,255,255,0.2)' }, // อังคาร
+                3: { bg: 'linear-gradient(135deg, #2e7d32, #4caf50)', text: '#ffffff', water: 'rgba(255,255,255,0.2)' }, // พุธ
+                4: { bg: 'linear-gradient(135deg, #ef6c00, #ff9800)', text: '#ffffff', water: 'rgba(255,255,255,0.2)' }, // พฤหัสบดี
+                5: { bg: 'linear-gradient(135deg, #1565c0, #1e88e5)', text: '#ffffff', water: 'rgba(255,255,255,0.2)' }, // ศุกร์
+                6: { bg: 'linear-gradient(135deg, #7b1fa2, #9c27b0)', text: '#ffffff', water: 'rgba(255,255,255,0.2)' }  // เสาร์
             };
 
             const theme = themes[dayOfWeek] || themes[5];
@@ -474,16 +491,23 @@ window.loadMyQueue = async function() {
             const txt = document.getElementById('ticketCardText');
             
             if (bg && txt) {
+                // อัปเดตสีพื้นหลัง
                 bg.style.background = theme.bg;
+                
+                // ตั้งค่าลายน้ำให้เป็นรหัสนักศึกษา + รหัสคิว (ป้องกันการแคปจอคนอื่น)
                 bg.setAttribute('data-watermark', `UBU - ${currentUser.studentId} - Q${t.queueNumber}`);
+                
+                // อัปเดตสีตัวอักษรและเงา
                 txt.style.color = theme.text;
                 txt.style.textShadow = (theme.text === '#ffffff') ? '1px 1px 3px rgba(0,0,0,0.4)' : 'none';
                 
+                // อัปเดตสีข้อความย่อย (info-label)
                 const subElements = txt.querySelectorAll('.info-label, .info-value, .scan-label');
                 subElements.forEach(el => {
                     el.style.color = (theme.text === '#ffffff') ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.6)';
                 });
 
+                // อัปเดตสีลายน้ำ
                 let styleEl = document.getElementById('dynamicTicketStyle');
                 if(!styleEl) {
                     styleEl = document.createElement('style');
@@ -493,20 +517,24 @@ window.loadMyQueue = async function() {
                 styleEl.innerHTML = `.modern-queue-ticket::after { color: ${theme.water} !important; }`;
             }
 
+            // 3. สร้าง QR Code
             const qrContainer = document.getElementById('qrCodeContainer');
             qrContainer.innerHTML = ''; 
             if(typeof QRCode !== 'undefined') {
                 new QRCode(qrContainer, {
                     text: `Q-${t.queueNumber}-${currentUser.studentId}`,
-                    width: 100, height: 100,
-                    colorDark : "#000000", colorLight : "#ffffff"
+                    width: 100, 
+                    height: 100,
+                    colorDark : "#000000", 
+                    colorLight : "#ffffff"
                 });
             }
-            return true; 
+            
+            return true; // คืนค่าว่ามีคิวแล้ว
         } else {
             ta.style.display = 'none'; 
             ba.style.display = 'block';
-            return false; 
+            return false; // คืนค่าว่ายังไม่มีคิว
         }
     } catch (err) {
         console.error("Queue Error:", err);
