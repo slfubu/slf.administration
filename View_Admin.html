@@ -921,85 +921,162 @@
                     </div>
                 </div>
 
-                <div id="adminQueue" class="section">
+    <div id="adminQueue" class="section">
     <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2 style="margin: 0; border: none; padding: 0;">
-                <i class="material-icons" style="color: var(--secondary-color);">manage_history</i> จัดการรอบคิวส่งเอกสาร
+            <h2 style="margin: 0; border: none; padding: 0; color: #1e293b; display: flex; align-items: center; gap: 10px;">
+                <div style="background: #e0f2fe; padding: 8px; border-radius: 10px; display: flex;">
+                    <i class="material-icons" style="color: #0284c7;">manage_history</i>
+                </div>
+                จัดการรอบคิวส่งเอกสาร
             </h2>
         </div>
 
-        <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #ddd; padding-bottom: 10px;">
-            <button id="btnModeBulk" class="btn" onclick="toggleQueueMode('bulk')" style="background-color: var(--secondary-color); color: white; padding: 8px 20px; border-radius: 20px;">สร้างแบบกลุ่ม (หลายช่วงเวลา)</button>
-            <button id="btnModeSingle" class="btn" onclick="toggleQueueMode('single')" style="background-color: #f1f3f5; color: #666; padding: 8px 20px; border-radius: 20px;">สร้างแบบกำหนดเอง (ทีละรอบ)</button>
+        <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px;">
+            <button id="btnModeBulk" class="btn" onclick="toggleQueueMode('bulk')" style="background-color: #0284c7; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 10px rgba(2, 132, 199, 0.2);">
+                <i class="material-icons" style="vertical-align: middle; font-size: 18px; margin-right: 5px;">layers</i> สร้างแบบกลุ่ม (มาตรฐาน)
+            </button>
+            <button id="btnModeSingle" class="btn" onclick="toggleQueueMode('single')" style="background-color: #f1f5f9; color: #475569; padding: 10px 20px; border-radius: 8px; font-weight: 600;">
+                <i class="material-icons" style="vertical-align: middle; font-size: 18px; margin-right: 5px;">add_task</i> สร้างแบบกำหนดเอง (ทีละรอบ)
+            </button>
         </div>
 
-        <div id="queueFormBulk" style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 25px;">
-            <h3 style="margin-top: 0; font-size: 16px; color: #1976D2;"><i class="material-icons" style="vertical-align: middle; font-size: 18px;">playlist_add_check</i> สร้างรอบคิวตามช่วงเวลามาตรฐาน</h3>
+        <!-- ฟอร์มสร้างแบบกลุ่ม -->
+        <div id="queueFormBulk" style="background: #ffffff; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+            <h3 style="margin-top: 0; font-size: 18px; color: #0f172a; margin-bottom: 20px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 10px;">
+                กำหนดรอบคิวตามช่วงเวลามาตรฐาน
+            </h3>
             <form id="createQueueBulkForm">
-                <div class="form-row">
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label style="font-weight: bold;">วันที่เปิดรับ</label>
-                            <input type="date" id="queueDateBulk" required class="modern-input">
-                        </div>
+                <div class="form-row" style="grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label style="font-weight: 600; color: #334155;">วันที่เปิดรับเอกสาร</label>
+                        <input type="date" id="queueDateBulk" required class="modern-input" style="height: 50px; border-radius: 8px;">
                     </div>
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label style="font-weight: bold;">จำนวนคิวที่รับได้ (คน / รอบ)</label>
-                            <input type="number" id="queueQuotaBulk" required class="modern-input" placeholder="เช่น 20">
-                        </div>
+                    <div class="form-group">
+                        <label style="font-weight: 600; color: #334155;">จำนวนโควตาที่รับได้ (คน / รอบ)</label>
+                        <input type="number" id="queueQuotaBulk" required class="modern-input" placeholder="เช่น 20" style="height: 50px; border-radius: 8px;">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label style="font-weight: bold;">เลือกช่วงเวลาที่ต้องการเปิด</label>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
-                        <label><input type="checkbox" name="bulkTime" value="09:00-10:00" checked> 09:00-10:00</label>
-                        <label><input type="checkbox" name="bulkTime" value="10:00-11:00" checked> 10:00-11:00</label>
-                        <label><input type="checkbox" name="bulkTime" value="11:00-12:00" checked> 11:00-12:00</label>
-                        <label><input type="checkbox" name="bulkTime" value="13:00-14:00" checked> 13:00-14:00</label>
-                        <label><input type="checkbox" name="bulkTime" value="14:00-15:00" checked> 14:00-15:00</label>
-                        <label><input type="checkbox" name="bulkTime" value="15:00-16:00" checked> 15:00-16:00</label>
+                
+                <div class="form-group" style="margin-top: 15px;">
+                    <label style="font-weight: 600; color: #334155; margin-bottom: 10px; display: block;">เลือกช่วงเวลาที่ต้องการเปิดรับ (เลือกได้มากกว่า 1)</label>
+                    <div class="time-slot-picker">
+                        <label class="time-slot-label">
+                            <input type="checkbox" name="bulkTime" value="09:00-10:00" checked> 09:00-10:00
+                        </label>
+                        <label class="time-slot-label">
+                            <input type="checkbox" name="bulkTime" value="10:00-11:00" checked> 10:00-11:00
+                        </label>
+                        <label class="time-slot-label">
+                            <input type="checkbox" name="bulkTime" value="11:00-12:00" checked> 11:00-12:00
+                        </label>
+                        <label class="time-slot-label">
+                            <input type="checkbox" name="bulkTime" value="13:00-14:00" checked> 13:00-14:00
+                        </label>
+                        <label class="time-slot-label">
+                            <input type="checkbox" name="bulkTime" value="14:00-15:00" checked> 14:00-15:00
+                        </label>
+                        <label class="time-slot-label">
+                            <input type="checkbox" name="bulkTime" value="15:00-16:00" checked> 15:00-16:00
+                        </label>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-success" style="padding: 10px 30px; font-size: 16px;"><i class="material-icons" style="vertical-align: middle;">save</i> บันทึกข้อมูลแบบกลุ่ม</button>
+                
+                <div style="text-align: right; margin-top: 25px;">
+                    <button type="submit" class="btn btn-success" style="padding: 12px 30px; font-size: 16px; border-radius: 8px; background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                        <i class="material-icons" style="vertical-align: middle;">save</i> บันทึกสร้างรอบคิว
+                    </button>
+                </div>
             </form>
         </div>
 
-        <div id="queueFormSingle" style="display: none; background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 25px;">
-            <h3 style="margin-top: 0; font-size: 16px; color: #1976D2;"><i class="material-icons" style="vertical-align: middle; font-size: 18px;">add_task</i> สร้างรอบคิวแบบกำหนดเอง</h3>
+        <!-- ฟอร์มสร้างแบบกำหนดเอง (ทีละรอบ) -->
+        <div id="queueFormSingle" style="display: none; background: #ffffff; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+            <h3 style="margin-top: 0; font-size: 18px; color: #0f172a; margin-bottom: 20px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 10px;">
+                สร้างรอบคิวแบบกำหนดเอง
+            </h3>
             <form id="createQueueSingleForm">
-                <div class="form-row" style="grid-template-columns: 1fr 1fr 1fr;">
+                <div class="form-row" style="grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
                     <div class="form-group">
-                        <label style="font-weight: bold;">วันที่</label>
-                        <input type="date" id="queueDateSingle" required class="modern-input">
+                        <label style="font-weight: 600; color: #334155;">วันที่</label>
+                        <input type="date" id="queueDateSingle" required class="modern-input" style="height: 50px;">
                     </div>
                     <div class="form-group">
-                        <label style="font-weight: bold;">เวลา (เช่น 09:00-12:00)</label>
-                        <input type="text" id="queueTimeSingle" required class="modern-input">
+                        <label style="font-weight: 600; color: #334155;">เวลา (เช่น 09:00-12:00)</label>
+                        <input type="text" id="queueTimeSingle" required class="modern-input" style="height: 50px;">
                     </div>
                     <div class="form-group">
-                        <label style="font-weight: bold;">จำนวนที่รับ (คิว)</label>
-                        <input type="number" id="queueQuotaSingle" required class="modern-input">
+                        <label style="font-weight: 600; color: #334155;">จำนวนที่รับ (คิว)</label>
+                        <input type="number" id="queueQuotaSingle" required class="modern-input" style="height: 50px;">
                     </div>
                 </div>
-                <button type="submit" class="btn btn-success" style="padding: 10px 30px; font-size: 16px;"><i class="material-icons" style="vertical-align: middle;">save</i> บันทึกข้อมูล</button>
+                <div style="text-align: right; margin-top: 15px;">
+                    <button type="submit" class="btn btn-success" style="padding: 12px 30px; font-size: 16px; border-radius: 8px;">
+                        <i class="material-icons" style="vertical-align: middle;">save</i> บันทึกข้อมูล
+                    </button>
+                </div>
             </form>
         </div>
 
-        <div class="queue-tabs-container" style="margin-top: 20px;">
-            <button class="queue-tab-btn active" id="tabQueueCurrent" onclick="switchQueueTab('current')">
-                <i class="material-icons">event_available</i> รอบปัจจุบันและอนาคต
+        <!-- แท็บสลับดูข้อมูล -->
+        <div class="queue-tabs-container" style="margin-top: 20px; background: #f8fafc; padding: 5px; border-radius: 10px; display: inline-flex;">
+            <button class="queue-tab-btn active" id="tabQueueCurrent" onclick="switchQueueTab('current')" style="border-radius: 8px; padding: 10px 20px;">
+                <i class="material-icons" style="font-size: 18px;">event_available</i> รอบปัจจุบันและอนาคต
             </button>
-            <button class="queue-tab-btn" id="tabQueueHistory" onclick="switchQueueTab('history')">
-                <i class="material-icons">history</i> ประวัติย้อนหลัง
+            <button class="queue-tab-btn" id="tabQueueHistory" onclick="switchQueueTab('history')" style="border-radius: 8px; padding: 10px 20px;">
+                <i class="material-icons" style="font-size: 18px;">history</i> ประวัติย้อนหลัง
             </button>
         </div>
 
-        <div id="adminQueueSlotsContainer" style="margin-top: 15px;">
-            <div style="text-align: center; padding: 30px; color: #999;">กำลังโหลดข้อมูล</div>
+        <!-- พื้นที่แสดงข้อมูลรูปแบบใหม่ (Cards) -->
+        <div id="adminQueueSlotsContainer" style="margin-top: 20px;">
+            <div style="text-align: center; padding: 40px; color: #94a3b8;">
+                <i class="material-icons" style="font-size: 48px; opacity: 0.5;">cloud_sync</i><br>
+                กำลังโหลดข้อมูล
+            </div>
         </div>
 
+    </div>
+</div>
+
+<!-- หน้าต่าง Modal สำหรับดูรายละเอียดรอบคิวในแต่ละวัน -->
+<div id="queueDateDetailsModal" class="modal">
+    <div class="modal-content modern-admin-modal" style="max-width: 800px; width: 95%; border-radius: 16px; overflow: hidden; padding: 0;">
+        <div class="admin-modal-header" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); padding: 20px 25px;">
+            <h3 style="margin: 0; display: flex; align-items: center; gap: 12px; font-size: 20px; color: white;">
+                <i class="material-icons" style="background: rgba(255,255,255,0.2); padding: 8px; border-radius: 10px;">calendar_today</i>
+                รายละเอียดรอบคิว: <span id="modalQueueDateTitle" style="font-weight: bold; margin-left: 5px;">-</span>
+            </h3>
+            <span class="close-button" onclick="document.getElementById('queueDateDetailsModal').style.display='none'" style="color: white; opacity: 0.8; font-size: 28px;">×</span>
+        </div>
+        
+        <div class="admin-modal-body" style="padding: 25px; background: #f8fafc; max-height: 60vh; overflow-y: auto;">
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <div style="font-size: 14px; color: #64748b; font-weight: bold;">
+                    สรุปยอดรวม: จองแล้ว <span id="modalQueueCurrentTotal" style="color: #0284c7; font-size: 18px;">0</span> จากโควตา <span id="modalQueueQuotaTotal">0</span>
+                </div>
+            </div>
+
+            <table class="clean-table" style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+                <thead style="background: #f1f5f9; border-bottom: 2px solid #cbd5e1;">
+                    <tr>
+                        <th style="padding: 15px; width: 25%;">ช่วงเวลา</th>
+                        <th style="text-align: center; width: 20%;">โควตารับ (คน)</th>
+                        <th style="text-align: center; width: 20%;">จองแล้ว (คน)</th>
+                        <th style="text-align: center; width: 15%;">สถานะ</th>
+                        <th style="text-align: center; width: 20%;">จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody id="modalQueueDetailsBody">
+                    <tr><td colspan="5" style="text-align: center; padding: 30px;">กำลังโหลดข้อมูล</td></tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="admin-modal-footer" style="background: white; padding: 15px 25px; border-top: 1px solid #e2e8f0; text-align: right;">
+            <button class="btn" onclick="document.getElementById('queueDateDetailsModal').style.display='none'" style="background: #e2e8f0; color: #475569; padding: 10px 25px; border-radius: 8px; font-weight: bold;">ปิดหน้าต่าง</button>
+        </div>
     </div>
 </div>
 
