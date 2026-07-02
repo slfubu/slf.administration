@@ -1538,7 +1538,6 @@
                     </div>
                 </div>
 
-     <!-- เริ่มหน้า Dashboard สถิติแบบใหม่ -->
 <div id="adminLoan2569DashboardSection" class="section">
     <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 25px; border-bottom: 2px solid #333; padding-bottom: 12px;">
         <div>
@@ -1548,7 +1547,6 @@
         <button class="btn btn-secondary" onclick="window.print()" style="padding: 8px 20px; font-weight: normal; border-radius: 4px;">พิมพ์รายงาน</button>
     </div>
 
-    <!-- สไตล์ CSS แบบเรียบหรู กะทัดรัด -->
     <style>
         .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
         .kpi-card { background: #f8f9fa; border: 1px solid #e0e0e0; padding: 25px; position: relative; overflow: hidden; border-radius: 6px; }
@@ -1571,16 +1569,13 @@
         .fac-card { 
             border: 1px solid #e0e0e0; padding: 15px; background: white; position: relative; overflow: hidden; border-radius: 6px;
         }
-        /* ย้ายลายน้ำไปมุมล่างขวา เพื่อหลบตัวเลข % */
         .fac-card::before { 
             content: attr(data-rank); position: absolute; right: 8px; bottom: 2px; 
             font-size: 45px; font-weight: bold; color: rgba(0,0,0,0.03); line-height: 1; z-index: 0;
         }
-        /* ตัวเลข % ใหญ่ๆ มุมขวาบน */
         .fac-pct-badge {
             position: absolute; right: 15px; top: 12px; font-size: 26px; font-weight: 900; z-index: 1; letter-spacing: -0.5px;
         }
-        /* ปรับฟอนต์ชื่อคณะ และเว้นที่ด้านขวาไม่ให้ทับกับ % */
         .fac-name { font-size: 14px; font-weight: bold; color: #222; margin-bottom: 12px; position: relative; z-index: 1; min-height: 38px; line-height: 1.35; padding-right: 55px; }
         
         .fac-stat-row { display: flex; justify-content: space-between; position: relative; z-index: 1; margin-bottom: 10px; }
@@ -7677,7 +7672,6 @@ async function uploadSpecialQueueFile() {
 }
 
 
-// ประกาศตัวแปรแยกเก็บกราฟ
 window.dashBar = null;
 window.dashPie = null;
 
