@@ -12,6 +12,8 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
   
   <link rel="stylesheet" href="style.css">
   <script src="api.js"></script>
@@ -1536,17 +1538,81 @@
                     </div>
                 </div>
 
-             <div id="adminLoan2569DashboardSection" class="section">
-    <div class="card">
-    <h3 style="margin-top: 30px; color: var(--secondary-color); font-size: 18px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">
-    <i class="material-icons" style="vertical-align: bottom; color: #10b981;">donut_large</i> สถิติการยื่นคำร้องกู้ยืม ปี 2569 (แยกรายคณะ) สำหรับผู้ยื่นความประสงค์ผ่านระบบบริหารงาน กยศ. มหาวิทยาลัยอุบลราชธานี
-</h3>
-<div id="loanStatsContainer" style="margin-top: 15px;">
-    <div style="text-align: center; padding: 40px; color: #94a3b8;">
-        <i class="material-icons" style="font-size: 40px; animation: spin 2s linear infinite;">autorenew</i>
-        <p>กำลังประมวลผลสถิติรายคณะ</p>
-    </div>
-</div>
+<div id="adminStatSection" class="section">
+    <div class="card" style="background: transparent; box-shadow: none; padding: 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin: 0; color: #1976D2;"><i class="material-icons" style="vertical-align: bottom;">analytics</i> Dashboard สถิติการยื่นคำร้อง ปี 2569</h2>
+            <button class="btn btn-primary" onclick="window.print()" style="border-radius: 20px;"><i class="material-icons">print</i> พิมพ์รายงาน</button>
+        </div>
+
+        <style>
+            .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 25px; }
+            .stat-card {
+                background: white; border-radius: 12px; padding: 20px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-bottom: 4px solid #1976D2; 
+                display: flex; align-items: center; gap: 15px;
+            }
+            .stat-card.orange { border-color: #ff9800; }
+            .stat-card.green { border-color: #2e7d32; }
+            .stat-icon {
+                width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+                font-size: 28px; color: white; background: linear-gradient(135deg, #1976D2, #1565c0);
+            }
+            .stat-card.orange .stat-icon { background: linear-gradient(135deg, #ffb74d, #f57c00); }
+            .stat-card.green .stat-icon { background: linear-gradient(135deg, #81c784, #388e3c); }
+            .stat-info h3 { margin: 0; font-size: 28px; font-weight: 800; color: #333; }
+            .stat-info p { margin: 0; font-size: 13px; color: #777; font-weight: bold; }
+            
+            .chart-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 25px; }
+            .chart-container { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+            .chart-title { font-size: 16px; font-weight: bold; color: #444; margin-bottom: 15px; text-align: center; }
+            
+            @media (max-width: 800px) { .chart-grid { grid-template-columns: 1fr; } }
+        </style>
+
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="material-icons">groups</i></div>
+                <div class="stat-info"><p>ยอดผู้ยื่นคำร้องทั้งหมด</p><h3 id="statTotalUsers">0</h3></div>
+            </div>
+            <div class="stat-card orange">
+                <div class="stat-icon"><i class="material-icons">account_balance</i></div>
+                <div class="stat-info"><p>คณะที่ยื่นคำร้องสูงสุด</p><h3 id="statTopFaculty" style="font-size: 18px; line-height: 32px;">-</h3></div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-icon"><i class="material-icons">payments</i></div>
+                <div class="stat-info"><p>กู้ทั้งค่าเล่าเรียนและค่าครองชีพ</p><h3 id="statBothType">0</h3></div>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-container">
+                <div class="chart-title">📊 สถิติการยื่นคำร้องแยกตามคณะ</div>
+                <canvas id="facultyBarChart" height="120"></canvas>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">🍩 สัดส่วนประเภทการขอกู้</div>
+                <canvas id="loanTypePieChart" height="250"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-title" style="text-align: left;">📋 รายละเอียดข้อมูลเชิงลึกรายคณะ</div>
+            <div class="table-responsive">
+                <table class="table" id="statFacultyTable">
+                    <thead>
+                        <tr style="background-color: #f8f9fa;">
+                            <th>ลำดับ</th>
+                            <th>คณะ/สังกัด</th>
+                            <th style="text-align: center;">จำนวนผู้ยื่น (คน)</th>
+                            <th style="text-align: center;">คิดเป็นร้อยละ (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -7594,54 +7660,135 @@ async function uploadSpecialQueueFile() {
 }
 
 
-// ฟังก์ชันสำหรับโหลดสถิติขอยื่นกู้รายคณะ
-    window.loadLoanFacultyStats = async () => {
-        const container = document.getElementById('loanStatsContainer');
-        if(container) {
-            container.innerHTML = `
-                <div style="text-align: center; padding: 40px; color: #94a3b8;">
-                    <i class="material-icons" style="font-size: 40px; animation: spin 2s linear infinite;">autorenew</i>
-                    <p>กำลังประมวลผลสถิติรายคณะ กรุณารอสักครู่</p>
-                </div>
-            `;
-        }
-        
-        try {
-            const res = await callApi("getLoanStatistics", { adminId: adminId, token: userToken });
-            if(checkAuthError(res)) return;
-            
-            if (res && res.success) {
-                if (!res.data || res.data.length === 0) {
-                    if(container) container.innerHTML = '<div style="text-align:center; color:#64748b; padding:20px;">ยังไม่มีข้อมูลสถิติในขณะนี้</div>';
-                    return;
-                }
+// ประกาศตัวแปรเก็บกราฟเพื่อเอาไว้ทำลายก่อนสร้างใหม่ (ป้องกันกราฟซ้อนกัน)
+window.dashFacultyChart = null;
+window.dashProgressChart = null;
 
-                let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px;">';
-                res.data.forEach(item => {
-                    let progressColor = item.percent >= 80 ? '#10b981' : (item.percent >= 50 ? '#f59e0b' : '#ef4444');
-                    html += `
-                        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                            <div style="font-weight: bold; color: #1e293b; font-size: 16px; margin-bottom: 10px;">${escapeHTML(item.faculty)}</div>
-                            <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px;">
-                                <span style="color: #64748b;">ยื่นแล้ว: <b style="color: #10b981;">${item.submitted}</b> / ${item.total}</span>
-                                <span style="font-weight: bold; color: ${progressColor};">${item.percent}%</span>
-                            </div>
-                            <div style="width: 100%; background: #f1f5f9; height: 8px; border-radius: 4px; overflow: hidden;">
-                                <div style="width: ${item.percent}%; background: ${progressColor}; height: 100%; border-radius: 4px; transition: width 0.5s ease-in-out;"></div>
-                            </div>
-                        </div>
+window.loadLoanFacultyStats = async () => {
+    const tbody = document.querySelector('#statDashboardTable tbody');
+    if(tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px; color: #94a3b8;"><i class="material-icons" style="font-size: 40px; animation: spin 2s linear infinite;">autorenew</i><p>กำลังประมวลผลข้อมูลสถิติ...</p></td></tr>';
+    
+    try {
+        // ใช้ API เดิมที่คุณมีอยู่
+        const res = await callApi("getLoanStatistics", { adminId: adminId, token: userToken });
+        if(checkAuthError(res)) return;
+        
+        if (res && res.success && res.data && res.data.length > 0) {
+            const data = res.data;
+            
+            // ตัวแปรสำหรับคำนวณภาพรวม
+            let grandTotal = 0;
+            let grandSubmitted = 0;
+            let maxSubmitted = -1;
+            let topFacultyName = "-";
+
+            // ข้อมูลสำหรับป้อนเข้ากราฟ
+            const labels = [];
+            const submittedData = [];
+            
+            data.forEach(item => {
+                grandTotal += item.total;
+                grandSubmitted += item.submitted;
+                
+                // ตัดคำว่า "คณะ" หรือ "วิทยาลัย" ออก เพื่อให้แกน X ในกราฟดูไม่แน่นเกินไป
+                let shortName = item.faculty.replace('คณะ', '').replace('วิทยาลัย', 'ว.');
+                labels.push(shortName);
+                submittedData.push(item.submitted);
+
+                if (item.submitted > maxSubmitted) {
+                    maxSubmitted = item.submitted;
+                    topFacultyName = item.faculty;
+                }
+            });
+
+            // --- 1. อัปเดตตัวเลขใน KPI Cards ---
+            document.getElementById('statDashTotal').innerText = grandTotal.toLocaleString();
+            document.getElementById('statDashSubmitted').innerText = grandSubmitted.toLocaleString();
+            document.getElementById('statDashTopFac').innerText = topFacultyName;
+
+            // --- 2. สร้างกราฟแท่ง (รายคณะ) ---
+            if(window.dashFacultyChart) window.dashFacultyChart.destroy();
+            const ctxBar = document.getElementById('facultyBarChart').getContext('2d');
+            window.dashFacultyChart = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'ยื่นคำร้องแล้ว (คน)',
+                        data: submittedData,
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 6,
+                        hoverBackgroundColor: '#2563eb'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { ticks: { font: { family: 'Sarabun', size: 11 } } },
+                        y: { beginAtZero: true, ticks: { font: { family: 'Sarabun' } } }
+                    }
+                }
+            });
+
+            // --- 3. สร้างกราฟโดนัท (ความคืบหน้าภาพรวม) ---
+            const progressPercent = grandTotal > 0 ? ((grandSubmitted / grandTotal) * 100).toFixed(1) : 0;
+            document.getElementById('progressText').innerText = progressPercent + '%';
+
+            if(window.dashProgressChart) window.dashProgressChart.destroy();
+            const ctxPie = document.getElementById('loanProgressPieChart').getContext('2d');
+            window.dashProgressChart = new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: ['ยื่นแล้ว', 'ยังไม่ยื่น'],
+                    datasets: [{
+                        data: [grandSubmitted, grandTotal - grandSubmitted],
+                        backgroundColor: ['#10b981', '#f1f5f9'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '75%',
+                    plugins: { legend: { position: 'bottom', labels: { font: { family: 'Sarabun' }, padding: 20 } } }
+                }
+            });
+
+            // --- 4. สร้างตารางรายละเอียดด้านล่าง ---
+            if(tbody) {
+                tbody.innerHTML = '';
+                // เรียงลำดับจากคณะที่ยื่นเยอะสุดไปน้อยสุด
+                data.sort((a,b) => b.submitted - a.submitted).forEach((item, index) => {
+                    const pctCampus = grandSubmitted > 0 ? ((item.submitted / grandSubmitted) * 100).toFixed(2) : 0;
+                    const progressColor = item.percent >= 80 ? '#10b981' : (item.percent >= 50 ? '#f59e0b' : '#ef4444');
+                    
+                    tbody.innerHTML += `
+                        <tr style="border-bottom: 1px solid #f1f5f9;">
+                            <td style="text-align:center;">${index + 1}</td>
+                            <td style="font-weight: 500; color: #334155;">${escapeHTML(item.faculty)}</td>
+                            <td style="text-align:center; font-weight:bold; color:#1e3c72; font-size: 16px;">${item.submitted}</td>
+                            <td style="text-align:center;">
+                                <span style="color: ${progressColor}; font-weight: bold;">${item.percent}%</span>
+                                <div style="width: 100%; background: #f1f5f9; height: 6px; border-radius: 4px; margin-top: 4px;">
+                                    <div style="width: ${item.percent}%; background: ${progressColor}; height: 100%; border-radius: 4px;"></div>
+                                </div>
+                            </td>
+                            <td style="text-align:center; color: #64748b;">${pctCampus}%</td>
+                        </tr>
                     `;
                 });
-                html += '</div>';
-                
-                if(container) container.innerHTML = html;
-            } else {
-                if(container) container.innerHTML = `<div style="text-align:center; color:#ef4444; padding:20px;">${escapeHTML(res.message || 'เกิดข้อผิดพลาดในการโหลดข้อมูล')}</div>`;
             }
-        } catch(err) {
-            if(container) container.innerHTML = `<div style="text-align:center; color:#ef4444; padding:20px;">เกิดข้อผิดพลาด: ${err.message}</div>`;
+        } else {
+            if(tbody) tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#ef4444; padding:20px;">${escapeHTML(res.message || 'ไม่พบข้อมูลสถิติ')}</td></tr>`;
         }
-    };
+    } catch(err) {
+        if(tbody) tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#ef4444; padding:20px;">เกิดข้อผิดพลาด: ${err.message}</td></tr>`;
+    }
+};
+
 </script>
 </body>
 </html>
