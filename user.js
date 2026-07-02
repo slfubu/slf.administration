@@ -441,13 +441,66 @@ async function loadMyQueue() {
             document.getElementById('ticketTime').innerText = t.time;
             document.getElementById('ticketName').innerText = t.name;
             
+
+            let dayOfWeek = -1;
+            let dateObj = new Date(t.date); 
+            
+
+            if (isNaN(dateObj.getTime()) && typeof t.date === 'string') {
+                const parts = t.date.split('/');
+                if(parts.length === 3) {
+                    let year = parseInt(parts[2]);
+                    if(year > 2500) year -= 543; // แปลง พ.ศ. เป็น ค.ศ.
+                    dateObj = new Date(`${year}-${parts[1]}-${parts[0]}`);
+                } else {
+
+                    if(t.date.includes('อาทิตย์')) dayOfWeek = 0;
+                    else if(t.date.includes('จันทร์')) dayOfWeek = 1;
+                    else if(t.date.includes('อังคาร')) dayOfWeek = 2;
+                    else if(t.date.includes('พุธ')) dayOfWeek = 3;
+                    else if(t.date.includes('พฤหัส')) dayOfWeek = 4;
+                    else if(t.date.includes('ศุกร์')) dayOfWeek = 5;
+                    else if(t.date.includes('เสาร์')) dayOfWeek = 6;
+                }
+            }
+            
+            if (!isNaN(dateObj.getTime())) {
+                dayOfWeek = dateObj.getDay(); 
+            }
+
+            const colorGradients = {
+                0: 'linear-gradient(135deg, #d32f2f, #f44336)', 
+                1: 'linear-gradient(135deg, #fbc02d, #fdd835)', 
+                2: 'linear-gradient(135deg, #c2185b, #e91e63)', 
+                3: 'linear-gradient(135deg, #2e7d32, #4caf50)', 
+                4: 'linear-gradient(135deg, #e65100, #ff9800)', 
+                5: 'linear-gradient(135deg, #1565c0, #1e88e5)', 
+                6: 'linear-gradient(135deg, #4a148c, #9c27b0)'  
+            };
+
+            const ticketCardBg = document.getElementById('ticketCardBg');
+            const ticketCardText = document.getElementById('ticketCardText');
+            
+            if (ticketCardBg && ticketCardText) {
+                ticketCardBg.style.background = colorGradients[dayOfWeek] || colorGradients[5];
+                
+                if (dayOfWeek === 1) {
+                    ticketCardText.style.color = '#333';
+                    ticketCardText.style.textShadow = 'none';
+                    document.styleSheets[0].insertRule('.modern-queue-ticket::after { color: rgba(0, 0, 0, 0.15) !important; }', document.styleSheets[0].cssRules.length);
+                } else {
+                    ticketCardText.style.color = 'white';
+                    ticketCardText.style.textShadow = '2px 2px 4px rgba(0,0,0,0.2)';
+                }
+            }
+
             const qrContainer = document.getElementById('qrCodeContainer');
             qrContainer.innerHTML = ''; 
             if(typeof QRCode !== 'undefined') {
                 new QRCode(qrContainer, {
-                    text: String(t.queueNumber),
-                    width: 80,
-                    height: 80,
+                    text: "Q-" + String(t.queueNumber) + "-" + String(currentUser.studentId), // ใส่รหัส Q + คิว + รหัส นศ เพื่อป้องกันการปลอม
+                    width: 100,
+                    height: 100,
                     colorDark : "#000000",
                     colorLight : "#ffffff"
                 });
