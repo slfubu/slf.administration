@@ -209,10 +209,10 @@
                     </a>
                     <ul class="submenu-list" style="display: none; list-style: none; padding: 0; background-color: rgba(0,0,0,0.2);">
                         <li>
-                            <a href="#" onclick="showPage('adminLoan2569DashboardSection'); loadLoan2569Stats();" class="nav-link" style="padding-left: 50px;">
-                                <i class="material-icons" style="font-size: 18px;">analytics</i><span style="font-size: 14px;">สถิติขอยื่นกู้รายคณะ</span>
-                            </a>
-                        </li>
+                        <a href="#" id="navAdminLoan2569Dashboard" class="nav-link" style="padding-left: 50px;">
+                        <i class="material-icons" style="font-size: 18px;">analytics</i><span style="font-size: 14px;">สถิติขอยื่นกู้รายคณะ</span>
+                        </a>
+                    </li>
                         <li>
                             <a href="#" id="navAdminLoan2569" class="nav-link" style="padding-left: 50px;">
                                 <i class="material-icons" style="font-size: 18px;">cloud_upload</i><span style="font-size: 14px;">ระบบผู้กู้รายเก่าชั้นปี</span>
@@ -7555,7 +7555,7 @@ async function uploadSpecialQueueFile() {
     const file = fileInput.files[0];
     const reader = new FileReader();
     reader.onload = async function(e) {
-        showLoading('กำลังนำเข้าข้อมูล กรุณารอสักครู่...');
+        showLoading('กำลังนำเข้าข้อมูล กรุณารอสักครู่');
         try {
             const base64Data = e.target.result.split(',')[1];
             const payload = createSecurePayload({
