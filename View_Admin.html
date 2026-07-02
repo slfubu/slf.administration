@@ -3040,9 +3040,9 @@
         }
         if(id === 'adminAnnouncementSection') loadAdminAnnouncement();
 
-        if(id === 'adminTransferSection') {
-            loadTransferData();
+        if(id === 'adminTransferSection') {loadTransferData();
         }
+        if(id === 'adminLoan2569DashboardSection') loadLoanFacultyStats();
     };
 
 
@@ -3081,6 +3081,8 @@
     setupNav('navAdminAddMissingStudent', 'adminAddMissingStudentSection');
     setupNav('navAdminAnnouncement', 'adminAnnouncementSection');
     setupNav('navAdminTransfer', 'adminTransferSection');
+    setupNav('navAdminLoan2569Dashboard', 'adminLoan2569DashboardSection');
+
 
     document.querySelectorAll('.submenu-toggle').forEach(item => {
         item.addEventListener('click', function(e) {
@@ -7433,7 +7435,7 @@ if(navAdminSpecialQueueAccess) {
     });
 }
 
-// 2. ฟังก์ชันค้นหารายบุคคล (ค้นหาเพื่อเตรียมให้สิทธิ์)
+// 2. ฟังก์ชันค้นหารายบุคคล
 async function searchForSpecialQueue() {
     const input = document.getElementById('specialQueueSearchInput');
     const studentId = input.value.trim();
@@ -7441,7 +7443,8 @@ async function searchForSpecialQueue() {
 
     showLoading('กำลังค้นหา...');
     try {
-        const payload = createSecurePayload({ action: 'searchStudentForSpecialQueue', studentId: studentId });
+        // [แก้ไข] เปลี่ยนจาก createSecurePayload เป็นการสร้าง Object ปกติ
+        const payload = { action: 'searchStudentForSpecialQueue', studentId: studentId, adminId: adminId, token: userToken };
         const res = await callApi('searchStudentForSpecialQueue', payload);
         hideLoading();
         
@@ -7467,7 +7470,8 @@ async function grantSpecialQueue() {
 
     showLoading('กำลังบันทึกข้อมูล...');
     try {
-        const payload = createSecurePayload({ action: 'grantSpecialQueueAccess', studentId: studentId });
+        // [แก้ไข]
+        const payload = { action: 'grantSpecialQueueAccess', studentId: studentId, adminId: adminId, token: userToken };
         const res = await callApi('grantSpecialQueueAccess', payload);
         hideLoading();
         
@@ -7488,10 +7492,12 @@ async function grantSpecialQueue() {
 // 4. โหลดตารางรายชื่อผู้ได้รับสิทธิ์
 async function loadSpecialQueueList() {
     const tbody = document.getElementById('specialQueueListBody');
+    if(!tbody) return; // ป้องกัน error ถ้าไม่ได้เปิดหน้านี้อยู่
     tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">กำลังโหลด...</td></tr>';
     
     try {
-        const payload = createSecurePayload({ action: 'getSpecialQueueAccessList' });
+        // [แก้ไข]
+        const payload = { action: 'getSpecialQueueAccessList', adminId: adminId, token: userToken };
         const res = await callApi('getSpecialQueueAccessList', payload);
         
         if (res && res.success) {
@@ -7532,7 +7538,8 @@ window.revokeSpecialQueue = async function(studentId) {
     if (confirm.isConfirmed) {
         showLoading('กำลังดำเนินการ...');
         try {
-            const payload = createSecurePayload({ action: 'revokeSpecialQueueAccess', studentId: studentId });
+            // [แก้ไข]
+            const payload = { action: 'revokeSpecialQueueAccess', studentId: studentId, adminId: adminId, token: userToken };
             const res = await callApi('revokeSpecialQueueAccess', payload);
             hideLoading();
             if (res && res.success) {
@@ -7558,12 +7565,15 @@ async function uploadSpecialQueueFile() {
         showLoading('กำลังนำเข้าข้อมูล กรุณารอสักครู่');
         try {
             const base64Data = e.target.result.split(',')[1];
-            const payload = createSecurePayload({
+            // [แก้ไข]
+            const payload = {
                 action: 'bulkGrantSpecialQueueAccess',
                 fileName: file.name,
                 mimeType: file.type || 'application/octet-stream',
-                content: base64Data
-            });
+                content: base64Data,
+                adminId: adminId,
+                token: userToken
+            };
 
             const res = await callApi('bulkGrantSpecialQueueAccess', payload);
             hideLoading();
@@ -7582,6 +7592,56 @@ async function uploadSpecialQueueFile() {
     };
     reader.readAsDataURL(file);
 }
+
+
+// ฟังก์ชันสำหรับโหลดสถิติขอยื่นกู้รายคณะ
+    window.loadLoanFacultyStats = async () => {
+        const container = document.getElementById('loanStatsContainer');
+        if(container) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #94a3b8;">
+                    <i class="material-icons" style="font-size: 40px; animation: spin 2s linear infinite;">autorenew</i>
+                    <p>กำลังประมวลผลสถิติรายคณะ กรุณารอสักครู่</p>
+                </div>
+            `;
+        }
+        
+        try {
+            const res = await callApi("getLoanStatistics", { adminId: adminId, token: userToken });
+            if(checkAuthError(res)) return;
+            
+            if (res && res.success) {
+                if (!res.data || res.data.length === 0) {
+                    if(container) container.innerHTML = '<div style="text-align:center; color:#64748b; padding:20px;">ยังไม่มีข้อมูลสถิติในขณะนี้</div>';
+                    return;
+                }
+
+                let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px;">';
+                res.data.forEach(item => {
+                    let progressColor = item.percent >= 80 ? '#10b981' : (item.percent >= 50 ? '#f59e0b' : '#ef4444');
+                    html += `
+                        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                            <div style="font-weight: bold; color: #1e293b; font-size: 16px; margin-bottom: 10px;">${escapeHTML(item.faculty)}</div>
+                            <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px;">
+                                <span style="color: #64748b;">ยื่นแล้ว: <b style="color: #10b981;">${item.submitted}</b> / ${item.total}</span>
+                                <span style="font-weight: bold; color: ${progressColor};">${item.percent}%</span>
+                            </div>
+                            <div style="width: 100%; background: #f1f5f9; height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div style="width: ${item.percent}%; background: ${progressColor}; height: 100%; border-radius: 4px; transition: width 0.5s ease-in-out;"></div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                
+                if(container) container.innerHTML = html;
+            } else {
+                if(container) container.innerHTML = `<div style="text-align:center; color:#ef4444; padding:20px;">${escapeHTML(res.message || 'เกิดข้อผิดพลาดในการโหลดข้อมูล')}</div>`;
+            }
+        } catch(err) {
+            if(container) container.innerHTML = `<div style="text-align:center; color:#ef4444; padding:20px;">เกิดข้อผิดพลาด: ${err.message}</div>`;
+        }
+    };
 </script>
 </body>
 </html>
