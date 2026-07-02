@@ -932,17 +932,18 @@
             </h2>
         </div>
 
+        <!-- ปุ่มกดเลือกกางฟอร์ม (ค่าเริ่มต้นสีเทา) -->
         <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px;">
-            <button id="btnModeBulk" class="btn" onclick="toggleQueueMode('bulk')" style="background-color: #0284c7; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 10px rgba(2, 132, 199, 0.2);">
+            <button id="btnModeBulk" class="btn" onclick="toggleQueueMode('bulk')" style="background-color: #f1f5f9; color: #475569; padding: 10px 20px; border-radius: 8px; font-weight: 600; border: 1px solid #cbd5e1; transition: all 0.2s;">
                 <i class="material-icons" style="vertical-align: middle; font-size: 18px; margin-right: 5px;">layers</i> สร้างแบบกลุ่ม (มาตรฐาน)
             </button>
-            <button id="btnModeSingle" class="btn" onclick="toggleQueueMode('single')" style="background-color: #f1f5f9; color: #475569; padding: 10px 20px; border-radius: 8px; font-weight: 600;">
+            <button id="btnModeSingle" class="btn" onclick="toggleQueueMode('single')" style="background-color: #f1f5f9; color: #475569; padding: 10px 20px; border-radius: 8px; font-weight: 600; border: 1px solid #cbd5e1; transition: all 0.2s;">
                 <i class="material-icons" style="vertical-align: middle; font-size: 18px; margin-right: 5px;">add_task</i> สร้างแบบกำหนดเอง (ทีละรอบ)
             </button>
         </div>
 
-        <!-- ฟอร์มสร้างแบบกลุ่ม -->
-        <div id="queueFormBulk" style="background: #ffffff; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+        <!-- ฟอร์มสร้างแบบกลุ่ม (ซ่อนไว้เป็นค่าเริ่มต้น display: none) -->
+        <div id="queueFormBulk" style="display: none; background: #ffffff; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
             <h3 style="margin-top: 0; font-size: 18px; color: #0f172a; margin-bottom: 20px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 10px;">
                 กำหนดรอบคิวตามช่วงเวลามาตรฐาน
             </h3>
@@ -961,24 +962,12 @@
                 <div class="form-group" style="margin-top: 15px;">
                     <label style="font-weight: 600; color: #334155; margin-bottom: 10px; display: block;">เลือกช่วงเวลาที่ต้องการเปิดรับ (เลือกได้มากกว่า 1)</label>
                     <div class="time-slot-picker">
-                        <label class="time-slot-label">
-                            <input type="checkbox" name="bulkTime" value="09:00-10:00" checked> 09:00-10:00
-                        </label>
-                        <label class="time-slot-label">
-                            <input type="checkbox" name="bulkTime" value="10:00-11:00" checked> 10:00-11:00
-                        </label>
-                        <label class="time-slot-label">
-                            <input type="checkbox" name="bulkTime" value="11:00-12:00" checked> 11:00-12:00
-                        </label>
-                        <label class="time-slot-label">
-                            <input type="checkbox" name="bulkTime" value="13:00-14:00" checked> 13:00-14:00
-                        </label>
-                        <label class="time-slot-label">
-                            <input type="checkbox" name="bulkTime" value="14:00-15:00" checked> 14:00-15:00
-                        </label>
-                        <label class="time-slot-label">
-                            <input type="checkbox" name="bulkTime" value="15:00-16:00" checked> 15:00-16:00
-                        </label>
+                        <label class="time-slot-label"><input type="checkbox" name="bulkTime" value="09:00-10:00" checked> 09:00-10:00</label>
+                        <label class="time-slot-label"><input type="checkbox" name="bulkTime" value="10:00-11:00" checked> 10:00-11:00</label>
+                        <label class="time-slot-label"><input type="checkbox" name="bulkTime" value="11:00-12:00" checked> 11:00-12:00</label>
+                        <label class="time-slot-label"><input type="checkbox" name="bulkTime" value="13:00-14:00" checked> 13:00-14:00</label>
+                        <label class="time-slot-label"><input type="checkbox" name="bulkTime" value="14:00-15:00" checked> 14:00-15:00</label>
+                        <label class="time-slot-label"><input type="checkbox" name="bulkTime" value="15:00-16:00" checked> 15:00-16:00</label>
                     </div>
                 </div>
                 
@@ -990,7 +979,7 @@
             </form>
         </div>
 
-        <!-- ฟอร์มสร้างแบบกำหนดเอง (ทีละรอบ) -->
+        <!-- ฟอร์มสร้างแบบกำหนดเอง (ซ่อนไว้เป็นค่าเริ่มต้น display: none) -->
         <div id="queueFormSingle" style="display: none; background: #ffffff; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
             <h3 style="margin-top: 0; font-size: 18px; color: #0f172a; margin-bottom: 20px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 10px;">
                 สร้างรอบคิวแบบกำหนดเอง
@@ -1040,7 +1029,7 @@
 </div>
 
 <!-- หน้าต่าง Modal สำหรับดูรายละเอียดรอบคิวในแต่ละวัน -->
-<div id="queueDateDetailsModal" class="modal">
+<div id="queueDateDetailsModal" class="modal" style="z-index: 10001;">
     <div class="modal-content modern-admin-modal" style="max-width: 800px; width: 95%; border-radius: 16px; overflow: hidden; padding: 0;">
         <div class="admin-modal-header" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); padding: 20px 25px;">
             <h3 style="margin: 0; display: flex; align-items: center; gap: 12px; font-size: 20px; color: white;">
@@ -1053,8 +1042,8 @@
         <div class="admin-modal-body" style="padding: 25px; background: #f8fafc; max-height: 60vh; overflow-y: auto;">
             
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <div style="font-size: 14px; color: #64748b; font-weight: bold;">
-                    สรุปยอดรวม: จองแล้ว <span id="modalQueueCurrentTotal" style="color: #0284c7; font-size: 18px;">0</span> จากโควตา <span id="modalQueueQuotaTotal">0</span>
+                <div style="font-size: 15px; color: #64748b; font-weight: bold;">
+                    สรุปยอดรวม: จองแล้ว <span id="modalQueueCurrentTotal" style="color: #0284c7; font-size: 20px;">0</span> จากโควตา <span id="modalQueueQuotaTotal">0</span> คน
                 </div>
             </div>
 
@@ -4460,45 +4449,35 @@ window.toggleDeleteButton = function(count) {
 
     let adminQueueCache = [];
     let currentQueueTab = 'current';
+    let currentQueueFormMode = null;
 
     window.toggleQueueMode = function(mode) {
         const bBulk = document.getElementById('btnModeBulk');
         const bSingle = document.getElementById('btnModeSingle');
-        if(mode === 'bulk') {
-            document.getElementById('queueFormBulk').style.display = 'block';
-            document.getElementById('queueFormSingle').style.display = 'none';
-            bBulk.style.backgroundColor = 'var(--secondary-color)'; bBulk.style.color = 'white';
-            bSingle.style.backgroundColor = '#f1f3f5'; bSingle.style.color = '#666';
+        const formBulk = document.getElementById('queueFormBulk');
+        const formSingle = document.getElementById('queueFormSingle');
+
+        if (currentQueueFormMode === mode) {
+            formBulk.style.display = 'none';
+            formSingle.style.display = 'none';
+            bBulk.style.backgroundColor = '#f1f5f9'; bBulk.style.color = '#475569'; bBulk.style.boxShadow = 'none';
+            bSingle.style.backgroundColor = '#f1f5f9'; bSingle.style.color = '#475569'; bSingle.style.boxShadow = 'none';
+            currentQueueFormMode = null;
+            return;
+        }
+
+        currentQueueFormMode = mode;
+        if (mode === 'bulk') {
+            formBulk.style.display = 'block';
+            formSingle.style.display = 'none';
+            bBulk.style.backgroundColor = '#0284c7'; bBulk.style.color = 'white'; bBulk.style.boxShadow = '0 4px 10px rgba(2, 132, 199, 0.2)';
+            bSingle.style.backgroundColor = '#f1f5f9'; bSingle.style.color = '#475569'; bSingle.style.boxShadow = 'none';
         } else {
-            document.getElementById('queueFormBulk').style.display = 'none';
-            document.getElementById('queueFormSingle').style.display = 'block';
-            bBulk.style.backgroundColor = '#f1f3f5'; bBulk.style.color = '#666';
-            bSingle.style.backgroundColor = 'var(--secondary-color)'; bSingle.style.color = 'white';
+            formBulk.style.display = 'none';
+            formSingle.style.display = 'block';
+            bBulk.style.backgroundColor = '#f1f5f9'; bBulk.style.color = '#475569'; bBulk.style.boxShadow = 'none';
+            bSingle.style.backgroundColor = '#0284c7'; bSingle.style.color = 'white'; bSingle.style.boxShadow = '0 4px 10px rgba(2, 132, 199, 0.2)';
         }
-    };
-
-    window.loadAdminQueueSlots = async () => { 
-        showLoading(); 
-        try {
-            const s = await callApi("getQueueSlots", { role: 'admin', studentId: adminId, token: userToken });
-            if(checkAuthError(s)) { hideLoading(); return; }
-            hideLoading(); 
-            
-            adminQueueCache = safeArray(s); 
-            renderAdminQueueGrouped(adminQueueCache); 
-        } catch(err) {
-            hideLoading();
-            console.error(err);
-        }
-    };
-
-    window.switchQueueTab = (tab) => { 
-        currentQueueTab = tab; 
-        const tbCurr = document.getElementById('tabQueueCurrent');
-        const tbHist = document.getElementById('tabQueueHistory');
-        if(tbCurr) tbCurr.classList.toggle('active', tab === 'current');
-        if(tbHist) tbHist.classList.toggle('active', tab === 'history');
-        renderAdminQueueGrouped(adminQueueCache); 
     };
 
     function renderAdminQueueGrouped(slots) {
@@ -4507,7 +4486,7 @@ window.toggleDeleteButton = function(count) {
         container.innerHTML = '';
         
         if (!slots || slots.length === 0) { 
-            container.innerHTML = '<div style="text-align:center; padding:30px; color:#999; background: white; border-radius:8px; border: 1px solid #eee;">ไม่มีข้อมูลในระบบ</div>'; 
+            container.innerHTML = '<div style="text-align:center; padding:40px; color:#94a3b8;"><i class="material-icons" style="font-size: 48px; opacity: 0.5;">cloud_off</i><br>ไม่มีข้อมูลในระบบ</div>'; 
             return; 
         }
         
@@ -4520,11 +4499,10 @@ window.toggleDeleteButton = function(count) {
         });
         
         if (f.length === 0) { 
-            container.innerHTML = '<div style="text-align:center; padding:30px; color:#999; background: white; border-radius:8px; border: 1px solid #eee;">ไม่มีรอบคิวในช่วงเวลานี้</div>'; 
+            container.innerHTML = '<div style="text-align:center; padding:40px; color:#94a3b8;"><i class="material-icons" style="font-size: 48px; opacity: 0.5;">event_busy</i><br>ไม่มีรอบคิวในช่วงเวลานี้</div>'; 
             return; 
         }
 
-        // จัดกลุ่มตามวันที่
         const groupedData = {};
         f.forEach(s => {
             if (!groupedData[s.date]) groupedData[s.date] = [];
@@ -4533,77 +4511,99 @@ window.toggleDeleteButton = function(count) {
 
         Object.keys(groupedData).sort((a, b) => currentQueueTab === 'current' ? new Date(a) - new Date(b) : new Date(b) - new Date(a)).forEach(dateStr => {
             const dateSlots = groupedData[dateStr];
-            dateSlots.sort((a,b) => a.time.localeCompare(b.time));
-
             let totalQuotaOfDay = 0, totalCurrentOfDay = 0;
+            
             dateSlots.forEach(s => {
                 totalQuotaOfDay += parseInt(s.quota);
                 totalCurrentOfDay += parseInt(s.current);
             });
 
-            const contentId = 'queue-date-' + dateStr.replace(/[\/\s-]/g, '');
             const isFullyBooked = totalCurrentOfDay >= totalQuotaOfDay && totalQuotaOfDay > 0;
+            const cardBg = isFullyBooked ? '#fff5f5' : '#ffffff';
+            const statusColor = isFullyBooked ? '#dc2626' : '#059669';
 
             container.innerHTML += `
-                <div style="margin-bottom: 15px; border-radius: 8px; overflow: hidden; border: 1px solid #e0e0e0; background: white;">
-                    <div style="background: ${isFullyBooked ? '#ffebee' : '#f8f9fa'}; padding: 15px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;" 
-                         onclick="const el = document.getElementById('${contentId}'); const icon = document.getElementById('icon-${contentId}'); if(el.style.display === 'none'){ el.style.display = 'block'; icon.textContent = 'expand_less'; } else { el.style.display = 'none'; icon.textContent = 'expand_more'; }">
-                        <div style="font-weight: bold; font-size: 16px; color: #1976D2; display: flex; align-items: center; gap: 10px;">
-                            <i class="material-icons" id="icon-${contentId}">expand_more</i>
-                            <i class="material-icons" style="color: #666;">calendar_month</i> วันที่ ${formatDate(dateStr)}
-                            <span style="background: #1976D2; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: normal;">${dateSlots.length} รอบ</span>
+                <div class="queue-date-card" style="background: ${cardBg}; cursor: pointer;" onclick="openQueueDateDetails('${dateStr}')">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="background: #e0f2fe; color: #0284c7; padding: 12px; border-radius: 12px;">
+                            <i class="material-icons" style="font-size: 24px;">calendar_month</i>
                         </div>
-                        <div style="font-size: 14px; color: #555;">
-                            จองแล้ว <b style="color: ${isFullyBooked ? '#d32f2f' : '#2e7d32'}">${totalCurrentOfDay}</b> / ${totalQuotaOfDay} คน
+                        <div>
+                            <div style="font-size: 18px; font-weight: bold; color: #1e293b;">วันที่ ${formatDate(dateStr)}</div>
+                            <div style="font-size: 14px; color: #64748b; margin-top: 4px;">เปิดรับทั้งหมด ${dateSlots.length} รอบ</div>
                         </div>
                     </div>
-                    
-                    <div id="${contentId}" style="display: none; padding: 0;">
-                        <table class="clean-table" style="margin: 0; border: none;">
-                            <thead style="background: #f1f5f9;">
-                                <tr>
-                                    <th style="padding-left: 20px;">ช่วงเวลา</th>
-                                    <th style="text-align: center;">จำนวนรับ (คน)</th>
-                                    <th style="text-align: center;">จองแล้ว (คน)</th>
-                                    <th style="text-align: center;">สถานะ</th>
-                                    <th style="text-align: center; padding-right: 20px;">จัดการ</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${dateSlots.map(s => {
-                                    const isFull = parseInt(s.current) >= parseInt(s.quota);
-                                    const isHidden = s.status === 'Hide';
-                                    let badge = isHidden 
-                                        ? '<span style="background:#f1f3f5;color:#666;padding:4px 8px;border-radius:12px;font-size:12px;">ซ่อนอยู่</span>' 
-                                        : (isFull ? '<span style="background:#ffebee;color:#d32f2f;padding:4px 8px;border-radius:12px;font-size:12px;">เต็มแล้ว</span>' : '<span style="background:#e8f5e9;color:#2e7d32;padding:4px 8px;border-radius:12px;font-size:12px;">เปิดจอง</span>');
-                                    
-                                    return `
-                                    <tr style="${isHidden ? 'opacity:0.6; background:#fafafa;' : ''} ${isFull && !isHidden ? 'background: #fff5f5;' : ''}">
-                                        <td style="font-weight: bold; padding-left: 20px;">${escapeHTML(s.time)}</td>
-                                        <td style="text-align: center;">${s.quota}</td>
-                                        <td style="text-align: center; color: ${isFull ? '#d32f2f' : '#2e7d32'}; font-weight: bold;">
-                                            ${s.current} / ${s.quota}
-                                        </td>
-                                        <td style="text-align: center;">${badge}</td>
-                                        <td style="text-align: center; padding-right: 20px;">
-                                            <div style="display:flex; gap:5px; justify-content:center;">
-                                                <button class="btn btn-sm" style="background:#e2e8f0; padding:4px 8px;" onclick="toggleQueueStatus('${escapeHTML(s.id)}','${escapeHTML(s.status)}')">
-                                                    <i class="material-icons" style="font-size:14px;">${isHidden ? 'visibility' : 'visibility_off'}</i>
-                                                </button>
-                                                <button class="btn btn-danger btn-sm" style="padding:4px 8px;" onclick="deleteQueueSlot('${escapeHTML(s.id)}')">
-                                                    <i class="material-icons" style="font-size:14px;">delete</i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>`;
-                                }).join('')}
-                            </tbody>
-                        </table>
+                    <div style="text-align: right;">
+                        <div style="font-size: 14px; color: #64748b; margin-bottom: 4px;">สถานะการจอง</div>
+                        <div style="font-size: 16px; font-weight: bold; color: #334155;">
+                            <span style="color: ${statusColor}; font-size: 20px;">${totalCurrentOfDay}</span> / ${totalQuotaOfDay} คน
+                        </div>
                     </div>
                 </div>
             `;
         });
     }
+
+    window.openQueueDateDetails = (dateStr) => {
+        const slots = adminQueueCache.filter(s => s.date === dateStr);
+        if(!slots || slots.length === 0) return;
+
+        slots.sort((a,b) => a.time.localeCompare(b.time));
+
+        let totalQuotaOfDay = 0, totalCurrentOfDay = 0;
+        slots.forEach(s => {
+            totalQuotaOfDay += parseInt(s.quota);
+            totalCurrentOfDay += parseInt(s.current);
+        });
+
+        document.getElementById('modalQueueDateTitle').textContent = formatDate(dateStr);
+        document.getElementById('modalQueueCurrentTotal').textContent = totalCurrentOfDay;
+        document.getElementById('modalQueueQuotaTotal').textContent = totalQuotaOfDay;
+
+        const tbody = document.getElementById('modalQueueDetailsBody');
+        tbody.innerHTML = '';
+
+        slots.forEach(s => {
+            const isFull = parseInt(s.current) >= parseInt(s.quota);
+            const isHidden = s.status === 'Hide';
+            let badge = isHidden
+                ? '<span style="background:#f1f5f9;color:#64748b;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:bold;">ซ่อนอยู่</span>'
+                : (isFull ? '<span style="background:#fef2f2;color:#dc2626;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:bold;">เต็มแล้ว</span>' : '<span style="background:#ecfdf5;color:#059669;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:bold;">เปิดจอง</span>');
+
+            tbody.innerHTML += `
+                <tr style="${isHidden ? 'opacity:0.6; background:#f8fafc;' : ''} ${isFull && !isHidden ? 'background: #fff5f5;' : ''}">
+                    <td style="font-weight: bold; font-size: 15px; color: #334155; padding: 15px;">${escapeHTML(s.time)}</td>
+                    <td style="text-align: center; font-size: 15px; color: #475569;">${s.quota}</td>
+                    <td style="text-align: center; color: ${isFull ? '#dc2626' : '#059669'}; font-weight: bold; font-size: 15px;">
+                        ${s.current} / ${s.quota}
+                    </td>
+                    <td style="text-align: center;">${badge}</td>
+                    <td style="text-align: center;">
+                        <div style="display:flex; gap:8px; justify-content:center;">
+                            <button class="btn btn-sm" style="background:#e2e8f0; padding:6px 10px; border-radius: 6px;" onclick="toggleQueueStatusAndCloseModal('${escapeHTML(s.id)}','${escapeHTML(s.status)}')">
+                                <i class="material-icons" style="font-size:16px; color: #475569;">${isHidden ? 'visibility' : 'visibility_off'}</i>
+                            </button>
+                            <button class="btn btn-danger btn-sm" style="padding:6px 10px; border-radius: 6px;" onclick="deleteQueueSlotAndCloseModal('${escapeHTML(s.id)}')">
+                                <i class="material-icons" style="font-size:16px;">delete</i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>`;
+        });
+
+        document.getElementById('queueDateDetailsModal').style.display = 'flex';
+    };
+
+    // ฟังก์ชันเสริมสำหรับปิด Modal เวลาแอดมินลบ/แก้ไขคิวในหน้าต่าง
+    window.toggleQueueStatusAndCloseModal = function(id, status) {
+        document.getElementById('queueDateDetailsModal').style.display = 'none';
+        toggleQueueStatus(id, status);
+    };
+
+    window.deleteQueueSlotAndCloseModal = function(id) {
+        document.getElementById('queueDateDetailsModal').style.display = 'none';
+        deleteQueueSlot(id);
+    };
 
     const createQueueSingleForm = document.getElementById('createQueueSingleForm');
     if (createQueueSingleForm) {
@@ -4615,7 +4615,7 @@ window.toggleDeleteButton = function(count) {
 
             Swal.fire({ title: 'ยืนยันการสร้างคิว', icon: 'question', showCancelButton: true }).then(async r => {
                 if (r.isConfirmed) {
-                    showLoading('กำลังบันทึก...');
+                    showLoading('กำลังบันทึก');
                     try {
                         const res = await callApi('createQueueSlot', { date, time, quota, status: 'Show', adminId: adminId, token: userToken });
                         hideLoading();
@@ -4645,12 +4645,12 @@ window.toggleDeleteButton = function(count) {
 
             Swal.fire({ 
                 title: 'ยืนยันการสร้างคิว', 
-                text: `ระบบจะสร้างคิวในวันที่ ${date} จำนวน ${times.length} รอบ (รอบละ ${quota} คน) ยืนยันหรือไม่?`, 
+                text: `ระบบจะสร้างคิวในวันที่ ${date} จำนวน ${times.length} รอบ (รอบละ ${quota} คน) ยืนยันหรือไม่`, 
                 icon: 'question', 
                 showCancelButton: true 
             }).then(async r => {
                 if (r.isConfirmed) {
-                    showLoading('กำลังสร้างกลุ่มคิว...');
+                    showLoading('ระบบกำลังสร้างกลุ่มคิว อาจใช้เวลา');
                     let successCount = 0;
                     try {
                         for (let t of times) {
@@ -4660,7 +4660,7 @@ window.toggleDeleteButton = function(count) {
                             if(res.success) successCount++;
                         }
                         hideLoading();
-                        Swal.fire('สำเร็จ', `สร้างรอบคิวเสร็จสมบูรณ์ ${successCount} รายการ`, 'success');
+                        Swal.fire('ทำรายการสำเร็จ', `สร้างรอบคิวเสร็จสมบูรณ์ ${successCount} รายการ`, 'success');
                         document.getElementById('createQueueBulkForm').reset();
                         loadAdminQueueSlots(); 
                     } catch (err) { 
