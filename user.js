@@ -444,7 +444,7 @@ async function loadMyQueue() {
             document.getElementById('ticketTime').innerText = t.time || '-';
             document.getElementById('ticketName').innerText = t.name || '-';
             
-            let dayOfWeek = new Date().getDay(); 
+            let dayOfWeek = new Date().getDay();
             if (t.date) {
                 const parts = t.date.split('/');
                 if(parts.length === 3) {
@@ -455,13 +455,13 @@ async function loadMyQueue() {
             }
 
             const themes = {
-                0: { bg: 'linear-gradient(135deg, #d32f2f, #f44336)', text: '#ffffff', water: 'rgba(255,255,255,0.2)' }, // อาทิตย์-แดง
-                1: { bg: 'linear-gradient(135deg, #fbc02d, #fdd835)', text: '#212121', water: 'rgba(0,0,0,0.1)' },    // จันทร์-เหลือง (ตัวหนังสือดำ)
-                2: { bg: 'linear-gradient(135deg, #c2185b, #e91e63)', text: '#ffffff', water: 'rgba(255,255,255,0.2)' }, // อังคาร-ชมพู
-                3: { bg: 'linear-gradient(135deg, #2e7d32, #4caf50)', text: '#ffffff', water: 'rgba(255,255,255,0.2)' }, // พุธ-เขียว
-                4: { bg: 'linear-gradient(135deg, #ef6c00, #ff9800)', text: '#ffffff', water: 'rgba(255,255,255,0.2)' }, // พฤหัส-ส้ม
-                5: { bg: 'linear-gradient(135deg, #1565c0, #1e88e5)', text: '#ffffff', water: 'rgba(255,255,255,0.2)' }, // ศุกร์-ฟ้า
-                6: { bg: 'linear-gradient(135deg, #7b1fa2, #9c27b0)', text: '#ffffff', water: 'rgba(255,255,255,0.2)' }  // เสาร์-ม่วง
+                0: { bg: 'linear-gradient(135deg, #d32f2f, #f44336)', text: '#ffffff', water: 'rgba(255,255,255,0.2)' },
+                1: { bg: 'linear-gradient(135deg, #fbc02d, #fdd835)', text: '#212121', water: 'rgba(0,0,0,0.15)' },
+                2: { bg: 'linear-gradient(135deg, #c2185b, #e91e63)', text: '#ffffff', water: 'rgba(255,255,255,0.2)' },
+                3: { bg: 'linear-gradient(135deg, #2e7d32, #4caf50)', text: '#ffffff', water: 'rgba(255,255,255,0.2)' },
+                4: { bg: 'linear-gradient(135deg, #ef6c00, #ff9800)', text: '#ffffff', water: 'rgba(255,255,255,0.2)' },
+                5: { bg: 'linear-gradient(135deg, #1565c0, #1e88e5)', text: '#ffffff', water: 'rgba(255,255,255,0.2)' },
+                6: { bg: 'linear-gradient(135deg, #7b1fa2, #9c27b0)', text: '#ffffff', water: 'rgba(255,255,255,0.2)' }
             };
 
             const theme = themes[dayOfWeek] || themes[5];
@@ -471,14 +471,16 @@ async function loadMyQueue() {
             if (bg && txt) {
                 bg.style.background = theme.bg;
                 
-                txt.style.color = theme.text;
+                bg.setAttribute('data-watermark', `UBU - ${currentUser.studentId} - Q${t.queueNumber}`);
                 
+                txt.style.color = theme.text;
                 txt.style.textShadow = (theme.text === '#ffffff') ? '1px 1px 3px rgba(0,0,0,0.4)' : 'none';
                 
                 const subElements = txt.querySelectorAll('.info-label, .info-value, .scan-label');
                 subElements.forEach(el => {
                     el.style.color = (theme.text === '#ffffff') ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.6)';
                 });
+
 
                 let styleEl = document.getElementById('dynamicTicketStyle');
                 if(!styleEl) {
@@ -489,6 +491,7 @@ async function loadMyQueue() {
                 styleEl.innerHTML = `.modern-queue-ticket::after { color: ${theme.water} !important; }`;
             }
 
+            // 3. สร้าง QR Code
             const qrContainer = document.getElementById('qrCodeContainer');
             qrContainer.innerHTML = ''; 
             if(typeof QRCode !== 'undefined') {
