@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://script.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.ipify.org https://cdn.jsdelivr.net; img-src 'self' data: https:;">
+
   <title>ระบบบริหารงานกองทุนเงินให้กู้ยืมเพื่อการศึกษา มหาวิทยาลัยอุบลราชธานี</title>
   
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -4602,7 +4603,7 @@ window.toggleDeleteButton = function(count) {
                             if(res.success) successCount++;
                         }
                         hideLoading();
-                        Swal.fire('สำเร็จ', `สร้างรอบคิวเสร็จสมบูรณ์ ${successCount} รายการ`, 'success');
+                        Swal.fire('ทำรายการสำเร็จ', `สร้างรอบคิวเสร็จสมบูรณ์ ${successCount} รายการ`, 'success');
                         document.getElementById('createQueueBulkForm').reset();
                         document.getElementById('createQueueBulkModal').style.display = 'none'; // ปิดป๊อปอัพเมื่อเสร็จสิ้น
                         loadAdminQueueSlots(); 
