@@ -242,13 +242,14 @@
                                 .modern-queue-ticket {
                                     position: relative;
                                     display: flex;
-                                    flex-direction: row; /* ค่าเริ่มต้นหน้าจอคอมแสดงแบบ ซ้าย-ขวา */
-                                    border-radius: 16px;
+                                    flex-direction: row; /* บังคับให้เป็นแนวนอนเสมอ */
+                                    border-radius: 12px;
                                     overflow: hidden;
                                     box-shadow: 0 10px 25px rgba(0,0,0,0.15);
                                     color: white;
-                                    min-height: 200px;
+                                    min-height: 160px;
                                     transition: background 0.5s ease;
+                                    width: 100%;
                                 }
                                 /* ลายน้ำที่ 1: โลโก้ */
                                 .modern-queue-ticket::before {
@@ -270,7 +271,7 @@
                                     top: 50%;
                                     left: 50%;
                                     transform: translate(-50%, -50%) rotate(-25deg);
-                                    font-size: 36px;
+                                    font-size: 32px;
                                     font-weight: 800;
                                     color: rgba(255, 255, 255, 0.15);
                                     pointer-events: none;
@@ -280,7 +281,7 @@
                                 }
                                 .qt-left-modern {
                                     flex: 1;
-                                    padding: 25px;
+                                    padding: 20px;
                                     display: flex;
                                     flex-direction: column;
                                     justify-content: space-between;
@@ -288,11 +289,11 @@
                                     z-index: 2;
                                 }
                                 .qt-right-modern {
-                                    width: 200px;
-                                    min-width: 200px;
+                                    width: 160px;
+                                    min-width: 160px;
                                     background: rgba(255,255,255,0.95);
                                     color: #333;
-                                    padding: 20px;
+                                    padding: 15px;
                                     display: flex;
                                     flex-direction: column;
                                     align-items: center;
@@ -301,79 +302,99 @@
                                     position: relative;
                                     z-index: 2;
                                 }
-                                /* รอยบากตั๋ว (หน้าจอคอม) */
+                                /* รอยบากตั๋ว (เส้นประแนวตั้ง) */
                                 .qt-right-modern::before, .qt-right-modern::after {
                                     content: '';
                                     position: absolute;
-                                    left: -12px;
-                                    width: 24px;
-                                    height: 24px;
+                                    left: -10px;
+                                    width: 20px;
+                                    height: 20px;
                                     background: #fff;
                                     border-radius: 50%;
                                 }
-                                .qt-right-modern::before { top: -12px; }
-                                .qt-right-modern::after { bottom: -12px; }
+                                .qt-right-modern::before { top: -10px; }
+                                .qt-right-modern::after { bottom: -10px; }
+
+                                /* บังคับให้ QR Code ย่อขนาดไม่ให้ล้นกรอบ */
+                                #qrCodeContainer img, #qrCodeContainer canvas {
+                                    max-width: 100%;
+                                    height: auto !important;
+                                }
 
                                 /* ========================================
-                                   การแสดงผลบนหน้าจอโทรศัพท์มือถือ (Responsive)
+                                   เมื่ออยู่บนจอมือถือ (ย่อส่วนประกอบให้เล็กลง แต่คงแนวนอนไว้)
                                    ======================================== */
-                                @media (max-width: 650px) {
+                                @media (max-width: 500px) {
                                     .modern-queue-ticket {
-                                        flex-direction: column; /* เปลี่ยนเป็นเรียง บน-ล่าง */
+                                        border-radius: 8px; /* ลดความโค้งขอบบัตร */
                                     }
                                     .modern-queue-ticket::after {
-                                        font-size: 24px; /* ปรับลายน้ำให้เล็กลง */
+                                        font-size: 20px; /* ย่อลายน้ำ */
                                     }
                                     .qt-left-modern {
-                                        padding: 20px;
-                                        text-align: center; /* จัดให้อยู่กึ่งกลางบนมือถือ */
-                                    }
-                                    .qt-left-modern .ticket-info-grid {
-                                        justify-content: center; /* จัดกลุ่มวันที่/เวลาให้อยู่ตรงกลาง */
+                                        padding: 12px; /* ลดช่องว่างด้านซ้าย */
                                     }
                                     .qt-right-modern {
-                                        width: 100%;
-                                        min-width: 100%;
-                                        border-left: none; /* เอาเส้นประแนวตั้งออก */
-                                        border-top: 2px dashed rgba(0,0,0,0.25); /* ใส่เส้นประแนวนอนแทน */
-                                        padding: 25px 20px;
+                                        width: 110px; /* บีบด้านขวาให้แคบลง เพื่อเว้นที่ให้ข้อความด้านซ้าย */
+                                        min-width: 110px;
+                                        padding: 10px;
                                     }
-                                    /* ปรับตำแหน่งรอยบากตั๋วให้มาอยู่ซ้าย-ขวาของเส้นประแนวนอน */
-                                    .qt-right-modern::before, .qt-right-modern::after {
-                                        top: -12px;
-                                    }
-                                    .qt-right-modern::before { left: -12px; bottom: auto; }
-                                    .qt-right-modern::after { right: -12px; left: auto; bottom: auto; }
-                                    
+                                    /* ย่อขนาดตัวอักษรต่างๆ บนมือถือ */
                                     #ticketNumber {
-                                        font-size: 48px !important; /* ปรับขนาดเลขคิวให้เล็กลงบนมือถือไม่ให้ล้น */
+                                        font-size: 40px !important;
+                                    }
+                                    #ticketName {
+                                        font-size: 14px !important;
+                                        white-space: nowrap;
+                                        overflow: hidden;
+                                        text-overflow: ellipsis;
+                                    }
+                                    .ticket-info-grid {
+                                        padding: 8px !important;
+                                        gap: 10px !important;
+                                        margin-top: 10px !important;
+                                    }
+                                    .ticket-info-grid .info-value {
+                                        font-size: 13px !important;
+                                    }
+                                    .ticket-info-grid .info-label {
+                                        font-size: 10px !important;
+                                    }
+                                    .scan-label {
+                                        font-size: 10px !important;
+                                    }
+                                    #btnCancelQueue {
+                                        font-size: 11px !important;
+                                        padding: 4px 8px !important;
+                                        height: 28px !important;
+                                        margin-top: 10px !important;
                                     }
                                 }
                             </style>
 
                             <div class="modern-queue-ticket" id="ticketCardBg" style="background: linear-gradient(135deg, #1976D2, #1565c0);">
                                 <div class="qt-left-modern" id="ticketCardText">
-                                    <div>
-                                        <div style="font-size:14px; opacity:0.9; text-transform: uppercase; letter-spacing: 1px;">หมายเลขคิวรับบริการของท่าน</div>
-                                        <div id="ticketNumber" style="font-size: 58px; font-weight: 800; line-height: 1; margin: 10px 0;">-</div>
+                                    <div style="overflow: hidden;">
+                                        <div class="info-label" style="font-size:12px; opacity:0.9; text-transform: uppercase; letter-spacing: 1px;">หมายเลขคิวรับบริการของท่าน</div>
+                                        <div id="ticketNumber" style="font-size: 58px; font-weight: 800; line-height: 1; margin: 8px 0;">-</div>
                                         <div id="ticketName" style="font-size: 18px; font-weight: 500; opacity: 0.95;">-</div>
                                     </div>
-                                    <div class="ticket-info-grid" style="display: flex; flex-wrap: wrap; gap: 20px; margin-top: 20px; background: rgba(0,0,0,0.15); padding: 15px; border-radius: 12px;">
+                                    <div class="ticket-info-grid" style="display: flex; flex-wrap: wrap; gap: 20px; margin-top: 20px; background: rgba(0,0,0,0.15); padding: 12px; border-radius: 8px;">
                                         <div style="text-align: left;">
-                                            <div style="font-size: 12px; opacity: 0.85;">วันที่นัดหมาย</div>
-                                            <div id="ticketDate" style="font-size: 16px; font-weight: bold;">-</div>
+                                            <div class="info-label" style="font-size: 12px; opacity: 0.85;">วันที่นัดหมาย</div>
+                                            <div class="info-value" id="ticketDate" style="font-size: 16px; font-weight: bold;">-</div>
                                         </div>
                                         <div style="text-align: left;">
-                                            <div style="font-size: 12px; opacity: 0.85;">เวลารับบริการ</div>
-                                            <div id="ticketTime" style="font-size: 16px; font-weight: bold;">-</div>
+                                            <div class="info-label" style="font-size: 12px; opacity: 0.85;">เวลารับบริการ</div>
+                                            <div class="info-value" id="ticketTime" style="font-size: 16px; font-weight: bold;">-</div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="qt-right-modern">
-                                    <div style="font-size: 13px; color: #666; font-weight: bold; margin-bottom: 10px;">สแกนเพื่อยืนยันตัวตน</div>
-                                    <div id="qrCodeContainer" style="padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"></div>
-                                    <button class="btn btn-danger btn-sm" id="btnCancelQueue" style="margin-top: 15px; width: 100%; border-radius: 20px; font-size: 14px; height: 40px;">
-                                        <i class="material-icons" style="font-size: 16px; vertical-align: middle;">cancel</i> ยกเลิกคิว
+                                    <div class="scan-label" style="font-size: 12px; color: #666; font-weight: bold; margin-bottom: 8px;">สแกนยืนยันคิว</div>
+                                    <div id="qrCodeContainer" style="padding: 8px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); width: 100%;"></div>
+                                    <button class="btn btn-danger" id="btnCancelQueue" style="margin-top: 15px; width: 100%; border-radius: 20px; font-size: 13px; height: 35px; padding: 0;">
+                                        <i class="material-icons" style="font-size: 14px; vertical-align: middle;">cancel</i> ยกเลิก
                                     </button>
                                 </div>
                             </div>
