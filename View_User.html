@@ -239,96 +239,139 @@
                         
                         <div id="myQueueTicketArea" style="display:none; margin-bottom: 30px;">
                             <style>
-                                .modern-queue-ticket {
-                                    position: relative;
-                                    display: flex !important;
-                                    flex-direction: row !important; /* บังคับแนวนอนซ้ายขวา 100% */
-                                    border-radius: 12px;
-                                    overflow: hidden;
-                                    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-                                    color: white;
-                                    min-height: 150px;
-                                    width: 100%;
-                                }
-                                .modern-queue-ticket::before {
-                                    content: '';
-                                    position: absolute;
-                                    top: 0; left: 0; right: 0; bottom: 0;
-                                    background-image: url('https://img1.pic.in.th/images/Ubu_logo.png');
-                                    background-size: 150px;
-                                    background-position: center;
-                                    background-repeat: no-repeat;
-                                    opacity: 0.15;
-                                    pointer-events: none;
-                                    z-index: 1;
-                                }
-                                .qt-left-modern {
-                                    flex: 1;
-                                    padding: 15px;
-                                    display: flex;
-                                    flex-direction: column;
-                                    justify-content: space-between;
-                                    position: relative;
-                                    z-index: 2;
-                                    min-width: 0; /* ป้องกันเนื้อหาดันกรอบล้น */
-                                }
-                                .qt-right-modern {
-                                    width: 120px;
-                                    min-width: 120px;
-                                    background: rgba(255,255,255,0.95);
-                                    color: #333;
-                                    padding: 10px;
-                                    display: flex;
-                                    flex-direction: column;
-                                    align-items: center;
-                                    justify-content: center;
-                                    border-left: 2px dashed rgba(0,0,0,0.25);
-                                    position: relative;
-                                    z-index: 2;
-                                }
-                                .qt-right-modern::before, .qt-right-modern::after {
-                                    content: '';
-                                    position: absolute;
-                                    left: -8px;
-                                    width: 16px;
-                                    height: 16px;
-                                    background: #fff;
-                                    border-radius: 50%;
-                                }
-                                .qt-right-modern::before { top: -8px; }
-                                .qt-right-modern::after { bottom: -8px; }
+    .modern-queue-ticket {
+        position: relative;
+        display: flex !important;
+        flex-direction: row !important; /* บังคับแนวนอนซ้ายขวา 100% */
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        color: white;
+        min-height: 140px;
+        width: 100%;
+    }
+    .modern-queue-ticket::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-image: url('https://img1.pic.in.th/images/Ubu_logo.png');
+        background-size: 150px;
+        background-position: center;
+        background-repeat: no-repeat;
+        opacity: 0.15;
+        pointer-events: none;
+        z-index: 1;
+    }
+    .qt-left-modern {
+        flex: 1;
+        padding: 15px 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        z-index: 2;
+        min-width: 0; /* ป้องกันเนื้อหาดันกรอบล้น */
+    }
+    .qt-right-modern {
+        width: 110px; /* ลดความกว้างด้านขวาลงให้พอดีกับ QR Code */
+        min-width: 110px;
+        background: rgba(255,255,255,0.95);
+        color: #333;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border-left: 2px dashed rgba(0,0,0,0.25);
+        position: relative;
+        z-index: 2;
+    }
+    .qt-right-modern::before, .qt-right-modern::after {
+        content: '';
+        position: absolute;
+        left: -8px;
+        width: 16px;
+        height: 16px;
+        background: #fff;
+        border-radius: 50%;
+    }
+    .qt-right-modern::before { top: -8px; }
+    .qt-right-modern::after { bottom: -8px; }
 
-                                /* บังคับ QR Code ห้ามล้นเด็ดขาด */
-                                #qrCodeContainer {
-                                    display: flex;
-                                    justify-content: center;
-                                    align-items: center;
-                                    background: white;
-                                    padding: 5px;
-                                    border-radius: 6px;
-                                    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-                                    width: 100%;
-                                    box-sizing: border-box;
-                                }
-                                #qrCodeContainer img, #qrCodeContainer canvas {
-                                    width: 100% !important;
-                                    max-width: 90px !important;
-                                    height: auto !important;
-                                }
+    /* ควบคุม QR Code */
+    #qrCodeContainer {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: white;
+        padding: 4px;
+        border-radius: 6px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        width: 100%;
+        box-sizing: border-box;
+    }
+    #qrCodeContainer img, #qrCodeContainer canvas {
+        width: 100% !important;
+        max-width: 80px !important;
+        height: auto !important;
+    }
 
-                                /* การปรับขนาดฟอนต์ให้พอดีจอมือถือ */
-                                @media (max-width: 500px) {
-                                    #ticketNumber { font-size: 38px !important; }
-                                    #ticketName { font-size: 14px !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-                                    .ticket-info-grid { flex-direction: column; gap: 8px !important; padding: 10px !important; margin-top: 10px !important; }
-                                    .ticket-info-grid > div { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px; }
-                                    .ticket-info-grid > div:last-child { border-bottom: none; padding-bottom: 0; }
-                                    .info-label { font-size: 11px !important; }
-                                    .info-value { font-size: 13px !important; }
-                                    .scan-label { font-size: 11px !important; }
-                                    #btnCancelQueue { font-size: 11px !important; padding: 4px; height: 28px !important; margin-top: 8px !important; }
-                                }
-                            </style>
+    /* ========================================
+       การปรับจูนขนาดบนหน้าจอมือถือ (Responsive)
+       ======================================== */
+    @media (max-width: 500px) {
+        .qt-left-modern { 
+            padding: 12px 10px !important; /* ลด padding เพื่อเพิ่มพื้นที่ข้อความ */
+        }
+        .qt-right-modern { 
+            width: 95px !important; /* บีบฝั่งขวาให้เล็กสุดเท่าที่ QR จะแสดงได้ */
+            min-width: 95px !important; 
+            padding: 8px !important; 
+        }
+        
+        .info-label { 
+            font-size: 10px !important; 
+            letter-spacing: 0 !important; 
+        }
+        #ticketNumber { 
+            font-size: 36px !important; /* ปรับลดขนาดตัวเลขคิวไม่ให้เบียดบนล่าง */
+            margin: 2px 0 !important; 
+        }
+        #ticketName { 
+            font-size: 13px !important; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+        }
+        
+        /* ปรับกรอบข้อมูลวันที่และเวลาให้แบนและกะทัดรัดที่สุด */
+        .ticket-info-grid { 
+            flex-direction: column; 
+            gap: 4px !important; 
+            padding: 8px !important; 
+            margin-top: 8px !important; 
+        }
+        .ticket-info-grid > div { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        .ticket-info-grid .info-value { 
+            font-size: 12px !important; 
+        }
+        
+        .scan-label { 
+            font-size: 10px !important; 
+            margin-bottom: 4px !important; 
+        }
+        #btnCancelQueue { 
+            font-size: 11px !important; 
+            padding: 2px !important; 
+            height: 26px !important; 
+            margin-top: 8px !important; 
+        }
+    }
+</style>
 
                             <div class="modern-queue-ticket" id="ticketCardBg" style="background: linear-gradient(135deg, #1976D2, #1565c0);">
                                 <div class="qt-left-modern" id="ticketCardText">
