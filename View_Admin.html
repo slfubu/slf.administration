@@ -4444,7 +4444,7 @@ window.toggleDeleteButton = function(count) {
         renderAdminQueueGrouped(adminQueueCache); 
     };
 
-    // ฟังก์ชันเดิม (กางหน้าต่างในหน้าจอ)
+    // ฟังก์ชันเดิม (กดขยายในหน้าจอ)
     function renderAdminQueueGrouped(slots) {
         const container = document.getElementById('adminQueueSlotsContainer'); 
         if(!container) return;
@@ -4548,9 +4548,10 @@ window.toggleDeleteButton = function(count) {
         });
     }
 
-    const createQueueSingleForm = document.getElementById('createQueueSingleForm');
-    if (createQueueSingleForm) {
-        createQueueSingleForm.onsubmit = async (e) => {
+    // ฟังก์ชันสร้างคิวแบบกำหนดเอง (แก้ไขตัวแปรไม่ให้ซ้ำ)
+    const adminQueueSingleForm = document.getElementById('createQueueSingleForm');
+    if (adminQueueSingleForm) {
+        adminQueueSingleForm.onsubmit = async (e) => {
             e.preventDefault();
             const date = document.getElementById('queueDateSingle').value;
             const time = document.getElementById('queueTimeSingle').value;
@@ -4558,14 +4559,14 @@ window.toggleDeleteButton = function(count) {
 
             Swal.fire({ title: 'ยืนยันการสร้างคิว', icon: 'question', showCancelButton: true }).then(async r => {
                 if (r.isConfirmed) {
-                    showLoading('กำลังบันทึก');
+                    showLoading('ระบบกำลังบันทึก');
                     try {
                         const res = await callApi('createQueueSlot', { date, time, quota, status: 'Show', adminId: adminId, token: userToken });
                         hideLoading();
                         if (res.success) {
                             Swal.fire('ทำรายการสำเร็จ', 'สร้างรอบคิวแล้ว', 'success');
                             document.getElementById('createQueueSingleForm').reset();
-                            document.getElementById('createQueueSingleModal').style.display = 'none'; // ปิดป๊อปอัพเมื่อเสร็จสิ้น
+                            document.getElementById('createQueueSingleModal').style.display = 'none'; // ปิดหน้าต่างป๊อปอัพ
                             loadAdminQueueSlots();
                         } else Swal.fire('ผิดพลาด', res.message, 'error');
                     } catch (err) { hideLoading(); Swal.fire('ผิดพลาด', err.message, 'error'); }
@@ -4574,9 +4575,10 @@ window.toggleDeleteButton = function(count) {
         };
     }
 
-    const createQueueBulkForm = document.getElementById('createQueueBulkForm');
-    if (createQueueBulkForm) {
-        createQueueBulkForm.onsubmit = async (e) => {
+    // ฟังก์ชันสร้างคิวแบบกลุ่ม (แก้ไขตัวแปรไม่ให้ซ้ำ)
+    const adminQueueBulkForm = document.getElementById('createQueueBulkForm');
+    if (adminQueueBulkForm) {
+        adminQueueBulkForm.onsubmit = async (e) => {
             e.preventDefault();
             const date = document.getElementById('queueDateBulk').value;
             const quota = document.getElementById('queueQuotaBulk').value;
@@ -4593,7 +4595,7 @@ window.toggleDeleteButton = function(count) {
                 showCancelButton: true 
             }).then(async r => {
                 if (r.isConfirmed) {
-                    showLoading('ระบบกำลังสร้างคิว อาจใช้เวลา');
+                    showLoading('กำลังสร้างกลุ่มคิว อาจใช้เวลาสักครู่');
                     let successCount = 0;
                     try {
                         for (let t of times) {
@@ -4605,49 +4607,7 @@ window.toggleDeleteButton = function(count) {
                         hideLoading();
                         Swal.fire('ทำรายการสำเร็จ', `สร้างรอบคิวเสร็จสมบูรณ์ ${successCount} รายการ`, 'success');
                         document.getElementById('createQueueBulkForm').reset();
-                        document.getElementById('createQueueBulkModal').style.display = 'none'; // ปิดป๊อปอัพเมื่อเสร็จสิ้น
-                        loadAdminQueueSlots(); 
-                    } catch (err) { 
-                        hideLoading(); 
-                        Swal.fire('ผิดพลาด', err.message, 'error'); 
-                    }
-                }
-            });
-        };
-    }
-
-    // Submit bulk queue
-    const createQueueBulkForm = document.getElementById('createQueueBulkForm');
-    if (createQueueBulkForm) {
-        createQueueBulkForm.onsubmit = async (e) => {
-            e.preventDefault();
-            const date = document.getElementById('queueDateBulk').value;
-            const quota = document.getElementById('queueQuotaBulk').value;
-            
-            const checkboxes = document.querySelectorAll('input[name="bulkTime"]:checked');
-            const times = Array.from(checkboxes).map(cb => cb.value);
-
-            if (times.length === 0) return Swal.fire('แจ้งเตือน', 'กรุณาเลือกช่วงเวลาอย่างน้อย 1 รายการ', 'warning');
-
-            Swal.fire({ 
-                title: 'ยืนยันการสร้างคิว', 
-                text: `ระบบจะสร้างคิวในวันที่ ${date} จำนวน ${times.length} รอบ (รอบละ ${quota} คน) ยืนยันหรือไม่`, 
-                icon: 'question', 
-                showCancelButton: true 
-            }).then(async r => {
-                if (r.isConfirmed) {
-                    showLoading('ระบบกำลังสร้างกลุ่มคิว อาจใช้เวลา');
-                    let successCount = 0;
-                    try {
-                        for (let t of times) {
-                            const res = await callApi('createQueueSlot', { 
-                                date: date, time: t, quota: quota, status: 'Show', adminId: adminId, token: userToken 
-                            });
-                            if(res.success) successCount++;
-                        }
-                        hideLoading();
-                        Swal.fire('ทำรายการสำเร็จ', `สร้างรอบคิวเสร็จสมบูรณ์ ${successCount} รายการ`, 'success');
-                        document.getElementById('createQueueBulkForm').reset();
+                        document.getElementById('createQueueBulkModal').style.display = 'none'; // ปิดหน้าต่างป๊อปอัพ
                         loadAdminQueueSlots(); 
                     } catch (err) { 
                         hideLoading(); 
@@ -4701,7 +4661,6 @@ window.toggleDeleteButton = function(count) {
             }
         }); 
     };
-
 
 
     let queueOptionsCache = {};
