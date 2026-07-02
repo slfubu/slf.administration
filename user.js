@@ -406,28 +406,33 @@ async function loadUserQueueSlots() {
     }
 }
 
-function bookQ(id) {
+window.bookQ = function(id) {
     Swal.fire({ title: 'ยืนยันการจองคิว', text: 'ท่านต้องการจองคิวการรับบริการในรอบเวลานี้ใช่หรือไม่', icon: 'question', showCancelButton: true }).then(async r => {
         if(r.isConfirmed){
-            showLoading();
+            showLoading('กำลังออกบัตรคิว');
             try {
                 const res = await callApi('bookQueue', {
                     studentId: currentUser.studentId,
                     slotId: id,
                     token: userToken
                 });
-                hideLoading();
-                if(res.success){ Swal.fire('การดำเนินการเสร็จสมบูรณ์','ระบบได้ออกหมายเลขคิว: '+res.queueNumber+' ให้ท่านเรียบร้อยแล้ว','success'); loadMyQueue(); loadUserQueueSlots(); }
-                else Swal.fire('ข้อความแจ้งเตือนจากระบบ', res.message, 'error');
+                if(res.success){
+                    await window.loadMyQueue(); 
+                    hideLoading();
+                    Swal.fire('การดำเนินการเสร็จสมบูรณ์','ระบบได้ออกหมายเลขคิว: '+res.queueNumber+' ให้ท่านเรียบร้อยแล้ว','success');
+                } else {
+                    hideLoading();
+                    Swal.fire('ข้อความแจ้งเตือนจากระบบ', res.message, 'error');
+                }
             } catch (err) {
                 hideLoading();
                 showAlert(err.message, "error");
             }
         }
     });
-}
+};
 
-async function loadMyQueue() {
+window.loadMyQueue = async function() {
     try {
         const t = await callApi('getMyQueue', {
             studentId: currentUser.studentId,
@@ -470,9 +475,7 @@ async function loadMyQueue() {
             
             if (bg && txt) {
                 bg.style.background = theme.bg;
-                
                 bg.setAttribute('data-watermark', `UBU - ${currentUser.studentId} - Q${t.queueNumber}`);
-                
                 txt.style.color = theme.text;
                 txt.style.textShadow = (theme.text === '#ffffff') ? '1px 1px 3px rgba(0,0,0,0.4)' : 'none';
                 
@@ -480,7 +483,6 @@ async function loadMyQueue() {
                 subElements.forEach(el => {
                     el.style.color = (theme.text === '#ffffff') ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.6)';
                 });
-
 
                 let styleEl = document.getElementById('dynamicTicketStyle');
                 if(!styleEl) {
@@ -491,26 +493,53 @@ async function loadMyQueue() {
                 styleEl.innerHTML = `.modern-queue-ticket::after { color: ${theme.water} !important; }`;
             }
 
-            // 3. สร้าง QR Code
             const qrContainer = document.getElementById('qrCodeContainer');
             qrContainer.innerHTML = ''; 
             if(typeof QRCode !== 'undefined') {
                 new QRCode(qrContainer, {
                     text: `Q-${t.queueNumber}-${currentUser.studentId}`,
-                    width: 100, 
-                    height: 100,
-                    colorDark : "#000000", 
-                    colorLight : "#ffffff"
+                    width: 100, height: 100,
+                    colorDark : "#000000", colorLight : "#ffffff"
                 });
             }
+            return true; 
         } else {
             ta.style.display = 'none'; 
             ba.style.display = 'block';
+            return false; 
         }
     } catch (err) {
         console.error("Queue Error:", err);
+        return false;
     }
-}
+};
+
+window.cancelMyQueue = function() {
+    Swal.fire({ title:'ยืนยันการยกเลิกคิวรับบริการ', text: 'ท่านประสงค์ที่จะยกเลิกคิวรับบริการของท่านใช่หรือไม่', icon:'warning', showCancelButton:true, confirmButtonColor:'#d33' }).then(async r => {
+        if(r.isConfirmed){
+            showLoading('กำลังยกเลิกคิว');
+            try {
+                const res = await callApi('cancelQueue', {
+                    studentId: currentUser.studentId,
+                    token: userToken
+                });
+                if(res.success){ 
+                    await window.loadMyQueue(); 
+                    await loadUserQueueSlots(); 
+                    hideLoading();
+                    Swal.fire('การดำเนินการเสร็จสมบูรณ์','ระบบได้ทำการยกเลิกคิวรับบริการของท่านแล้ว','success'); 
+                }
+                else {
+                    hideLoading();
+                    Swal.fire('ข้อความแจ้งเตือนจากระบบ', res.message, 'error');
+                }
+            } catch (err) {
+                hideLoading();
+                showAlert(err.message, 'error');
+            }
+        }
+    });
+};
 
 function cancelMyQueue() {
     Swal.fire({ title:'ยืนยันการยกเลิกคิวรับบริการ', text: 'ท่านประสงค์ที่จะยกเลิกคิวรับบริการของท่านใช่หรือไม่', icon:'warning', showCancelButton:true, confirmButtonColor:'#d33' }).then(async r => {
@@ -981,13 +1010,21 @@ document.addEventListener('DOMContentLoaded', () => {
     setupNav('navUserDashboard', 'userDashboardSection', updateUserDashboard);
     setupNav('navUserProfile', 'userProfileSection', loadUserProfile);
     setupNav('navUserActivity', 'userActivitySection', loadActivitiesForUser);
-    setupNav('navUserQueue', 'userQueue', () => { loadUserQueueSlots(); loadMyQueue(); });
     setupNav('navLoan2569', 'userLoan2569Section', initUserLoanPage);
     setupNav('navOverLoan', 'userOverLoanSection', initOverLoanPage);
     setupNav('navUserResign', 'userResignSection', initResignPage);
     setupNav('navUserPetition', 'userPetitionSection', () => { initPetitionPage(); });
     setupNav('navUserTrackPetition', 'userTrackPetitionSection', loadMyPetitions);
     setupNav('navUserTransfer', 'userTransferSection', initTransferPage);
+
+    setupNav('navUserQueue', 'userQueue', async () => { 
+        showLoading('กำลังโหลดข้อมูล');
+        const hasTicket = await window.loadMyQueue(); 
+        if(!hasTicket) {
+            await loadUserQueueSlots();
+        }
+        hideLoading();
+    });
 
     document.getElementById('navLogout').addEventListener('click', (e) => { 
         e.preventDefault(); 
