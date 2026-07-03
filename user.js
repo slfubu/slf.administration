@@ -407,10 +407,24 @@ async function loadUserQueueSlots() {
     }
 }
 
-// ฟังก์ชัน Step 1: จัดกลุ่มและแสดงรายการ "วันที่"
+// ฟังก์ชัน Step 1: จัดกลุ่มและแสดงรายการ "วันที่" (UI รูปแบบใหม่ โมเดิร์น)
 window.renderQueueDates = function() {
     const c = document.getElementById('bookingSlotsContainer');
-    c.innerHTML = '<h3 style="color:#1976D2; font-size:18px; margin-bottom:15px; border-bottom: 2px solid #eee; padding-bottom:10px;"><i class="material-icons" style="vertical-align:bottom;">calendar_today</i> เลือกรอบวันที่ต้องการรับบริการ</h3>';
+    
+    // 1. ส่วนหัวของการเลือกวันที่ (ดีไซน์ใหม่)
+    c.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom: 2px solid #e0e0e0; padding-bottom:15px;">
+            <div>
+                <h3 style="color:#1565C0; font-size:18px; margin:0; display:flex; align-items:center; gap:8px;">
+                    <i class="material-icons" style="background:#e3f2fd; padding:6px; border-radius:8px; color:#1976D2;">event_available</i> 
+                    เลือกรอบวันที่ต้องการรับบริการ
+                </h3>
+                <p style="color:#666; font-size:13px; margin:5px 0 0 0; padding-left: 42px;">กรุณาคลิกเลือกวันที่ท่านสะดวก เพื่อดูช่วงเวลาที่เปิดให้บริการ</p>
+            </div>
+        </div>
+        <div id="queueDatesGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 15px;">
+        </div>
+    `;
     
     const groupedDates = {};
     window.allQueueSlotsCache.forEach(s => {
@@ -418,6 +432,9 @@ window.renderQueueDates = function() {
         groupedDates[s.date].push(s);
     });
 
+    const gridContainer = document.getElementById('queueDatesGrid');
+
+    // 2. วนลูปสร้างการ์ดวันที่
     Object.keys(groupedDates).forEach(dateStr => {
         const dateSlots = groupedDates[dateStr];
         // คำนวณยอดรวมโควตาของวันนั้น เพื่อเช็คว่าคิวเต็มหมดหรือยัง
@@ -425,17 +442,37 @@ window.renderQueueDates = function() {
         const totalBooked = dateSlots.reduce((sum, slot) => sum + parseInt(slot.current), 0);
         const isFull = totalQuota > 0 && totalBooked >= totalQuota;
         const displayDate = escapeHTML(formatDate(dateStr));
+        
+        // ตั้งค่าธีมสีของการ์ด (แบ่งแยกชัดเจนระหว่าง ว่าง vs เต็ม)
+        const cardBorder = isFull ? '#ffcdd2' : '#bbdefb';
+        const cardBg = isFull ? '#fffafb' : '#ffffff';
+        const iconBg = isFull ? '#ffebee' : '#e3f2fd';
+        const iconColor = isFull ? '#d32f2f' : '#1976D2';
+        
+        // สร้าง Badge สถานะ
+        const statusBadge = isFull 
+            ? '<span style="font-size:12px; font-weight:bold; color:#c62828; background:#ffebee; padding:4px 10px; border-radius:20px;"><i class="material-icons" style="font-size:12px; vertical-align:middle;">block</i> คิวเต็มทั้งหมด</span>' 
+            : '<span style="font-size:12px; font-weight:bold; color:#2e7d32; background:#e8f5e9; padding:4px 10px; border-radius:20px;"><i class="material-icons" style="font-size:12px; vertical-align:middle;">check_circle</i> ว่างให้บริการ</span>';
 
-        c.innerHTML += `
-            <div class="date-slot-card" style="cursor:pointer; border:1px solid #ddd; background:#fff; padding:15px; border-radius:8px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);" onclick="window.renderQueueTimes('${dateStr}')">
-                <div style="font-weight:bold; color:#333; font-size:16px;">
-                    ${displayDate}
-                    <div style="font-size:13px; color:#666; margin-top:4px; font-weight:normal;">เปิดให้บริการ ${dateSlots.length} ช่วงเวลา</div>
+        // วาด UI การ์ด
+        gridContainer.innerHTML += `
+            <div class="date-slot-card" style="cursor:pointer; border: 1px solid ${cardBorder}; background: ${cardBg}; padding: 18px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; align-items: center; justify-content: space-between; transition: transform 0.2s, box-shadow 0.2s;" onclick="window.renderQueueTimes('${dateStr}')">
+                
+                <div style="display:flex; align-items:center; gap:15px;">
+                    <div style="background:${iconBg}; width:54px; height:54px; border-radius:14px; display:flex; align-items:center; justify-content:center;">
+                        <i class="material-icons" style="color:${iconColor}; font-size:28px;">calendar_month</i>
+                    </div>
+                    <div>
+                        <div style="font-weight:700; color:#333; font-size:16px; margin-bottom:4px; letter-spacing: 0.3px;">${displayDate}</div>
+                        <div style="font-size:13px; color:#666; margin-bottom:6px;">มี ${dateSlots.length} ช่วงเวลาให้เลือก</div>
+                        <div>${statusBadge}</div>
+                    </div>
                 </div>
-                <div style="text-align:right;">
-                    ${isFull ? '<span style="color:red; font-size:13px; font-weight:bold; background:#ffebee; padding:4px 8px; border-radius:4px;">คิวเต็มทั้งหมด</span>' : '<span style="color:green; font-size:13px; font-weight:bold; background:#e8f5e9; padding:4px 8px; border-radius:4px;">เลือกช่วงเวลา</span>'}
-                    <i class="material-icons" style="vertical-align:middle; color:#1976D2; font-size:22px;">chevron_right</i>
+
+                <div style="background: ${isFull ? '#f5f5f5' : 'linear-gradient(135deg, #1976D2, #1565C0)'}; color: ${isFull ? '#ccc' : '#fff'}; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow: ${isFull ? 'none' : '0 3px 8px rgba(25,118,210,0.3)'};">
+                    <i class="material-icons" style="font-size:22px;">arrow_forward</i>
                 </div>
+
             </div>
         `;
     });
