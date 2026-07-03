@@ -8,6 +8,7 @@ function escapeHTML(str) {
         .replace(/'/g, '&#39;');
 }
 
+
 const userDataString = sessionStorage.getItem('ubu_user_data');
 const userToken = sessionStorage.getItem('ubu_token');
 
