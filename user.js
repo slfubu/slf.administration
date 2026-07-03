@@ -421,13 +421,11 @@ style.innerHTML = `
 `;
 document.head.appendChild(style);
 
-// ฟังก์ชัน Step 1: แสดง "วันที่" เป็นการ์ดแถวยาว (Long Cards)
-window.renderQueueDates = function() {
+    window.renderQueueDates = function() {
     const c = document.getElementById('bookingSlotsContainer');
     
-    // ตั้งค่า Container ให้เป็นแบบ Column สำหรับแสดงการ์ดแถวยาว
-    c.innerHTML = `
-        <div id="queueDatesList" style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px; max-width: 800px; margin-left: auto; margin-right: auto;">
+        c.innerHTML = `
+        <div id="queueDatesList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; margin-top: 15px; width: 100%;">
         </div>`;
     
     const groupedDates = {};
@@ -471,12 +469,13 @@ window.renderQueueDates = function() {
     });
 };
 
-// ฟังก์ชัน Step 2: แสดง "ตารางเวลา" เมื่อกดเลือกวันแล้ว
 window.renderQueueTimes = function(dateStr) {
     const c = document.getElementById('bookingSlotsContainer');
     const displayDate = escapeHTML(formatDate(dateStr));
     
-    // ปรับให้มีปุ่มย้อนกลับด้านบน และตารางด้านล่าง
+    c.style.display = 'block';
+    c.style.width = '100%';
+    
     c.innerHTML = `
         <div style="margin-bottom: 20px;">
             <button class="btn btn-secondary" onclick="window.renderQueueDates()" style="margin-bottom:10px;">
@@ -484,7 +483,7 @@ window.renderQueueTimes = function(dateStr) {
             </button>
             <h3 style="margin:0; color:#1976D2;">วันที่: ${displayDate}</h3>
         </div>
-        <div id="queueCardsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;"></div>
+        <div id="queueCardsGrid" style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: flex-start; width: 100%;"></div>
     `;
     
     const gridContainer = document.getElementById('queueCardsGrid');
@@ -494,7 +493,7 @@ window.renderQueueTimes = function(dateStr) {
         const booked = parseInt(s.current), quota = parseInt(s.quota), isFull = booked >= quota;
         
         gridContainer.innerHTML += `
-            <div style="border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: ${isFull ? '#f5f5f5' : '#fff'};">
+            <div style="width: 220px; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: ${isFull ? '#f5f5f5' : '#fff'};">
                 <div style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">${escapeHTML(s.time)}</div>
                 <div style="font-size: 12px; color: #666; margin-bottom: 15px;">ว่าง: ${quota - booked} คิว</div>
                 <button class="btn btn-book-queue" data-id="${escapeHTML(s.id)}" ${isFull ? 'disabled' : ''} style="width:100%;">
