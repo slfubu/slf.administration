@@ -637,26 +637,6 @@ window.cancelMyQueue = function() {
     });
 };
 
-function cancelMyQueue() {
-    Swal.fire({ title:'ยืนยันการยกเลิกคิวรับบริการ', text: 'ท่านประสงค์ที่จะยกเลิกคิวรับบริการของท่านใช่หรือไม่', icon:'warning', showCancelButton:true, confirmButtonColor:'#d33' }).then(async r => {
-        if(r.isConfirmed){
-            showLoading();
-            try {
-                const res = await callApi('cancelQueue', {
-                    studentId: currentUser.studentId,
-                    token: userToken
-                });
-                hideLoading();
-                if(res.success){ Swal.fire('การดำเนินการเสร็จสมบูรณ์','ระบบได้ทำการยกเลิกคิวรับบริการของท่านแล้ว','success'); loadMyQueue(); loadUserQueueSlots(); }
-                else Swal.fire('ข้อความแจ้งเตือนจากระบบ', res.message, 'error');
-            } catch (err) {
-                hideLoading();
-                showAlert(err.message, 'error');
-            }
-        }
-    });
-}
-
 async function initUserLoanPage() {
     document.getElementById('loanStep1').style.display = 'block';
     document.getElementById('loanStep2').style.display = 'none';
