@@ -5916,40 +5916,44 @@ window.toggleDeleteButton = function(count) {
 };
 
     window.openPetModal = async (rowIndex) => { 
-        const p = adminPetitionsCache.find(x => x._rowIndex == rowIndex);
-        if(!p) return;
-        document.getElementById('modalPetRowIndex').value = p._rowIndex; 
-        document.getElementById('modalPetStudentName').textContent = p['ชื่อ-สกุล'] || '-'; 
-        document.getElementById('modalPetStudentId').textContent = p['รหัสนักศึกษา'] || '-'; 
-        document.getElementById('modalPetType').textContent = p['ประเภทคำร้อง'] || '-'; 
-        document.getElementById('modalPetReason').textContent = p['เหตุผลประกอบ'] || '-'; 
-        document.getElementById('modalPetStatus').value = p['สถานะ'] || 'รับคำร้อง'; 
-        document.getElementById('modalPetNote').value = p['หมายเหตุเจ้าหน้าที่'] || ''; 
-        togglePetitionNoteRequirement(); 
-        const mod = document.getElementById('petitionUpdateModal');
-        if(mod) mod.style.display = 'flex'; 
+    const p = adminPetitionsCache.find(x => x._rowIndex == rowIndex);
+    if(!p) return;
+    
+    document.getElementById('modalPetRowIndex').value = p._rowIndex; 
+    document.getElementById('modalPetStudentName').textContent = p['ชื่อ-สกุล'] || '-'; 
+    document.getElementById('modalPetStudentId').textContent = p['รหัสนักศึกษา'] || '-'; 
+    document.getElementById('modalPetType').textContent = p['ประเภทคำร้อง'] || '-'; 
+    document.getElementById('modalPetReason').textContent = p['เหตุผลประกอบ'] || '-'; 
+    document.getElementById('modalPetStatus').value = p['สถานะ'] || 'รับคำร้อง'; 
+    document.getElementById('modalPetNote').value = p['หมายเหตุเจ้าหน้าที่'] || ''; 
+    
+    togglePetitionNoteRequirement(); 
+    
+    const mod = document.getElementById('petitionUpdateModal');
+    if(mod) mod.style.display = 'flex'; 
 
-        if (p['ประเภทคำร้อง'] && p['ประเภทคำร้อง'].includes('ขอลงทะเบียนเพิ่มชื่อ')) {
-            const stdId = p['รหัสนักศึกษา'];
-            const statusEl = document.getElementById('modalPetType');
-            statusEl.innerHTML = p['ประเภทคำร้อง'] + ' <br><span style="color:#dd6b20; font-size:12px;"><i class="material-icons" style="font-size:12px; vertical-align:middle;">autorenew</i> ระบบกำลังตรวจสอบรายชื่อ</span>';
+    if (p['ประเภทคำร้อง'] && p['ประเภทคำร้อง'].includes('ขอลงทะเบียนเพิ่มชื่อ')) {
+        const stdId = p['รหัสนักศึกษา'];
+        const statusEl = document.getElementById('modalPetType');
+        statusEl.innerHTML = p['ประเภทคำร้อง'] + ' <br><span style="color:#dd6b20; font-size:12px;"><i class="material-icons" style="font-size:12px; vertical-align:middle;">autorenew</i> ระบบกำลังตรวจสอบรายชื่อ</span>';
+        
+        try {
+            const res = await callApi("adminGetLoanInfo", { studentId: stdId, adminId: adminId, token: userToken });
             
-            try {
-                const res = await callApi("adminGetLoanInfo", { studentId: stdId, adminId: adminId, token: userToken });
-                if (res.status === 'found') {
-                    statusEl.innerHTML = p['ประเภทคำร้อง'] + '<br><span style="color:#fff; background:#e53e3e; padding:4px 8px; border-radius:12px; font-size:12px; display:inline-block; margin-top:5px;">⚠️ นักศึกษามีชื่อในระบบแล้ว กดปุ่ม "บันทึก" ด้านล่างเพื่อปฏิเสธได้เลย</span>';
-                    
-                    document.getElementById('modalPetStatus').value = 'ไม่อนุมัติ';
-                    document.getElementById('modalPetNote').value = 'ตรวจสอบพบรายชื่อผู้มีสิทธิ์ในระบบเรียบร้อยแล้ว ไม่จำเป็นต้องยื่นคำร้องขอเพิ่มชื่ออีก';
-                    togglePetitionNoteRequirement();
-                } else {
-                    statusEl.innerHTML = p['ประเภทคำร้อง'] + '<br><span style="color:#fff; background:#38a169; padding:4px 8px; border-radius:12px; font-size:12px; display:inline-block; margin-top:5px;">✅ ตรวจสอบแล้ว ยังไม่มีชื่อในระบบ (สามารถอนุมัติได้)</span>';
-                }
-            } catch(e) {
-                statusEl.innerHTML = p['ประเภทคำร้อง'];
+            if (res.status === 'found') {
+                statusEl.innerHTML = p['ประเภทคำร้อง'] + '<br><span style="color:#fff; background:#e53e3e; padding:4px 8px; border-radius:12px; font-size:12px; display:inline-block; margin-top:5px;">⚠️ นักศึกษามีชื่อในระบบแล้ว กดปุ่ม "บันทึก" ด้านล่างเพื่อปฏิเสธได้เลย</span>';
+                
+                document.getElementById('modalPetStatus').value = 'ไม่อนุมัติ';
+                document.getElementById('modalPetNote').value = 'ตรวจสอบพบรายชื่อผู้มีสิทธิ์ในระบบเรียบร้อยแล้ว ไม่จำเป็นต้องยื่นคำร้องขอเพิ่มชื่ออีก';
+                togglePetitionNoteRequirement();
+            } else {
+                statusEl.innerHTML = p['ประเภทคำร้อง'] + '<br><span style="color:#fff; background:#2e7d32; padding:4px 8px; border-radius:12px; font-size:12px; display:inline-block; margin-top:5px;">✅ ตรวจสอบไม่พบชื่อในระบบ สามารถพิจารณาอนุมัติเพิ่มชื่อได้</span>';
             }
+        } catch (err) {
+            console.error(err);
         }
-    };
+    }
+};
 
     window.togglePetitionNoteRequirement = () => { 
         const statEl = document.getElementById('modalPetStatus');
