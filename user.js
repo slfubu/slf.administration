@@ -407,21 +407,31 @@ async function loadUserQueueSlots() {
     }
 }
 
-// ฟังก์ชัน Step 1: จัดกลุ่มและแสดงรายการ "วันที่" (UI สไตล์มินิมอล/เรียบหรู)
+// 0. เพิ่ม Style สำหรับรองรับหน้าจอมือถือ (Responsive) และแก้ไขเรื่องความปลอดภัย
+if (!document.getElementById('queueDynamicStyles')) {
+    const style = document.createElement('style');
+    style.id = 'queueDynamicStyles';
+    style.innerHTML = `
+        .date-slot-card { transition: all 0.2s ease; }
+        .date-slot-card:hover { border-color: #1976D2 !important; box-shadow: 0 4px 12px rgba(25,118,210,0.1) !important; }
+        @media (max-width: 480px) {
+            .date-slot-card { padding: 12px !important; }
+            .q-icon-box { width: 38px !important; height: 38px !important; }
+            .q-icon-box i { font-size: 20px !important; }
+            .q-title { font-size: 14px !important; }
+            .q-time-card { padding: 12px !important; }
+            .q-time-text { font-size: 20px !important; }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// ฟังก์ชัน Step 1: เลือก "วันที่" (ตัดข้อความหัวข้อออก เพื่อไม่ให้ซ้ำซ้อน)
 window.renderQueueDates = function() {
     const c = document.getElementById('bookingSlotsContainer');
     
-    // 1. ส่วนหัวที่ดูเรียบง่ายและสะอาดตา
-    c.innerHTML = `
-        <div style="margin-bottom: 20px;">
-            <h3 style="color:#1976D2; font-size:18px; margin:0 0 6px 0; display:flex; align-items:center; gap:8px;">
-                <i class="material-icons" style="font-size:22px;">event_available</i> เลือกรอบวันที่ต้องการรับบริการ
-            </h3>
-            <p style="color:#777; font-size:14px; margin:0; padding-left:30px;">กรุณาคลิกเลือกวันที่ เพื่อดูช่วงเวลาที่เปิดให้บริการ</p>
-        </div>
-        
-        <div id="queueDatesList" style="display: flex; flex-direction: column; gap: 12px;"></div>
-    `;
+    // สร้างเพียง Container ว่างๆ เพื่อรอใส่ข้อมูล (ไม่มีข้อความซ้ำซ้อนแล้ว)
+    c.innerHTML = `<div id="queueDatesList" style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;"></div>`;
     
     const groupedDates = {};
     window.allQueueSlotsCache.forEach(s => {
@@ -431,7 +441,6 @@ window.renderQueueDates = function() {
 
     const listContainer = document.getElementById('queueDatesList');
 
-    // 2. วนลูปสร้างการ์ด (ปรับขนาดไอคอนและปุ่มให้ดูสมส่วน)
     Object.keys(groupedDates).forEach(dateStr => {
         const dateSlots = groupedDates[dateStr];
         const totalQuota = dateSlots.reduce((sum, slot) => sum + parseInt(slot.quota), 0);
@@ -439,63 +448,61 @@ window.renderQueueDates = function() {
         const isFull = totalQuota > 0 && totalBooked >= totalQuota;
         const displayDate = escapeHTML(formatDate(dateStr));
         
-        // ธีมสีแบบซอฟต์ๆ (Soft Colors)
         const cardBg = isFull ? '#fafafa' : '#ffffff';
         const iconBg = isFull ? '#ffebee' : '#e3f2fd';
         const iconColor = isFull ? '#d32f2f' : '#1976D2';
         const badgeBg = isFull ? '#ffcdd2' : '#c8e6c9';
         const badgeText = isFull ? '#b71c1c' : '#1b5e20';
         
-        // ป้ายสถานะแบบแคปซูลเล็กๆ น่ารักๆ
         const statusBadge = isFull 
-            ? `<span style="font-size:12px; font-weight:600; color:${badgeText}; background:${badgeBg}; padding:2px 8px; border-radius:12px; display:inline-flex; align-items:center; gap:4px;"><i class="material-icons" style="font-size:14px;">block</i> เต็ม</span>` 
-            : `<span style="font-size:12px; font-weight:600; color:${badgeText}; background:${badgeBg}; padding:2px 8px; border-radius:12px; display:inline-flex; align-items:center; gap:4px;"><i class="material-icons" style="font-size:14px;">check_circle</i> ว่าง</span>`;
+            ? `<span style="font-size:12px; font-weight:600; color:${badgeText}; background:${badgeBg}; padding:2px 8px; border-radius:12px; display:inline-flex; align-items:center; gap:4px; white-space:nowrap;"><i class="material-icons" style="font-size:14px;">block</i> เต็ม</span>` 
+            : `<span style="font-size:12px; font-weight:600; color:${badgeText}; background:${badgeBg}; padding:2px 8px; border-radius:12px; display:inline-flex; align-items:center; gap:4px; white-space:nowrap;"><i class="material-icons" style="font-size:14px;">check_circle</i> ว่าง</span>`;
 
+        // สังเกตการใช้ flex-wrap และ min-width เพื่อไม่ให้จอเล็กๆ แสดงผลเพี้ยน
         listContainer.innerHTML += `
             <div class="date-slot-card" 
-                 style="cursor:pointer; background: ${cardBg}; border: 1px solid #e0e0e0; border-radius: 12px; padding: 16px; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.02);" 
-                 onclick="window.renderQueueTimes('${dateStr}')" 
-                 onmouseover="this.style.borderColor='#1976D2'; this.style.boxShadow='0 4px 12px rgba(25,118,210,0.1)';" 
-                 onmouseout="this.style.borderColor='#e0e0e0'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)';">
+                 style="cursor:pointer; background: ${cardBg}; border: 1px solid #e0e0e0; border-radius: 12px; padding: 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 4px rgba(0,0,0,0.02);" 
+                 onclick="window.renderQueueTimes('${dateStr}')">
                 
-                <div style="display:flex; align-items:center; gap:16px; flex:1;">
-                    <div style="background:${iconBg}; width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                        <i class="material-icons" style="color:${iconColor}; font-size:24px;">event</i>
+                <div style="display:flex; align-items:center; gap:12px; flex:1; min-width:0;">
+                    <div class="q-icon-box" style="background:${iconBg}; width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                        <i class="material-icons" style="color:${iconColor}; font-size:22px;">event</i>
                     </div>
                     
-                    <div>
-                        <div style="font-weight:600; color:#333; font-size:16px; margin-bottom:4px;">${displayDate}</div>
-                        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                            <span style="font-size:13px; color:#777;">${dateSlots.length} ช่วงเวลา</span>
+                    <div style="min-width:0; overflow:hidden;">
+                        <div class="q-title" style="font-weight:600; color:#333; font-size:15px; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${displayDate}</div>
+                        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                            <span style="font-size:12px; color:#777;">${dateSlots.length} ช่วงเวลา</span>
                             ${statusBadge}
                         </div>
                     </div>
                 </div>
 
-                <div style="color: ${isFull ? '#ccc' : '#1976D2'}; display:flex; align-items:center;">
-                    <i class="material-icons" style="font-size:26px;">chevron_right</i>
+                <div style="color: ${isFull ? '#ccc' : '#1976D2'}; display:flex; align-items:center; flex-shrink:0; margin-left:8px;">
+                    <i class="material-icons" style="font-size:24px;">chevron_right</i>
                 </div>
-
             </div>
         `;
     });
 };
 
+// ฟังก์ชัน Step 2: เลือก "ช่วงเวลา" (Grid จะปรับยืด-หดเองตามหน้าจออัตโนมัติ)
 window.renderQueueTimes = function(dateStr) {
     const c = document.getElementById('bookingSlotsContainer');
     const displayDate = escapeHTML(formatDate(dateStr));
     
+    // ปรับส่วนหัวให้กระทัดรัด มีแค่ปุ่มย้อนกลับและวันที่ 
     c.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom: 2px solid #e0e0e0; padding-bottom:15px;">
-            <h3 style="color:#1565C0; font-size:18px; margin:0; display:flex; align-items:center; gap:8px;">
-                <i class="material-icons" style="background:#e3f2fd; padding:6px; border-radius:8px; color:#1976D2;">schedule</i> 
-                รอบเวลา: ${displayDate}
-            </h3>
-            <button class="btn btn-secondary" onclick="window.renderQueueDates()" style="padding:6px 16px; font-size:14px; border-radius:30px; display:flex; align-items:center; gap:4px; background:#f5f5f5; color:#555; border:1px solid #ddd;">
-                <i class="material-icons" style="font-size:18px;">arrow_back</i> ย้อนกลับ
+        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px; margin-bottom:15px; background:#f8f9fa; padding:10px 15px; border-radius:8px; border:1px solid #e0e0e0;">
+            <div style="font-size:15px; font-weight:bold; color:#1565C0; display:flex; align-items:center; gap:6px;">
+                <i class="material-icons" style="font-size:18px;">schedule</i> ${displayDate}
+            </div>
+            <button class="btn btn-secondary" onclick="window.renderQueueDates()" style="padding:4px 12px; font-size:13px; border-radius:20px; display:flex; align-items:center; gap:4px; margin:0;">
+                <i class="material-icons" style="font-size:16px;">arrow_back</i> ย้อนกลับ
             </button>
         </div>
-        <div id="queueCardsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
+        
+        <div id="queueCardsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px;">
         </div>
     `;
     
@@ -518,40 +525,40 @@ window.renderQueueTimes = function(dateStr) {
             : 'background:linear-gradient(135deg, #1976D2, #1565c0); color:#fff; box-shadow:0 4px 10px rgba(25, 118, 210, 0.25);';
 
         gridContainer.innerHTML += `
-            <div class="slot-card" style="border: 1px solid ${cardBorder}; background: ${cardBg}; padding: 20px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s;">
+            <div class="slot-card q-time-card" style="border: 1px solid ${cardBorder}; background: ${cardBg}; padding: 15px; border-radius: 12px; display: flex; flex-direction: column; justify-content: space-between;">
                 
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
-                    <span style="font-size: 13px; font-weight: bold; padding: 4px 12px; border-radius: 20px; background: ${badgeBg}; color: ${badgeText};">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
+                    <span style="font-size: 12px; font-weight: bold; padding: 3px 10px; border-radius: 15px; background: ${badgeBg}; color: ${badgeText};">
                         ${isFull ? 'คิวเต็ม' : 'เปิดรับจอง'}
                     </span>
-                    <span style="font-size: 13px; color: #777; display:flex; align-items:center; gap:4px;">
-                       <i class="material-icons" style="font-size:16px;">group</i> ${booked}/${quota}
+                    <span style="font-size: 12px; color: #777; display:flex; align-items:center; gap:4px;">
+                       <i class="material-icons" style="font-size:14px;">group</i> ${booked}/${quota}
                     </span>
                 </div>
 
-                <div style="text-align:center; margin: 10px 0 20px 0;">
-                    <div style="font-size: 26px; font-weight: 700; color: ${timeColor}; letter-spacing: 0.5px;">
+                <div style="text-align:center; margin: 5px 0 15px 0;">
+                    <div class="q-time-text" style="font-size: 24px; font-weight: 700; color: ${timeColor};">
                         ${escapeHTML(s.time)}
                     </div>
                 </div>
 
                 <div>
-                    <div style="display:flex; justify-content:space-between; font-size: 12px; margin-bottom: 6px;">
-                        <span style="color:#777;">ความหนาแน่น</span>
+                    <div style="display:flex; justify-content:space-between; font-size: 11px; margin-bottom: 5px;">
+                        <span style="color:#777;">สถานะ</span>
                         <span style="color: ${isFull ? '#c62828' : '#2e7d32'}; font-weight:bold;">${isFull ? 'ไม่มีคิวว่าง' : `ว่าง ${avail} คิว`}</span>
                     </div>
-                    <div style="width:100%; background:#eeeeee; height:8px; border-radius:4px; overflow:hidden; margin-bottom:20px;">
-                        <div style="width:${percent}%; background:${progressColor}; height:100%; border-radius:4px;"></div>
+                    <div style="width:100%; background:#eeeeee; height:6px; border-radius:3px; overflow:hidden; margin-bottom:15px;">
+                        <div style="width:${percent}%; background:${progressColor}; height:100%; border-radius:3px;"></div>
                     </div>
                     
-                    <button class="btn btn-book-queue" data-id="${escapeHTML(s.id)}" ${isFull?'disabled':''} style="width:100%; padding: 12px; border-radius: 10px; font-size: 15px; font-weight: 600; border: none; display: flex; align-items: center; justify-content: center; gap: 6px; ${btnStyle}">
-                        ${isFull ? '<i class="material-icons" style="font-size:18px;">block</i> เต็มแล้ว' : '<i class="material-icons" style="font-size:18px;">check_circle</i> ยืนยันการจองคิว'}
+                    <button class="btn btn-book-queue" data-id="${escapeHTML(s.id)}" ${isFull?'disabled':''} style="width:100%; padding: 10px; border-radius: 8px; font-size: 14px; font-weight: 600; border: none; display: flex; align-items: center; justify-content: center; gap: 5px; ${btnStyle}">
+                        ${isFull ? '<i class="material-icons" style="font-size:16px;">block</i> เต็มแล้ว' : '<i class="material-icons" style="font-size:16px;">check_circle</i> ยืนยันการจองคิว'}
                     </button>
                 </div>
-
             </div>`;
     });
 };
+
 
 window.bookQ = function(id) {
     Swal.fire({ title: 'ยืนยันการจองคิว', text: 'ท่านต้องการจองคิวการรับบริการในรอบเวลานี้ใช่หรือไม่', icon: 'question', showCancelButton: true }).then(async r => {
