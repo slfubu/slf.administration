@@ -239,6 +239,20 @@
                         
                         <div id="myQueueTicketArea" style="display:none; margin-bottom: 30px;">
     <style>
+         .my-queue-grid {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 20px !important;
+        margin-top: 20px !important;
+    }
+
+    /* บังคับให้การ์ดทุกตัว "ไม่ยืด" เต็มความกว้าง */
+    .q-card-slot {
+        width: 100% !important; /* ยืนยันความกว้าง */
+        max-width: none !important;
+        display: flex !important;
+        flex-direction: column;
+    }
         .modern-queue-ticket {
             position: relative;
             display: flex !important;
