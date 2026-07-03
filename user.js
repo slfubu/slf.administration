@@ -431,10 +431,12 @@ if (!document.getElementById('queueDynamicStyles')) {
     document.head.appendChild(style);
 }
 
-// ฟังก์ชัน Step 1: เลือก "วันที่" (ดีไซน์ใหม่)
+// ฟังก์ชัน Step 1: เลือก "วันที่" (ปรับให้เรียงเป็น Grid สวยงามบนจอคอม)
 window.renderQueueDates = function() {
     const c = document.getElementById('bookingSlotsContainer');
-    c.innerHTML = `<div id="queueDatesList" style="display: flex; flex-direction: column; gap: 16px; margin-top: 15px;"></div>`;
+    
+    // เปลี่ยนจาก flex-direction: column เป็น display: grid เพื่อให้เรียงการ์ดบนจอคอมได้หลายคอลัมน์
+    c.innerHTML = `<div id="queueDatesList" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-top: 15px;"></div>`;
     
     const groupedDates = {};
     window.allQueueSlotsCache.forEach(s => {
@@ -490,7 +492,6 @@ window.renderQueueDates = function() {
     });
 };
 
-// ฟังก์ชัน Step 2: เลือก "ช่วงเวลา" (ดีไซน์ใหม่)
 window.renderQueueTimes = function(dateStr) {
     const c = document.getElementById('bookingSlotsContainer');
     const displayDate = escapeHTML(formatDate(dateStr));
