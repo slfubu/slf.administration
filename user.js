@@ -469,7 +469,7 @@ window.renderQueueTimes = function(dateStr) {
                 <div style="margin-bottom:10px; font-size:13px; color:#666;">จำนวนผู้จอง ${booked}/${quota} (ว่าง ${avail} คิว)</div>
                 <div style="width:100%; background:#eee; height:8px; border-radius:4px; margin-bottom:15px;"><div style="width:${percent}%; background:${isFull?'red':(percent>80?'orange':'green')}; height:100%; border-radius:4px;"></div></div>
                 
-                <button class="btn ${isFull?'btn-secondary':'btn-primary'}" onclick="window.bookQ('${escapeHTML(s.id)}')" ${isFull?'disabled':''} style="width:100%;">${isFull?'คิวเต็ม':'ยืนยันการจองคิว'}</button>
+<button class="btn ${isFull?'btn-secondary':'btn-primary'} btn-book-queue" data-id="${escapeHTML(s.id)}" ${isFull?'disabled':''} style="width:100%;">${isFull?'คิวเต็ม':'ยืนยันการจองคิว'}</button>
             </div>`;
     });
 };
