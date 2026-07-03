@@ -472,21 +472,25 @@ window.renderQueueDates = function() {
     });
 };
 
+// ฟังก์ชัน Step 2: แสดง "ตารางเวลา" เมื่อกดเลือกวันแล้ว (ปรับดีไซน์ใหม่)
 window.renderQueueTimes = function(dateStr) {
     const c = document.getElementById('bookingSlotsContainer');
     const displayDate = escapeHTML(formatDate(dateStr));
     
+    // บังคับให้คอนเทนเนอร์แสดงเต็มความกว้าง
     c.style.display = 'block';
     c.style.width = '100%';
     
+    // ปรับส่วนหัวให้ปุ่มย้อนกลับและวันที่อยู่บรรทัดเดียวกันดูเรียบร้อยขึ้น
+    // ใช้ Grid เพื่อให้กล่องมีขนาดพอดี (minmax 200px) ไม่อ้วน และจัดเรียงอัตโนมัติ
     c.innerHTML = `
-        <div style="margin-bottom: 20px;">
-            <button class="btn btn-secondary" onclick="window.renderQueueDates()" style="margin-bottom:10px;">
-                <i class="material-icons" style="vertical-align:middle;">arrow_back</i> ย้อนกลับไปเลือกวัน
+        <div style="margin-bottom: 25px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+            <button class="btn btn-secondary" onclick="window.renderQueueDates()" style="display: flex; align-items: center; gap: 5px; padding: 8px 15px; border-radius: 20px;">
+                <i class="material-icons" style="font-size: 18px;">arrow_back</i> ย้อนกลับ
             </button>
-            <h3 style="margin:0; color:#1976D2;">วันที่: ${displayDate}</h3>
+            <h3 style="margin:0; color:#1976D2; font-size: 18px;">เลือกรอบเวลา (วันที่ ${displayDate})</h3>
         </div>
-        <div id="queueCardsGrid" style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: flex-start; width: 100%;"></div>
+        <div id="queueCardsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; width: 100%;"></div>
     `;
     
     const gridContainer = document.getElementById('queueCardsGrid');
@@ -496,11 +500,24 @@ window.renderQueueTimes = function(dateStr) {
         const booked = parseInt(s.current), quota = parseInt(s.quota), isFull = booked >= quota;
         
         gridContainer.innerHTML += `
-            <div style="width: 220px; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: ${isFull ? '#f5f5f5' : '#fff'};">
-                <div style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">${escapeHTML(s.time)}</div>
-                <div style="font-size: 12px; color: #666; margin-bottom: 15px;">ว่าง: ${quota - booked} คิว</div>
-                <button class="btn btn-book-queue" data-id="${escapeHTML(s.id)}" ${isFull ? 'disabled' : ''} style="width:100%;">
-                    ${isFull ? 'เต็ม' : 'จองคิว'}
+            <div style="background: ${isFull ? '#f9f9f9' : '#fff'}; border: 1px solid ${isFull ? '#eee' : '#e0e0e0'}; border-radius: 16px; padding: 20px 15px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: all 0.3s ease;"
+                 onmouseover="if(!${isFull}){ this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 20px rgba(25,118,210,0.15)'; this.style.borderColor='#1976D2'; }"
+                 onmouseout="if(!${isFull}){ this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.04)'; this.style.borderColor='#e0e0e0'; }">
+                
+                <div style="display: inline-flex; align-items: center; justify-content: center; width: 45px; height: 45px; background: ${isFull ? '#f0f0f0' : '#e3f2fd'}; color: ${isFull ? '#999' : '#1976D2'}; border-radius: 50%; margin-bottom: 12px;">
+                    <i class="material-icons" style="font-size: 24px;">schedule</i>
+                </div>
+                
+                <div style="font-size: 18px; font-weight: 700; color: ${isFull ? '#999' : '#333'}; margin-bottom: 5px; letter-spacing: 0.5px;">
+                    ${escapeHTML(s.time)}
+                </div>
+                
+                <div style="font-size: 13px; color: ${isFull ? '#d32f2f' : '#2e7d32'}; font-weight: 600; margin-bottom: 15px;">
+                    ${isFull ? 'คิวเต็มแล้ว' : `ว่าง: ${quota - booked} คิว`}
+                </div>
+                
+                <button class="btn btn-book-queue" data-id="${escapeHTML(s.id)}" ${isFull ? 'disabled' : ''} style="width: 100%; border-radius: 20px; font-weight: 500; padding: 10px; background: ${isFull ? '#e0e0e0' : ''}; color: ${isFull ? '#888' : ''}; border: none;">
+                    ${isFull ? 'เต็ม' : 'จองคิวนี้'}
                 </button>
             </div>`;
     });
