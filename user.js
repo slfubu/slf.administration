@@ -376,6 +376,9 @@ async function loadMyActivityHistory() {
     }
 }
 
+// ประกาศตัวแปร Global ไว้เก็บข้อมูลคิวทั้งหมด
+window.allQueueSlotsCache = [];
+
 async function loadUserQueueSlots() {
     showLoading(); 
     try {
@@ -385,26 +388,91 @@ async function loadUserQueueSlots() {
             token: userToken
         });
         hideLoading();
+        
         const c = document.getElementById('bookingSlotsContainer'); 
         c.innerHTML = '';
-        if (!slots || slots.length === 0) { c.innerHTML = '<div style="text-align:center; padding:40px; color:#999;">ขณะนี้ไม่มีรอบคิวที่เปิดให้บริการ</div>'; return; }
-        slots.forEach(s => {
-            const booked = parseInt(s.current), quota = parseInt(s.quota), avail = quota - booked, isFull = avail <= 0;
-            const percent = quota > 0 ? Math.min(100, Math.round((booked/quota)*100)) : 0;
-            c.innerHTML += `
-                <div class="slot-card ${isFull?'full':''}" style="border:1px solid #ddd; padding:15px; border-radius:8px; margin-bottom:15px;">
-                    <div style="font-weight:bold; color:#1976D2;">${escapeHTML(formatDate(s.date))} <span style="float:right; color:${isFull?'red':'green'};">${isFull?'สถานะคิวเต็ม':'สถานะคิวว่าง'}</span></div>
-                    <div style="margin:10px 0; font-size:18px;"><b>${escapeHTML(s.time)}</b></div>
-                    <div style="margin-bottom:10px; font-size:13px; color:#666;">จำนวนผู้จอง ${booked}/${quota} (ว่าง ${avail} คิว)</div>
-                    <div style="width:100%; background:#eee; height:8px; border-radius:4px; margin-bottom:15px;"><div style="width:${percent}%; background:${isFull?'red':(percent>80?'orange':'green')}; height:100%; border-radius:4px;"></div></div>
-                    <button class="btn ${isFull?'btn-secondary':'btn-primary'} btn-book-queue" data-id="${escapeHTML(s.id)}" ${isFull?'disabled':''} style="width:100%;">${isFull?'คิวเต็ม':'ยืนยันการจองคิว'}</button>
-                </div>`;
-        });
+        
+        if (!slots || slots.length === 0) { 
+            c.innerHTML = '<div style="text-align:center; padding:40px; color:#999;">ขณะนี้ไม่มีรอบคิวที่เปิดให้บริการ</div>'; 
+            return; 
+        }
+        
+        // เก็บข้อมูลลง Cache และเรียกฟังก์ชันแสดงวันที่ (Step 1)
+        window.allQueueSlotsCache = slots;
+        window.renderQueueDates(); 
+        
     } catch (err) {
         hideLoading();
         console.error(err);
     }
 }
+
+// ฟังก์ชัน Step 1: จัดกลุ่มและแสดงรายการ "วันที่"
+window.renderQueueDates = function() {
+    const c = document.getElementById('bookingSlotsContainer');
+    c.innerHTML = '<h3 style="color:#1976D2; font-size:18px; margin-bottom:15px; border-bottom: 2px solid #eee; padding-bottom:10px;"><i class="material-icons" style="vertical-align:bottom;">calendar_today</i> เลือกรอบวันที่ต้องการรับบริการ</h3>';
+    
+    const groupedDates = {};
+    window.allQueueSlotsCache.forEach(s => {
+        if (!groupedDates[s.date]) groupedDates[s.date] = [];
+        groupedDates[s.date].push(s);
+    });
+
+    Object.keys(groupedDates).forEach(dateStr => {
+        const dateSlots = groupedDates[dateStr];
+        // คำนวณยอดรวมโควตาของวันนั้น เพื่อเช็คว่าคิวเต็มหมดหรือยัง
+        const totalQuota = dateSlots.reduce((sum, slot) => sum + parseInt(slot.quota), 0);
+        const totalBooked = dateSlots.reduce((sum, slot) => sum + parseInt(slot.current), 0);
+        const isFull = totalQuota > 0 && totalBooked >= totalQuota;
+        const displayDate = escapeHTML(formatDate(dateStr));
+
+        c.innerHTML += `
+            <div class="date-slot-card" style="cursor:pointer; border:1px solid #ddd; background:#fff; padding:15px; border-radius:8px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);" onclick="window.renderQueueTimes('${dateStr}')">
+                <div style="font-weight:bold; color:#333; font-size:16px;">
+                    ${displayDate}
+                    <div style="font-size:13px; color:#666; margin-top:4px; font-weight:normal;">เปิดให้บริการ ${dateSlots.length} ช่วงเวลา</div>
+                </div>
+                <div style="text-align:right;">
+                    ${isFull ? '<span style="color:red; font-size:13px; font-weight:bold; background:#ffebee; padding:4px 8px; border-radius:4px;">คิวเต็มทั้งหมด</span>' : '<span style="color:green; font-size:13px; font-weight:bold; background:#e8f5e9; padding:4px 8px; border-radius:4px;">เลือกช่วงเวลา</span>'}
+                    <i class="material-icons" style="vertical-align:middle; color:#1976D2; font-size:22px;">chevron_right</i>
+                </div>
+            </div>
+        `;
+    });
+};
+
+// ฟังก์ชัน Step 2: แสดงรายการ "ช่วงเวลา" ของวันที่ถูกเลือก (เวอร์ชันเปิดใช้งานปุ่มกด)
+window.renderQueueTimes = function(dateStr) {
+    const c = document.getElementById('bookingSlotsContainer');
+    const displayDate = escapeHTML(formatDate(dateStr));
+    
+    // สร้างส่วนหัว พร้อมปุ่มย้อนกลับ
+    c.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom: 2px solid #eee; padding-bottom:10px;">
+            <h3 style="color:#1976D2; font-size:18px; margin:0;"><i class="material-icons" style="vertical-align:bottom;">schedule</i> รอบเวลา: ${displayDate}</h3>
+            <button class="btn btn-secondary" onclick="window.renderQueueDates()" style="padding:4px 12px; font-size:13px; border-radius:20px; display:flex; align-items:center; gap:4px;">
+                <i class="material-icons" style="font-size:16px;">arrow_back</i> ย้อนกลับ
+            </button>
+        </div>
+    `;
+    
+    // ดึงเฉพาะรอบเวลาของวันที่เลือก
+    const dateSlots = window.allQueueSlotsCache.filter(s => s.date === dateStr);
+    
+    dateSlots.forEach(s => {
+        const booked = parseInt(s.current), quota = parseInt(s.quota), avail = quota - booked, isFull = avail <= 0;
+        const percent = quota > 0 ? Math.min(100, Math.round((booked/quota)*100)) : 0;
+        c.innerHTML += `
+            <div class="slot-card ${isFull?'full':''}" style="border:1px solid #ddd; background:#fff; padding:15px; border-radius:8px; margin-bottom:15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <div style="font-weight:bold; color:#1976D2;">${displayDate} <span style="float:right; color:${isFull?'red':'green'};">${isFull?'สถานะคิวเต็ม':'สถานะคิวว่าง'}</span></div>
+                <div style="margin:10px 0; font-size:18px;"><b>${escapeHTML(s.time)}</b></div>
+                <div style="margin-bottom:10px; font-size:13px; color:#666;">จำนวนผู้จอง ${booked}/${quota} (ว่าง ${avail} คิว)</div>
+                <div style="width:100%; background:#eee; height:8px; border-radius:4px; margin-bottom:15px;"><div style="width:${percent}%; background:${isFull?'red':(percent>80?'orange':'green')}; height:100%; border-radius:4px;"></div></div>
+                
+                <button class="btn ${isFull?'btn-secondary':'btn-primary'}" onclick="window.bookQ('${escapeHTML(s.id)}')" ${isFull?'disabled':''} style="width:100%;">${isFull?'คิวเต็ม':'ยืนยันการจองคิว'}</button>
+            </div>`;
+    });
+};
 
 window.bookQ = function(id) {
     Swal.fire({ title: 'ยืนยันการจองคิว', text: 'ท่านต้องการจองคิวการรับบริการในรอบเวลานี้ใช่หรือไม่', icon: 'question', showCancelButton: true }).then(async r => {
