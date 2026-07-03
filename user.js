@@ -421,11 +421,14 @@ style.innerHTML = `
 `;
 document.head.appendChild(style);
 
-    window.renderQueueDates = function() {
+window.renderQueueDates = function() {
     const c = document.getElementById('bookingSlotsContainer');
     
-        c.innerHTML = `
-        <div id="queueDatesList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; margin-top: 15px; width: 100%;">
+    c.style.display = 'block';
+    c.style.width = '100%';
+    
+    c.innerHTML = `
+        <div id="queueDatesList" style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 15px; justify-content: flex-start; width: 100%;">
         </div>`;
     
     const groupedDates = {};
@@ -444,12 +447,12 @@ document.head.appendChild(style);
         const displayDate = escapeHTML(formatDate(dateStr));
         
         listContainer.innerHTML += `
-            <div style="cursor:${isFull ? 'default' : 'pointer'}; background: ${isFull ? '#f9f9f9' : '#fff'}; border: 1px solid #ddd; border-radius: 8px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; transition: 0.2s;" 
+            <div style="width: 320px; flex-grow: 1; max-width: 350px; cursor:${isFull ? 'default' : 'pointer'}; background: ${isFull ? '#f9f9f9' : '#fff'}; border: 1px solid #ddd; border-radius: 8px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; transition: 0.2s;" 
                  onclick="${isFull ? '' : `window.renderQueueTimes('${dateStr}')`}"
                  onmouseover="this.style.borderColor='#1976D2'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)';"
                  onmouseout="this.style.borderColor='#ddd'; this.style.boxShadow='none';">
                 
-                <div style="display:flex; align-items:center; gap:20px;">
+                <div style="display:flex; align-items:center; gap:15px;">
                     <div style="color:${isFull ? '#999' : '#1976D2'};">
                         <i class="material-icons" style="font-size:32px;">event</i>
                     </div>
@@ -461,7 +464,7 @@ document.head.appendChild(style);
                 
                 <div>
                     ${isFull 
-                        ? `<span style="color:#d32f2f; font-weight:bold;">คิวเต็มแล้ว</span>` 
+                        ? `<span style="color:#d32f2f; font-weight:bold;">คิวเต็ม</span>` 
                         : `<span style="color:#1976D2; font-weight:bold;">เลือกคิวนี้</span> <i class="material-icons" style="vertical-align:middle;">chevron_right</i>`}
                 </div>
             </div>
@@ -547,7 +550,8 @@ window.loadMyQueue = async function() {
             document.getElementById('ticketTime').innerText = t.time || '-';
             document.getElementById('ticketName').innerText = t.name || '-';
             
-            let dayOfWeek = new Date().getDay(); 
+            // 1. คำนวณวัน (อัปเดต: รองรับการเช็คชื่อวันภาษาไทย เพื่อไม่ให้เป็นสีส้มตลอด)
+            let dayOfWeek = new Date().getDay(); // ค่าเริ่มต้นคือวันนี้
             if (t.date && typeof t.date === 'string') {
                 if (t.date.includes('อาทิตย์')) dayOfWeek = 0;
                 else if (t.date.includes('จันทร์')) dayOfWeek = 1;
@@ -557,12 +561,14 @@ window.loadMyQueue = async function() {
                 else if (t.date.includes('ศุกร์')) dayOfWeek = 5;
                 else if (t.date.includes('เสาร์')) dayOfWeek = 6;
                 else {
+                    // ถ้าไม่มีชื่อวันภาษาไทย ให้เช็คจากรูปแบบตัวเลข DD/MM/YYYY
                     const parts = t.date.split('/');
                     if(parts.length === 3) {
                         let y = parseInt(parts[2]); 
                         if(y > 2500) y -= 543;
                         dayOfWeek = new Date(y, parseInt(parts[1])-1, parseInt(parts[0])).getDay();
                     } 
+                    // เช็คจากรูปแบบตัวเลข YYYY-MM-DD
                     else if (t.date.includes('-')) {
                         const d = new Date(t.date);
                         if (!isNaN(d.getTime())) dayOfWeek = d.getDay();
@@ -570,6 +576,7 @@ window.loadMyQueue = async function() {
                 }
             }
 
+            // 2. กำหนดสี: bg = พื้นหลัง, text = สีตัวอักษร, water = สีลายน้ำ
             const themes = {
                 0: { bg: 'linear-gradient(135deg, #d32f2f, #f44336)', text: '#ffffff', water: 'rgba(255,255,255,0.2)' }, // อาทิตย์
                 1: { bg: 'linear-gradient(135deg, #fbc02d, #fdd835)', text: '#212121', water: 'rgba(0,0,0,0.15)' },    // จันทร์
@@ -585,17 +592,23 @@ window.loadMyQueue = async function() {
             const txt = document.getElementById('ticketCardText');
             
             if (bg && txt) {
+                // อัปเดตสีพื้นหลัง
                 bg.style.background = theme.bg;
+                
+                // ตั้งค่าลายน้ำให้เป็นรหัสนักศึกษา + รหัสคิว (ป้องกันการแคปจอคนอื่น)
                 bg.setAttribute('data-watermark', `UBU - ${currentUser.studentId} - Q${t.queueNumber}`);
                 
+                // อัปเดตสีตัวอักษรและเงา
                 txt.style.color = theme.text;
                 txt.style.textShadow = (theme.text === '#ffffff') ? '1px 1px 3px rgba(0,0,0,0.4)' : 'none';
                 
+                // อัปเดตสีข้อความย่อย (info-label)
                 const subElements = txt.querySelectorAll('.info-label, .info-value, .scan-label');
                 subElements.forEach(el => {
                     el.style.color = (theme.text === '#ffffff') ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.6)';
                 });
 
+                // อัปเดตสีลายน้ำ
                 let styleEl = document.getElementById('dynamicTicketStyle');
                 if(!styleEl) {
                     styleEl = document.createElement('style');
@@ -605,6 +618,7 @@ window.loadMyQueue = async function() {
                 styleEl.innerHTML = `.modern-queue-ticket::after { color: ${theme.water} !important; }`;
             }
 
+            // 3. สร้าง QR Code
             const qrContainer = document.getElementById('qrCodeContainer');
             qrContainer.innerHTML = ''; 
             if(typeof QRCode !== 'undefined') {
@@ -617,11 +631,11 @@ window.loadMyQueue = async function() {
                 });
             }
             
-            return true;
+            return true; // คืนค่าว่ามีคิวแล้ว
         } else {
             ta.style.display = 'none'; 
             ba.style.display = 'block';
-            return false; 
+            return false; // คืนค่าว่ายังไม่มีคิว
         }
     } catch (err) {
         console.error("Queue Error:", err);
@@ -1344,6 +1358,7 @@ document.addEventListener('DOMContentLoaded', () => {
               
             }
         }
+       
 
         Swal.fire({ title:'ยืนยันการส่งคำร้องออนไลน์', icon:'question', showCancelButton:true }).then(async r => {
             if(r.isConfirmed) {
@@ -1381,14 +1396,18 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btnBackToLoanStep1')?.addEventListener('click', initUserLoanPage);
     document.getElementById('btnBackToOverLoanStep1')?.addEventListener('click', initOverLoanPage);
     document.getElementById('btnConfirmSubmitLoan')?.addEventListener('click', confirmSubmitLoan);
+
     document.getElementById('btnBackToDashboard1')?.addEventListener('click', () => showSection('userDashboardSection'));
     document.getElementById('btnBackToDashboard2')?.addEventListener('click', () => showSection('userDashboardSection'));
+    
     document.getElementById('btnCloseActivityModal')?.addEventListener('click', () => document.getElementById('activityHistoryModal').style.display='none');
     document.getElementById('btnCloseRoundModal')?.addEventListener('click', () => document.getElementById('roundSelectionModal').style.display='none');
+
     document.getElementById('cardLiving')?.addEventListener('click', () => toggleLoanOption('living'));
     document.getElementById('cardTuition')?.addEventListener('click', () => toggleLoanOption('tuition'));
     document.getElementById('inputTuition')?.addEventListener('input', calcLoanTotal);
     document.getElementById('overType')?.addEventListener('change', toggleOverTuition);
+
     document.getElementById('cardResignMove')?.addEventListener('click', function() { selectResignType('move_uni', this); });
     document.getElementById('cardResignChange')?.addEventListener('click', function() { selectResignType('change_fac', this); });
     document.getElementById('cardResignQuit')?.addEventListener('click', function() { selectResignType('quit', this); });
@@ -1431,11 +1450,13 @@ const autoLogout = () => {
 autoLogout();
 
 async function initTransferPage() {
+    // ซ่อนทุกหน้าไว้ก่อนระหว่างรอตรวจสอบ
     document.getElementById('transferStep1').style.display = 'none';
     document.getElementById('transferStep2').style.display = 'none';
-    showLoading('กำลังตรวจสอบข้อมูลการทำรายการ');
+    
+    showLoading('กำลังตรวจสอบข้อมูลการทำรายการ...');
     try {
-      
+        // 1. ยิง API ไปเช็คว่าเคยยื่นไปแล้วหรือยัง
         const checkRes = await callApi('checkTransferStatus', {
             action: 'checkTransferStatus',
             studentId: currentUser.studentId,
@@ -1456,7 +1477,8 @@ async function initTransferPage() {
             `;
             return; 
         }
-      
+
+
         const confirmTerms = await Swal.fire({
             title: 'ข้อควรทราบก่อนดำเนินการ',
             html: `
