@@ -407,7 +407,6 @@ async function loadUserQueueSlots() {
     }
 }
 
-// 0. บังคับลบ Style เก่าทิ้ง (แก้ปัญหาโค้ดค้าง)
 let oldStyle = document.getElementById('queueDynamicStyles');
 if (oldStyle) oldStyle.remove();
 
@@ -439,6 +438,7 @@ window.renderQueueDates = function() {
 
     const listContainer = document.getElementById('queueDatesList');
 
+    let datesHtmlContent = ''; // 1. สร้างตัวแปรมารับค่า
     Object.keys(groupedDates).forEach(dateStr => {
         const dateSlots = groupedDates[dateStr];
         const totalQuota = dateSlots.reduce((sum, slot) => sum + parseInt(slot.quota), 0);
@@ -446,7 +446,7 @@ window.renderQueueDates = function() {
         const isFull = totalQuota > 0 && totalBooked >= totalQuota;
         const displayDate = escapeHTML(formatDate(dateStr));
         
-        listContainer.innerHTML += `
+        datesHtmlContent += `
             <div style="width: 320px; flex-grow: 1; max-width: 350px; cursor:${isFull ? 'default' : 'pointer'}; background: ${isFull ? '#f9f9f9' : '#fff'}; border: 1px solid #ddd; border-radius: 8px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; transition: 0.2s;" 
                  onclick="${isFull ? '' : `window.renderQueueTimes('${dateStr}')`}"
                  onmouseover="this.style.borderColor='#1976D2'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)';"
@@ -472,7 +472,6 @@ window.renderQueueDates = function() {
     });
 };
 
-// ฟังก์ชัน Step 2: แสดง "ตารางเวลา" เมื่อกดเลือกวันแล้ว (ปรับดีไซน์ใหม่)
 window.renderQueueTimes = function(dateStr) {
     const c = document.getElementById('bookingSlotsContainer');
     const displayDate = escapeHTML(formatDate(dateStr));
@@ -1372,10 +1371,10 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (err) {
                 hideLoading();
                 console.error(err);
-              
+                Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อฐานข้อมูลเพื่อตรวจสอบสิทธิ์ได้ กรุณาลองใหม่', 'error');
+                return; // หยุดการทำงานตรงนี้ ป้องกันการส่งคำร้องทะลุเงื่อนไข
             }
         }
-       
 
         Swal.fire({ title:'ยืนยันการส่งคำร้องออนไลน์', icon:'question', showCancelButton:true }).then(async r => {
             if(r.isConfirmed) {
@@ -1431,12 +1430,16 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 document.body.addEventListener('click', function(e) {
-    if (e.target.classList.contains('btn-open-round')) {
-        openRoundSelectionModal(e.target.getAttribute('data-date'));
-    } else if (e.target.classList.contains('btn-register-act')) {
-        registerActivity(e.target.getAttribute('data-id'), e.target);
-    } else if (e.target.classList.contains('btn-book-queue')) {
-        if(!e.target.disabled) bookQ(e.target.getAttribute('data-id'));
+    const btnOpenRound = e.target.closest('.btn-open-round');
+    const btnRegisterAct = e.target.closest('.btn-register-act');
+    const btnBookQueue = e.target.closest('.btn-book-queue');
+
+    if (btnOpenRound) {
+        openRoundSelectionModal(btnOpenRound.getAttribute('data-date'));
+    } else if (btnRegisterAct) {
+        registerActivity(btnRegisterAct.getAttribute('data-id'), btnRegisterAct);
+    } else if (btnBookQueue) {
+        if(!btnBookQueue.disabled) bookQ(btnBookQueue.getAttribute('data-id'));
     }
 });
 
@@ -1467,13 +1470,11 @@ const autoLogout = () => {
 autoLogout();
 
 async function initTransferPage() {
-    // ซ่อนทุกหน้าไว้ก่อนระหว่างรอตรวจสอบ
     document.getElementById('transferStep1').style.display = 'none';
     document.getElementById('transferStep2').style.display = 'none';
     
-    showLoading('กำลังตรวจสอบข้อมูลการทำรายการ...');
+    showLoading('กำลังตรวจสอบข้อมูลการทำรายการ');
     try {
-        // 1. ยิง API ไปเช็คว่าเคยยื่นไปแล้วหรือยัง
         const checkRes = await callApi('checkTransferStatus', {
             action: 'checkTransferStatus',
             studentId: currentUser.studentId,
