@@ -441,12 +441,10 @@ window.renderQueueDates = function() {
     });
 };
 
-// ฟังก์ชัน Step 2: แสดงรายการ "ช่วงเวลา" ของวันที่ถูกเลือก (UI ปรับปรุงใหม่ โมเดิร์นขึ้น)
 window.renderQueueTimes = function(dateStr) {
     const c = document.getElementById('bookingSlotsContainer');
     const displayDate = escapeHTML(formatDate(dateStr));
     
-    // 1. สร้างส่วนหัว และ Container แบบ Grid สำหรับใส่การ์ด
     c.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom: 2px solid #e0e0e0; padding-bottom:15px;">
             <h3 style="color:#1565C0; font-size:18px; margin:0; display:flex; align-items:center; gap:8px;">
@@ -462,7 +460,6 @@ window.renderQueueTimes = function(dateStr) {
     `;
     
     const gridContainer = document.getElementById('queueCardsGrid');
-    
     const dateSlots = window.allQueueSlotsCache.filter(s => s.date === dateStr);
     
     dateSlots.forEach(s => {
@@ -475,6 +472,7 @@ window.renderQueueTimes = function(dateStr) {
         const badgeText = isFull ? '#c62828' : '#2e7d32';
         const timeColor = isFull ? '#9e9e9e' : '#1565c0';
         const progressColor = isFull ? '#e53935' : (percent > 80 ? '#fb8c00' : '#43a047');
+        
         const btnStyle = isFull 
             ? 'background:#e0e0e0; color:#9e9e9e; cursor:not-allowed;' 
             : 'background:linear-gradient(135deg, #1976D2, #1565c0); color:#fff; box-shadow:0 4px 10px rgba(25, 118, 210, 0.25);';
@@ -506,7 +504,7 @@ window.renderQueueTimes = function(dateStr) {
                         <div style="width:${percent}%; background:${progressColor}; height:100%; border-radius:4px;"></div>
                     </div>
                     
-                    <button class="btn" onclick="window.bookQ('${escapeHTML(s.id)}')" ${isFull?'disabled':''} style="width:100%; padding: 12px; border-radius: 10px; font-size: 15px; font-weight: 600; border: none; display: flex; align-items: center; justify-content: center; gap: 6px; ${btnStyle}">
+                    <button class="btn btn-book-queue" data-id="${escapeHTML(s.id)}" ${isFull?'disabled':''} style="width:100%; padding: 12px; border-radius: 10px; font-size: 15px; font-weight: 600; border: none; display: flex; align-items: center; justify-content: center; gap: 6px; ${btnStyle}">
                         ${isFull ? '<i class="material-icons" style="font-size:18px;">block</i> เต็มแล้ว' : '<i class="material-icons" style="font-size:18px;">check_circle</i> ยืนยันการจองคิว'}
                     </button>
                 </div>
