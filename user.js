@@ -407,45 +407,26 @@ async function loadUserQueueSlots() {
     }
 }
 
-// 0. เพิ่ม Style ให้ Grid สวยงามบนจอ PC และยืดหยุ่นบนมือถือ
-if (!document.getElementById('queueDynamicStyles')) {
-    const style = document.createElement('style');
-    style.id = 'queueDynamicStyles';
-    style.innerHTML = `
-        .queue-grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 16px;
-            margin-top: 15px;
-        }
-        .date-slot-card { transition: all 0.2s; border: 1px solid #e0e0e0; background: #fff; border-radius: 12px; padding: 16px; display: flex; align-items: center; justify-content: space-between;}
-        .date-slot-card:hover { border-color: #1976D2; box-shadow: 0 4px 12px rgba(25,118,210,0.1); transform: translateY(-2px); }
-        .q-time-card { transition: all 0.2s; border: 1px solid #e0e0e0; background: #fff; border-radius: 12px; padding: 16px; }
-        .q-time-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); border-color: #bbdefb; }
-        
-        .q-header-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #f8f9fa;
-            padding: 12px 20px;
-            border-radius: 12px;
-            border: 1px solid #e0e0e0;
-            margin-bottom: 20px;
-        }
-        
-        @media (max-width: 600px) {
-            .queue-grid-container { grid-template-columns: 1fr; }
-            .q-header-bar { flex-direction: column; gap: 10px; align-items: stretch; text-align: center; }
-        }
-    `;
-    document.head.appendChild(style);
-}
+// 0. บังคับลบ Style เก่าทิ้ง (แก้ปัญหาโค้ดค้าง)
+let oldStyle = document.getElementById('queueDynamicStyles');
+if (oldStyle) oldStyle.remove();
+
+const style = document.createElement('style');
+style.id = 'queueDynamicStyles';
+style.innerHTML = `
+    .date-slot-card { transition: all 0.2s; border: 1px solid #e0e0e0; background: #fff; border-radius: 12px; padding: 16px; display: flex; align-items: center; justify-content: space-between;}
+    .date-slot-card:hover { border-color: #1976D2; box-shadow: 0 4px 12px rgba(25,118,210,0.1); transform: translateY(-2px); }
+    .q-time-card { transition: all 0.2s; border: 1px solid #e0e0e0; background: #fff; border-radius: 12px; padding: 16px; }
+    .q-time-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); border-color: #bbdefb; }
+`;
+document.head.appendChild(style);
 
 // ฟังก์ชัน Step 1: เลือก "วันที่"
 window.renderQueueDates = function() {
     const c = document.getElementById('bookingSlotsContainer');
-    c.innerHTML = `<div id="queueDatesList" class="queue-grid-container"></div>`;
+    
+    // ใช้ Inline Style บังคับ Grid แบบฝังตัวเลย (กันโค้ดอื่นมาทับ)
+    c.innerHTML = `<div id="queueDatesList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin-top: 15px;"></div>`;
     
     const groupedDates = {};
     window.allQueueSlotsCache.forEach(s => {
@@ -491,17 +472,18 @@ window.renderQueueTimes = function(dateStr) {
     const c = document.getElementById('bookingSlotsContainer');
     const displayDate = escapeHTML(formatDate(dateStr));
     
-    // จัดกลุ่ม Header ให้ดูเป็นสัดส่วน และปุ่มย้อนกลับจัดวางสวยงาม
+    // บังคับ Inline Style เพื่อจัด Header ให้อยู่บรรทัดเดียวกัน และปุ่มไม่เละ
     c.innerHTML = `
-        <div class="q-header-bar">
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 12px 20px; border-radius: 12px; border: 1px solid #e0e0e0; margin-bottom: 20px; gap: 15px;">
             <div style="font-size:16px; font-weight:bold; color:#1565C0; display:flex; align-items:center; gap:8px;">
                 <i class="material-icons">event_available</i> วันที่: ${displayDate}
             </div>
-            <button class="btn btn-secondary" onclick="window.renderQueueDates()" style="display:flex; align-items:center; gap:4px; padding:6px 16px; border-radius:20px; font-size:14px; background:#fff; color:#333; border:1px solid #ccc;">
+            <button class="btn btn-secondary" onclick="window.renderQueueDates()" style="display:flex; align-items:center; gap:4px; padding:6px 16px; border-radius:20px; font-size:14px; background:#fff; color:#333; border:1px solid #ccc; margin:0; cursor:pointer;">
                 <i class="material-icons" style="font-size:18px;">arrow_back</i> ย้อนกลับไปเลือกวัน
             </button>
         </div>
-        <div id="queueCardsGrid" class="queue-grid-container"></div>
+        
+        <div id="queueCardsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;"></div>
     `;
     
     const gridContainer = document.getElementById('queueCardsGrid');
@@ -538,7 +520,7 @@ window.renderQueueTimes = function(dateStr) {
                         <div style="width:${percent}%; background:${isFull ? '#e53935' : '#4caf50'}; height:100%; border-radius:3px;"></div>
                     </div>
                     
-                    <button class="btn btn-book-queue" data-id="${escapeHTML(s.id)}" ${isFull?'disabled':''} style="width:100%; padding:10px; border-radius:8px; font-size:14px; font-weight:600; border:none; ${isFull ? 'background:#f5f5f5; color:#9e9e9e; cursor:not-allowed;' : 'background:linear-gradient(135deg, #1976D2, #1565c0); color:#fff; box-shadow:0 4px 8px rgba(25,118,210,0.2);'}">
+                    <button class="btn btn-book-queue" data-id="${escapeHTML(s.id)}" ${isFull?'disabled':''} style="width:100%; padding:10px; border-radius:8px; font-size:14px; font-weight:600; border:none; cursor:${isFull ? 'not-allowed' : 'pointer'}; ${isFull ? 'background:#f5f5f5; color:#9e9e9e;' : 'background:linear-gradient(135deg, #1976D2, #1565c0); color:#fff; box-shadow:0 4px 8px rgba(25,118,210,0.2);'}">
                         ${isFull ? 'เต็มแล้ว' : 'ยืนยันจองคิวนี้'}
                     </button>
                 </div>
