@@ -407,36 +407,45 @@ async function loadUserQueueSlots() {
     }
 }
 
-// 0. เพิ่ม Style สำหรับรองรับหน้าจอมือถือและ UI แบบใหม่ที่สวยงามขึ้น
+// 0. เพิ่ม Style ให้ Grid สวยงามบนจอ PC และยืดหยุ่นบนมือถือ
 if (!document.getElementById('queueDynamicStyles')) {
     const style = document.createElement('style');
     style.id = 'queueDynamicStyles';
     style.innerHTML = `
-        .date-slot-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #e0e0e0; background: #fff; }
-        .date-slot-card:hover { border-color: #1976D2 !important; box-shadow: 0 8px 24px rgba(25,118,210,0.15) !important; transform: translateY(-3px); }
-        .q-time-card { transition: all 0.3s ease; border: 1px solid #e0e0e0; }
-        .q-time-card:hover { box-shadow: 0 8px 20px rgba(0,0,0,0.08); transform: translateY(-3px); border-color: #bbdefb; }
-        .q-progress-bar { transition: width 0.5s ease-in-out; }
-        .btn-book-queue { transition: all 0.2s ease; }
-        .btn-book-queue:hover:not(:disabled) { transform: scale(1.02); filter: brightness(1.1); }
-        @media (max-width: 480px) {
-            .date-slot-card { padding: 15px !important; }
-            .q-icon-box { width: 44px !important; height: 44px !important; }
-            .q-icon-box i { font-size: 22px !important; }
-            .q-title { font-size: 15px !important; }
-            .q-time-card { padding: 15px !important; }
-            .q-time-text { font-size: 24px !important; }
+        .queue-grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+            margin-top: 15px;
+        }
+        .date-slot-card { transition: all 0.2s; border: 1px solid #e0e0e0; background: #fff; border-radius: 12px; padding: 16px; display: flex; align-items: center; justify-content: space-between;}
+        .date-slot-card:hover { border-color: #1976D2; box-shadow: 0 4px 12px rgba(25,118,210,0.1); transform: translateY(-2px); }
+        .q-time-card { transition: all 0.2s; border: 1px solid #e0e0e0; background: #fff; border-radius: 12px; padding: 16px; }
+        .q-time-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); border-color: #bbdefb; }
+        
+        .q-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 600px) {
+            .queue-grid-container { grid-template-columns: 1fr; }
+            .q-header-bar { flex-direction: column; gap: 10px; align-items: stretch; text-align: center; }
         }
     `;
     document.head.appendChild(style);
 }
 
-// ฟังก์ชัน Step 1: เลือก "วันที่" (ปรับให้เรียงเป็น Grid สวยงามบนจอคอม)
+// ฟังก์ชัน Step 1: เลือก "วันที่"
 window.renderQueueDates = function() {
     const c = document.getElementById('bookingSlotsContainer');
-    
-    // เปลี่ยนจาก flex-direction: column เป็น display: grid เพื่อให้เรียงการ์ดบนจอคอมได้หลายคอลัมน์
-    c.innerHTML = `<div id="queueDatesList" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-top: 15px;"></div>`;
+    c.innerHTML = `<div id="queueDatesList" class="queue-grid-container"></div>`;
     
     const groupedDates = {};
     window.allQueueSlotsCache.forEach(s => {
@@ -453,62 +462,46 @@ window.renderQueueDates = function() {
         const isFull = totalQuota > 0 && totalBooked >= totalQuota;
         const displayDate = escapeHTML(formatDate(dateStr));
         
-        const cardBg = isFull ? '#fcfcfc' : '#ffffff';
-        const iconBg = isFull ? 'linear-gradient(135deg, #ef9a9a, #e53935)' : 'linear-gradient(135deg, #64b5f6, #1e88e5)';
-        const iconColor = '#ffffff';
-        const badgeBg = isFull ? '#ffebee' : '#e8f5e9';
-        const badgeText = isFull ? '#c62828' : '#2e7d32';
-        
         const statusBadge = isFull 
-            ? `<span style="font-size:12px; font-weight:600; color:${badgeText}; background:${badgeBg}; padding:4px 10px; border-radius:20px; display:inline-flex; align-items:center; gap:4px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);"><i class="material-icons" style="font-size:14px;">block</i> เต็มทุกรอบ</span>` 
-            : `<span style="font-size:12px; font-weight:600; color:${badgeText}; background:${badgeBg}; padding:4px 10px; border-radius:20px; display:inline-flex; align-items:center; gap:4px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);"><i class="material-icons" style="font-size:14px;">check_circle</i> มีคิวว่าง</span>`;
+            ? `<span style="font-size:12px; font-weight:600; color:#c62828; background:#ffebee; padding:4px 10px; border-radius:20px;"><i class="material-icons" style="font-size:14px; vertical-align:middle;">block</i> เต็ม</span>` 
+            : `<span style="font-size:12px; font-weight:600; color:#2e7d32; background:#e8f5e9; padding:4px 10px; border-radius:20px;"><i class="material-icons" style="font-size:14px; vertical-align:middle;">check_circle</i> ว่าง</span>`;
 
         listContainer.innerHTML += `
-            <div class="date-slot-card" 
-                 style="cursor:${isFull ? 'default' : 'pointer'}; background: ${cardBg}; border-radius: 16px; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; position: relative; overflow: hidden;" 
-                 onclick="${isFull ? '' : `window.renderQueueTimes('${dateStr}')`}">
-                
-                ${isFull ? '' : `<div style="position:absolute; left:0; top:0; bottom:0; width:5px; background:linear-gradient(to bottom, #64b5f6, #1e88e5);"></div>`}
-                
-                <div style="display:flex; align-items:center; gap:16px; flex:1; min-width:0; padding-left: ${isFull ? '0' : '5px'};">
-                    <div class="q-icon-box" style="background:${iconBg}; width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-                        <i class="material-icons" style="color:${iconColor}; font-size:26px;">event_available</i>
+            <div class="date-slot-card" style="cursor:${isFull ? 'default' : 'pointer'};" onclick="${isFull ? '' : `window.renderQueueTimes('${dateStr}')`}">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div style="background:${isFull ? '#ffebee' : '#e3f2fd'}; width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center;">
+                        <i class="material-icons" style="color:${isFull ? '#d32f2f' : '#1976D2'}; font-size:24px;">event</i>
                     </div>
-                    
-                    <div style="min-width:0; overflow:hidden;">
-                        <div class="q-title" style="font-weight:700; color:${isFull ? '#757575' : '#1565C0'}; font-size:17px; margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${displayDate}</div>
-                        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                            <span style="font-size:13px; color:#666; font-weight:500;"><i class="material-icons" style="font-size:14px; vertical-align:middle; color:#999;">schedule</i> ${dateSlots.length} ช่วงเวลา</span>
+                    <div>
+                        <div style="font-weight:700; color:#333; font-size:16px; margin-bottom:4px;">${displayDate}</div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="font-size:13px; color:#666;">${dateSlots.length} ช่วงเวลา</span>
                             ${statusBadge}
                         </div>
                     </div>
                 </div>
-
-                <div style="color: ${isFull ? '#e0e0e0' : '#1976D2'}; display:flex; align-items:center; flex-shrink:0; margin-left:10px; background: ${isFull ? 'transparent' : '#f0f7ff'}; padding: 8px; border-radius: 50%;">
-                    <i class="material-icons" style="font-size:24px;">arrow_forward_ios</i>
-                </div>
+                ${!isFull ? `<i class="material-icons" style="color:#1976D2;">chevron_right</i>` : ''}
             </div>
         `;
     });
 };
 
+// ฟังก์ชัน Step 2: เลือก "ช่วงเวลา"
 window.renderQueueTimes = function(dateStr) {
     const c = document.getElementById('bookingSlotsContainer');
     const displayDate = escapeHTML(formatDate(dateStr));
     
+    // จัดกลุ่ม Header ให้ดูเป็นสัดส่วน และปุ่มย้อนกลับจัดวางสวยงาม
     c.innerHTML = `
-        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px; margin-bottom:20px; background:linear-gradient(to right, #f8f9fa, #ffffff); padding:12px 18px; border-radius:12px; border:1px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+        <div class="q-header-bar">
             <div style="font-size:16px; font-weight:bold; color:#1565C0; display:flex; align-items:center; gap:8px;">
-                <div style="background:#e3f2fd; padding:6px; border-radius:8px; display:flex;"><i class="material-icons" style="font-size:20px; color:#1976D2;">today</i></div>
-                ${displayDate}
+                <i class="material-icons">event_available</i> วันที่: ${displayDate}
             </div>
-            <button class="btn btn-secondary" onclick="window.renderQueueDates()" style="padding:6px 16px; font-size:14px; border-radius:24px; display:flex; align-items:center; gap:6px; background:#fff; color:#555; border:1px solid #ccc; font-weight:600; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
-                <i class="material-icons" style="font-size:16px;">arrow_back</i> ย้อนกลับ
+            <button class="btn btn-secondary" onclick="window.renderQueueDates()" style="display:flex; align-items:center; gap:4px; padding:6px 16px; border-radius:20px; font-size:14px; background:#fff; color:#333; border:1px solid #ccc;">
+                <i class="material-icons" style="font-size:18px;">arrow_back</i> ย้อนกลับไปเลือกวัน
             </button>
         </div>
-        
-        <div id="queueCardsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
-        </div>
+        <div id="queueCardsGrid" class="queue-grid-container"></div>
     `;
     
     const gridContainer = document.getElementById('queueCardsGrid');
@@ -518,49 +511,35 @@ window.renderQueueTimes = function(dateStr) {
         const booked = parseInt(s.current), quota = parseInt(s.quota), avail = quota - booked, isFull = avail <= 0;
         const percent = quota > 0 ? Math.min(100, Math.round((booked/quota)*100)) : 0;
         
-        const cardBorder = isFull ? '#ffcdd2' : '#e3f2fd';
-        const cardBg = isFull ? '#fffafb' : '#ffffff';
-        const badgeBg = isFull ? '#ffebee' : '#e8f5e9';
-        const badgeText = isFull ? '#c62828' : '#2e7d32';
-        const timeColor = isFull ? '#9e9e9e' : '#1565c0';
-        const progressColor = isFull ? '#e53935' : (percent > 80 ? '#fb8c00' : '#43a047');
-        
-        const btnStyle = isFull 
-            ? 'background:#f5f5f5; color:#9e9e9e; cursor:not-allowed; border:1px solid #e0e0e0;' 
-            : 'background:linear-gradient(135deg, #1976D2, #1565c0); color:#fff; box-shadow:0 4px 12px rgba(25, 118, 210, 0.3); border:none;';
-
         gridContainer.innerHTML += `
-            <div class="slot-card q-time-card" style="border: 1px solid ${cardBorder}; background: ${cardBg}; padding: 20px; border-radius: 16px; display: flex; flex-direction: column; justify-content: space-between; position:relative; overflow:hidden;">
-                
-                ${isFull ? '' : `<div style="position:absolute; top:0; right:0; width:40px; height:40px; background: linear-gradient(135deg, transparent 50%, #e3f2fd 50%); border-radius: 0 16px 0 0;"></div>`}
-
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
-                    <span style="font-size: 13px; font-weight: 600; padding: 4px 12px; border-radius: 20px; background: ${badgeBg}; color: ${badgeText}; display:inline-flex; align-items:center; gap:4px;">
-                        ${isFull ? '<i class="material-icons" style="font-size:14px;">do_not_disturb_on</i> คิวเต็ม' : '<i class="material-icons" style="font-size:14px;">check_circle_outline</i> เปิดรับจอง'}
+            <div class="q-time-card" style="display: flex; flex-direction: column; justify-content: space-between; border-color: ${isFull ? '#ffcdd2' : '#e0e0e0'};">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
+                    <span style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:12px; background:${isFull ? '#ffebee' : '#e8f5e9'}; color:${isFull ? '#c62828' : '#2e7d32'};">
+                        ${isFull ? 'คิวเต็ม' : 'เปิดรับจอง'}
                     </span>
-                    <span style="font-size: 13px; color: #666; display:flex; align-items:center; gap:4px; font-weight:500; background:#f5f5f5; padding:4px 10px; border-radius:15px;">
-                       <i class="material-icons" style="font-size:16px; color:#1976D2;">groups</i> ${booked}/${quota}
+                    <span style="font-size:13px; color:#666; font-weight:500;">
+                       <i class="material-icons" style="font-size:14px; vertical-align:middle;">groups</i> ${booked}/${quota}
                     </span>
                 </div>
 
-                <div style="text-align:center; margin: 10px 0 20px 0;">
-                    <div style="font-size:12px; color:#777; margin-bottom:4px;">รอบเวลารับบริการ</div>
-                    <div class="q-time-text" style="font-size: 28px; font-weight: 800; color: ${timeColor};">
+                <div style="text-align:center; margin: 10px 0 15px 0;">
+                    <div style="font-size:12px; color:#777; margin-bottom:2px;">รอบเวลารับบริการ</div>
+                    <div style="font-size: 26px; font-weight: 700; color: ${isFull ? '#9e9e9e' : '#1565c0'};">
                         ${escapeHTML(s.time)}
                     </div>
                 </div>
 
                 <div>
-                    <div style="display:flex; justify-content:space-between; font-size: 12px; margin-bottom: 8px;">
-                        <span style="color:#777; font-weight:500;">สถานะความหนาแน่น</span>
+                    <div style="display:flex; justify-content:space-between; font-size: 12px; margin-bottom: 6px;">
+                        <span style="color:#777;">สถานะ</span>
                         <span style="color: ${isFull ? '#c62828' : '#2e7d32'}; font-weight:bold;">${isFull ? 'ไม่มีคิวว่าง' : `ว่าง ${avail} คิว`}</span>
                     </div>
-                    <div style="width:100%; background:#eeeeee; height:8px; border-radius:4px; overflow:hidden; margin-bottom:20px;">
-                        <div class="q-progress-bar" style="width:${percent}%; background:${progressColor}; height:100%; border-radius:4px;"></div>
+                    <div style="width:100%; background:#eee; height:6px; border-radius:3px; margin-bottom:15px;">
+                        <div style="width:${percent}%; background:${isFull ? '#e53935' : '#4caf50'}; height:100%; border-radius:3px;"></div>
                     </div>
                     
-                    <button class="btn btn-book-queue" data-id="${escapeHTML(s.id)}" ${isFull?'disabled':''} style="width:100%; padding: 12px; border-radius: 10px; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; ${btnStyle}">
-                        ${isFull ? '<i class="material-icons" style="font-size:18px;">block</i> เต็มแล้ว' : '<i class="material-icons" style="font-size:18px;">how_to_reg</i> ยืนยันจองคิวนี้'}
+                    <button class="btn btn-book-queue" data-id="${escapeHTML(s.id)}" ${isFull?'disabled':''} style="width:100%; padding:10px; border-radius:8px; font-size:14px; font-weight:600; border:none; ${isFull ? 'background:#f5f5f5; color:#9e9e9e; cursor:not-allowed;' : 'background:linear-gradient(135deg, #1976D2, #1565c0); color:#fff; box-shadow:0 4px 8px rgba(25,118,210,0.2);'}">
+                        ${isFull ? 'เต็มแล้ว' : 'ยืนยันจองคิวนี้'}
                     </button>
                 </div>
             </div>`;
