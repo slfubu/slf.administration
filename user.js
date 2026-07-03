@@ -441,35 +441,76 @@ window.renderQueueDates = function() {
     });
 };
 
-// ฟังก์ชัน Step 2: แสดงรายการ "ช่วงเวลา" ของวันที่ถูกเลือก (เวอร์ชันเปิดใช้งานปุ่มกด)
+// ฟังก์ชัน Step 2: แสดงรายการ "ช่วงเวลา" ของวันที่ถูกเลือก (UI ปรับปรุงใหม่ โมเดิร์นขึ้น)
 window.renderQueueTimes = function(dateStr) {
     const c = document.getElementById('bookingSlotsContainer');
     const displayDate = escapeHTML(formatDate(dateStr));
     
-    // สร้างส่วนหัว พร้อมปุ่มย้อนกลับ
+    // 1. สร้างส่วนหัว และ Container แบบ Grid สำหรับใส่การ์ด
     c.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom: 2px solid #eee; padding-bottom:10px;">
-            <h3 style="color:#1976D2; font-size:18px; margin:0;"><i class="material-icons" style="vertical-align:bottom;">schedule</i> รอบเวลา: ${displayDate}</h3>
-            <button class="btn btn-secondary" onclick="window.renderQueueDates()" style="padding:4px 12px; font-size:13px; border-radius:20px; display:flex; align-items:center; gap:4px;">
-                <i class="material-icons" style="font-size:16px;">arrow_back</i> ย้อนกลับ
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom: 2px solid #e0e0e0; padding-bottom:15px;">
+            <h3 style="color:#1565C0; font-size:18px; margin:0; display:flex; align-items:center; gap:8px;">
+                <i class="material-icons" style="background:#e3f2fd; padding:6px; border-radius:8px; color:#1976D2;">schedule</i> 
+                รอบเวลา: ${displayDate}
+            </h3>
+            <button class="btn btn-secondary" onclick="window.renderQueueDates()" style="padding:6px 16px; font-size:14px; border-radius:30px; display:flex; align-items:center; gap:4px; background:#f5f5f5; color:#555; border:1px solid #ddd;">
+                <i class="material-icons" style="font-size:18px;">arrow_back</i> ย้อนกลับ
             </button>
+        </div>
+        <div id="queueCardsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
         </div>
     `;
     
-    // ดึงเฉพาะรอบเวลาของวันที่เลือก
+    const gridContainer = document.getElementById('queueCardsGrid');
+    
     const dateSlots = window.allQueueSlotsCache.filter(s => s.date === dateStr);
     
     dateSlots.forEach(s => {
         const booked = parseInt(s.current), quota = parseInt(s.quota), avail = quota - booked, isFull = avail <= 0;
         const percent = quota > 0 ? Math.min(100, Math.round((booked/quota)*100)) : 0;
-        c.innerHTML += `
-            <div class="slot-card ${isFull?'full':''}" style="border:1px solid #ddd; background:#fff; padding:15px; border-radius:8px; margin-bottom:15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                <div style="font-weight:bold; color:#1976D2;">${displayDate} <span style="float:right; color:${isFull?'red':'green'};">${isFull?'สถานะคิวเต็ม':'สถานะคิวว่าง'}</span></div>
-                <div style="margin:10px 0; font-size:18px;"><b>${escapeHTML(s.time)}</b></div>
-                <div style="margin-bottom:10px; font-size:13px; color:#666;">จำนวนผู้จอง ${booked}/${quota} (ว่าง ${avail} คิว)</div>
-                <div style="width:100%; background:#eee; height:8px; border-radius:4px; margin-bottom:15px;"><div style="width:${percent}%; background:${isFull?'red':(percent>80?'orange':'green')}; height:100%; border-radius:4px;"></div></div>
+        
+        const cardBorder = isFull ? '#ffcdd2' : '#bbdefb';
+        const cardBg = isFull ? '#fffafb' : '#ffffff';
+        const badgeBg = isFull ? '#ffebee' : '#e8f5e9';
+        const badgeText = isFull ? '#c62828' : '#2e7d32';
+        const timeColor = isFull ? '#9e9e9e' : '#1565c0';
+        const progressColor = isFull ? '#e53935' : (percent > 80 ? '#fb8c00' : '#43a047');
+        const btnStyle = isFull 
+            ? 'background:#e0e0e0; color:#9e9e9e; cursor:not-allowed;' 
+            : 'background:linear-gradient(135deg, #1976D2, #1565c0); color:#fff; box-shadow:0 4px 10px rgba(25, 118, 210, 0.25);';
+
+        gridContainer.innerHTML += `
+            <div class="slot-card" style="border: 1px solid ${cardBorder}; background: ${cardBg}; padding: 20px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s;">
                 
-<button class="btn ${isFull?'btn-secondary':'btn-primary'} btn-book-queue" data-id="${escapeHTML(s.id)}" ${isFull?'disabled':''} style="width:100%;">${isFull?'คิวเต็ม':'ยืนยันการจองคิว'}</button>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
+                    <span style="font-size: 13px; font-weight: bold; padding: 4px 12px; border-radius: 20px; background: ${badgeBg}; color: ${badgeText};">
+                        ${isFull ? 'คิวเต็ม' : 'เปิดรับจอง'}
+                    </span>
+                    <span style="font-size: 13px; color: #777; display:flex; align-items:center; gap:4px;">
+                       <i class="material-icons" style="font-size:16px;">group</i> ${booked}/${quota}
+                    </span>
+                </div>
+
+                <div style="text-align:center; margin: 10px 0 20px 0;">
+                    <div style="font-size: 26px; font-weight: 700; color: ${timeColor}; letter-spacing: 0.5px;">
+                        ${escapeHTML(s.time)}
+                    </div>
+                </div>
+
+                <div>
+                    <div style="display:flex; justify-content:space-between; font-size: 12px; margin-bottom: 6px;">
+                        <span style="color:#777;">ความหนาแน่น</span>
+                        <span style="color: ${isFull ? '#c62828' : '#2e7d32'}; font-weight:bold;">${isFull ? 'ไม่มีคิวว่าง' : `ว่าง ${avail} คิว`}</span>
+                    </div>
+                    <div style="width:100%; background:#eeeeee; height:8px; border-radius:4px; overflow:hidden; margin-bottom:20px;">
+                        <div style="width:${percent}%; background:${progressColor}; height:100%; border-radius:4px;"></div>
+                    </div>
+                    
+                    <button class="btn" onclick="window.bookQ('${escapeHTML(s.id)}')" ${isFull?'disabled':''} style="width:100%; padding: 12px; border-radius: 10px; font-size: 15px; font-weight: 600; border: none; display: flex; align-items: center; justify-content: center; gap: 6px; ${btnStyle}">
+                        ${isFull ? '<i class="material-icons" style="font-size:18px;">block</i> เต็มแล้ว' : '<i class="material-icons" style="font-size:18px;">check_circle</i> ยืนยันการจองคิว'}
+                    </button>
+                </div>
+
             </div>`;
     });
 };
