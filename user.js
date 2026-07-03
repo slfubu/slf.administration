@@ -1450,10 +1450,11 @@ const autoLogout = () => {
 autoLogout();
 
 async function initTransferPage() {
+    // ซ่อนทุกหน้าไว้ก่อนระหว่างรอตรวจสอบ
     document.getElementById('transferStep1').style.display = 'none';
     document.getElementById('transferStep2').style.display = 'none';
     
-    showLoading('กำลังตรวจสอบข้อมูลการทำรายการ');
+    showLoading('กำลังตรวจสอบข้อมูลการทำรายการ...');
     try {
         // 1. ยิง API ไปเช็คว่าเคยยื่นไปแล้วหรือยัง
         const checkRes = await callApi('checkTransferStatus', {
