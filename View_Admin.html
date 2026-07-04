@@ -3720,7 +3720,6 @@ window.toggleDeleteButton = function(count) {
         const u = typeof allUsersCache !== 'undefined' ? allUsersCache.find(x => x.id === userId) : null;
         const currentReason = u ? (u.suspendReason || '') : '';
 
-        // ------------------ กรณีสั่ง "ระงับบัญชี" ------------------
         if (newStatus === 'Suspended') {
             Swal.fire({ 
                 title: 'ระบุสาเหตุการระงับบัญชี', 
@@ -3744,9 +3743,8 @@ window.toggleDeleteButton = function(count) {
 
         } else {
             if (currentReason.includes('[REQ_SURVEY]')) {
-                // สเตปที่ 1: แจ้งเตือนและถามความสมัครใจ (จัดรูปแบบสวยงาม)
                 Swal.fire({
-                    title: '⚠️ ยืนยันการทำรายการ',
+                    title: 'ยืนยันการทำรายการ',
                     html: `
                         <div style="text-align: center; margin-bottom: 15px;">
                             <span style="color:#d32f2f; font-size: 15px; font-weight: bold;">
@@ -3763,7 +3761,7 @@ window.toggleDeleteButton = function(count) {
                             </div>
                         </div>
                         <div style="font-size: 16px; font-weight: bold; color: #1e293b;">
-                            ท่านต้องการทำรายการต่อใช่หรือไม่
+                            ท่านต้องการทำรายการต่อใช่หรือไม่?
                         </div>
                     `,
                     icon: 'warning',
@@ -3774,21 +3772,13 @@ window.toggleDeleteButton = function(count) {
                     cancelButtonColor: '#64748b'
                 }).then(r1 => {
                     if (r1.isConfirmed) {
-                        const allowedSuperAdmins = ['admin01', 'admin02', '64123456789']; 
-                        
-                        if (!allowedSuperAdmins.includes(String(adminId).trim())) {
-                            Swal.fire('ปฏิเสธการเข้าถึง', 'บัญชีของคุณไม่มีสิทธิ์ปลดล็อกบัญชีที่ติดเงื่อนไขความเสี่ยงสูง ระบบได้บันทึกความพยายามทำรายการของท่านไว้แล้ว', 'error');
-                            return;
-                        }
-
                         const adminFullName = currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : 'ไม่ทราบชื่อ';
-                        
                         Swal.fire({
                             title: 'ยืนยันตัวตนผู้ทำรายการ',
-                            html: `ระบบตรวจสอบสิทธิ์ผ่านเรียบร้อย<br><br>ผู้ทำรายการ: <b style="color: #28a745; font-size: 16px;">${adminFullName}</b><br><br>กรุณากดยืนยันเพื่อส่งคำสั่งปลดล็อกไปยังระบบฐานข้อมูล`,
+                            html: `ผู้ทำรายการ: <b style="color: #28a745; font-size: 16px;">${adminFullName}</b><br><br>กรุณากดยืนยันเพื่อส่งคำสั่ง ระบบจะตรวจสอบสิทธิ์ของท่านอย่างลับๆ`,
                             icon: 'info',
                             showCancelButton: true,
-                            confirmButtonText: 'ยืนยันการปลดล็อก',
+                            confirmButtonText: 'ส่งคำสั่งปลดล็อก',
                             cancelButtonText: 'ยกเลิก',
                             confirmButtonColor: '#28a745'
                         }).then(r2 => {
@@ -3801,7 +3791,7 @@ window.toggleDeleteButton = function(count) {
             } else {
                 Swal.fire({ 
                     title: 'ปลดระงับบัญชีนี้', 
-                    text: 'ต้องการปลดระงับบัญชีให้ใช้งานได้ปกติใช่หรือไม่',
+                    text: 'ต้องการปลดระงับบัญชีให้ใช้งานได้ปกติใช่หรือไม่?',
                     icon: 'question', 
                     showCancelButton: true, 
                     confirmButtonText: 'ยืนยันปลดล็อก',
@@ -3813,22 +3803,89 @@ window.toggleDeleteButton = function(count) {
         }
     };
 
-    async function executeStatusUpdate(userId, status, reason) {
+    const btnAdminUnlockAccount = document.getElementById('btnAdminUnlockAccount');
+    if (btnAdminUnlockAccount) {
+        btnAdminUnlockAccount.onclick = () => {
+            const studentId = document.getElementById('adm_ver_studentId').textContent;
+            const suspendReason = document.getElementById('adm_ver_suspendReason').textContent || '';
+
+            if (suspendReason.includes('[REQ_SURVEY]')) {
+                Swal.fire({
+                    title: 'ยืนยันการทำรายการ',
+                    html: `
+                        <div style="text-align: center; margin-bottom: 15px;">
+                            <span style="color:#d32f2f; font-size: 15px; font-weight: bold;">
+                                บัญชีนี้ถูกตั้งค่าให้ต้องทำแบบประเมินความเสี่ยงก่อนปลดล็อก
+                            </span>
+                        </div>
+                        <div style="background-color: #fff5f5; border: 1px solid #ffcdd2; border-left: 5px solid #d32f2f; padding: 15px; text-align: left; margin-bottom: 20px; border-radius: 8px;">
+                            <div style="color:#b71c1c; font-size: 14px; font-weight: bold; margin-bottom: 8px; display: flex; align-items: center; gap: 5px;">
+                                <i class="material-icons" style="font-size: 18px;">admin_panel_settings</i> กรุณาแจ้งผู้มีสิทธิ์อนุมัติเพื่อดำเนินการ:
+                            </div>
+                            <div style="color: #424242; font-size: 14px; padding-left: 25px; line-height: 1.6;">
+                                <div>1. คุณชิดชญา กุจะพันธ์</div>
+                                <div>2. คุณฐาปนัทพัฏทฐากร ฉายยิ่งเชี่ยว</div>
+                            </div>
+                        </div>
+                        <div style="font-size: 16px; font-weight: bold; color: #1e293b;">
+                            ท่านต้องการทำรายการต่อใช่หรือไม่?
+                        </div>
+                    `,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'ใช่, ทำรายการต่อ',
+                    cancelButtonText: 'ยกเลิก',
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#64748b'
+                }).then(r1 => {
+                    if (r1.isConfirmed) {
+                        const adminFullName = currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : 'ไม่ทราบชื่อ';
+                        Swal.fire({
+                            title: 'ยืนยันตัวตนผู้ทำรายการ',
+                            html: `ผู้ทำรายการ: <b style="color: #28a745; font-size: 16px;">${adminFullName}</b><br><br>กรุณากดยืนยันเพื่อส่งคำสั่ง ระบบจะตรวจสอบสิทธิ์ของท่านอย่างลับๆ`,
+                            icon: 'info',
+                            showCancelButton: true,
+                            confirmButtonText: 'ส่งคำสั่งปลดล็อก',
+                            cancelButtonText: 'ยกเลิก',
+                            confirmButtonColor: '#28a745'
+                        }).then(r2 => {
+                            if (r2.isConfirmed) {
+                                executeAdminUnlockVerifyPage(studentId);
+                            }
+                        });
+                    }
+                });
+            } else {
+                Swal.fire({
+                    title: 'ปลดล็อกบัญชี',
+                    text: 'ต้องการปลดล็อกบัญชีนักศึกษานี้ให้ใช้งานได้ปกติใช่หรือไม่?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'ยืนยันปลดล็อก',
+                    confirmButtonColor: '#28a745'
+                }).then(r => {
+                    if (r.isConfirmed) executeAdminUnlockVerifyPage(studentId);
+                });
+            }
+        };
+    }
+
+    async function executeAdminUnlockVerifyPage(studentId) {
         showLoading();
         try {
-            const res = await callApi("updateUser", { userId: userId, status: status, suspendReason: reason, adminId: adminId, token: userToken });
-            if(checkAuthError(res)) { hideLoading(); return; }
+            const res = await callApi("adminUnlockAccount", { studentId: studentId, adminId: adminId, token: userToken });
+            if (checkAuthError(res)) { hideLoading(); return; }
             hideLoading();
-            if (res.success) { 
-                Swal.fire('ทำรายการสำเร็จ', res.message, 'success'); 
-                loadSuspendedUsers(); 
-                loadUsersForAdmin(true); 
+            if (res.success) {
+                Swal.fire('สำเร็จ', 'ปลดล็อกบัญชีเรียบร้อยแล้ว', 'success');
+                const checkBtn = document.getElementById('btnAdminCheckVerify');
+                if(checkBtn) checkBtn.click();
             } else {
                 Swal.fire('ผิดพลาด', res.message, 'error');
             }
         } catch(err) {
             hideLoading();
-            Swal.fire('ผิดพลาด', err.message, 'error');
+            Swal.fire('Error', err.message, 'error');
         }
     }
 
