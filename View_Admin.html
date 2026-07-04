@@ -3715,7 +3715,6 @@ window.toggleDeleteButton = function(count) {
         });
     };
 
-
     window.actionSuspend = (userId, newStatus) => {
         const u = typeof allUsersCache !== 'undefined' ? allUsersCache.find(x => x.id === userId) : null;
         const currentReason = u ? (u.suspendReason || '') : '';
@@ -3743,51 +3742,8 @@ window.toggleDeleteButton = function(count) {
 
         } else {
             if (currentReason.includes('[REQ_SURVEY]')) {
-                Swal.fire({
-                    title: 'ยืนยันการทำรายการ',
-                    html: `
-                        <div style="text-align: center; margin-bottom: 15px;">
-                            <span style="color:#d32f2f; font-size: 15px; font-weight: bold;">
-                                บัญชีนี้ถูกตั้งค่าให้ต้องทำแบบประเมินความเสี่ยงก่อนปลดล็อก
-                            </span>
-                        </div>
-                        <div style="background-color: #fff5f5; border: 1px solid #ffcdd2; border-left: 5px solid #d32f2f; padding: 15px; text-align: left; margin-bottom: 20px; border-radius: 8px;">
-                            <div style="color:#b71c1c; font-size: 14px; font-weight: bold; margin-bottom: 8px; display: flex; align-items: center; gap: 5px;">
-                                <i class="material-icons" style="font-size: 18px;">admin_panel_settings</i> กรุณาแจ้งผู้มีสิทธิ์อนุมัติเพื่อดำเนินการ:
-                            </div>
-                            <div style="color: #424242; font-size: 14px; padding-left: 25px; line-height: 1.6;">
-                                <div>1. คุณชิดชญา กุจะพันธ์</div>
-                                <div>2. คุณฐาปนัทพัฏทฐากร ฉายยิ่งเชี่ยว</div>
-                            </div>
-                        </div>
-                        <div style="font-size: 16px; font-weight: bold; color: #1e293b;">
-                            ท่านต้องการทำรายการต่อใช่หรือไม่?
-                        </div>
-                    `,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'ใช่, ทำรายการต่อ',
-                    cancelButtonText: 'ยกเลิก',
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#64748b'
-                }).then(r1 => {
-                    if (r1.isConfirmed) {
-                        const adminFullName = currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : 'ไม่ทราบชื่อ';
-                        Swal.fire({
-                            title: 'ยืนยันตัวตนผู้ทำรายการ',
-                            html: `ผู้ทำรายการ: <b style="color: #28a745; font-size: 16px;">${adminFullName}</b><br><br>กรุณากดยืนยันเพื่อส่งคำสั่ง ระบบจะตรวจสอบสิทธิ์ของท่านอย่างลับๆ`,
-                            icon: 'info',
-                            showCancelButton: true,
-                            confirmButtonText: 'ส่งคำสั่งปลดล็อก',
-                            cancelButtonText: 'ยกเลิก',
-                            confirmButtonColor: '#28a745'
-                        }).then(r2 => {
-                            if (r2.isConfirmed) {
-                                executeStatusUpdate(userId, newStatus, '');
-                            }
-                        });
-                    }
-                });
+                // เรียกใช้ฟังก์ชันกลาง (false = เรียกจากหน้าจัดการผู้ใช้งาน)
+                window.showUnlockSurveyModal(userId, u ? u.studentId : '', false);
             } else {
                 Swal.fire({ 
                     title: 'ปลดระงับบัญชีนี้', 
@@ -3807,61 +3763,20 @@ window.toggleDeleteButton = function(count) {
     if (btnAdminUnlockAccount) {
         btnAdminUnlockAccount.onclick = () => {
             const studentId = document.getElementById('adm_ver_studentId').textContent;
-            const suspendReason = document.getElementById('adm_ver_suspendReason').textContent || '';
+            const suspendReasonEl = document.getElementById('adm_ver_suspendReason');
+            const suspendReason = suspendReasonEl ? suspendReasonEl.textContent : '';
 
             if (suspendReason.includes('[REQ_SURVEY]')) {
-                Swal.fire({
-                    title: 'ยืนยันการทำรายการ',
-                    html: `
-                        <div style="text-align: center; margin-bottom: 15px;">
-                            <span style="color:#d32f2f; font-size: 15px; font-weight: bold;">
-                                บัญชีนี้ถูกตั้งค่าให้ต้องทำแบบประเมินความเสี่ยงก่อนปลดล็อก
-                            </span>
-                        </div>
-                        <div style="background-color: #fff5f5; border: 1px solid #ffcdd2; border-left: 5px solid #d32f2f; padding: 15px; text-align: left; margin-bottom: 20px; border-radius: 8px;">
-                            <div style="color:#b71c1c; font-size: 14px; font-weight: bold; margin-bottom: 8px; display: flex; align-items: center; gap: 5px;">
-                                <i class="material-icons" style="font-size: 18px;">admin_panel_settings</i> กรุณาแจ้งผู้มีสิทธิ์อนุมัติเพื่อดำเนินการ:
-                            </div>
-                            <div style="color: #424242; font-size: 14px; padding-left: 25px; line-height: 1.6;">
-                                <div>1. คุณชิดชญา กุจะพันธ์</div>
-                                <div>2. คุณฐาปนัทพัฏทฐากร ฉายยิ่งเชี่ยว</div>
-                            </div>
-                        </div>
-                        <div style="font-size: 16px; font-weight: bold; color: #1e293b;">
-                            ท่านต้องการทำรายการต่อใช่หรือไม่?
-                        </div>
-                    `,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'ใช่, ทำรายการต่อ',
-                    cancelButtonText: 'ยกเลิก',
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#64748b'
-                }).then(r1 => {
-                    if (r1.isConfirmed) {
-                        const adminFullName = currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : 'ไม่ทราบชื่อ';
-                        Swal.fire({
-                            title: 'ยืนยันตัวตนผู้ทำรายการ',
-                            html: `ผู้ทำรายการ: <b style="color: #28a745; font-size: 16px;">${adminFullName}</b><br><br>กรุณากดยืนยันเพื่อส่งคำสั่ง ระบบจะตรวจสอบสิทธิ์ของท่านอย่างลับๆ`,
-                            icon: 'info',
-                            showCancelButton: true,
-                            confirmButtonText: 'ส่งคำสั่งปลดล็อก',
-                            cancelButtonText: 'ยกเลิก',
-                            confirmButtonColor: '#28a745'
-                        }).then(r2 => {
-                            if (r2.isConfirmed) {
-                                executeAdminUnlockVerifyPage(studentId);
-                            }
-                        });
-                    }
-                });
+                if (typeof window.showUnlockSurveyModal === 'function') {
+                    window.showUnlockSurveyModal(null, studentId, true);
+                }
             } else {
                 Swal.fire({
                     title: 'ปลดล็อกบัญชี',
-                    text: 'ต้องการปลดล็อกบัญชีนักศึกษานี้ให้ใช้งานได้ปกติใช่หรือไม่?',
-                    icon: 'question',
+                    text: `ต้องการปลดล็อกบัญชีของรหัส ${studentId} เพื่อให้เข้าใช้งานได้ปกติ ใช่หรือไม่`,
+                    icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonText: 'ยืนยันปลดล็อก',
+                    confirmButtonText: 'ใช่ ปลดล็อกเลย',
                     confirmButtonColor: '#28a745'
                 }).then(r => {
                     if (r.isConfirmed) executeAdminUnlockVerifyPage(studentId);
@@ -8063,135 +7978,56 @@ window.loadLoanFacultyStats = async () => {
         if(container) container.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:#d32f2f; padding:20px;">เกิดข้อผิดพลาด: ${err.message}</div>`;
     }
 };
-
-    window.showUnlockSurveyModal = async (userId, studentId, useAdminVerifyApi = false) => {
-        const authHtml = `
-            <div style="text-align: left; font-size: 14px;">
-                <p style="color: #d32f2f; font-weight: bold;">⚠️ บัญชีนี้ถูกตั้งค่าให้ต้องทำแบบประเมินความเสี่ยงก่อนปลดล็อก</p>
-                <p style="margin-bottom: 15px;">กรุณาแจ้งฝ่ายพัฒนาระบบเพื่อดำเนินการในส่วนนี้ ท่านต้องการทำรายการต่อใช่หรือไม่?</p>
-                <hr style="border: 0; border-top: 1px solid #ddd; margin: 15px 0;">
-                <p style="font-weight: bold; margin-bottom: 5px; color: #1976D2;">🔐 ยืนยันสิทธิ์ผู้ดูแลระบบ (สำหรับบันทึก Log)</p>
-                <input id="auth_admin_id" class="swal2-input" placeholder="บัญชีผู้ใช้งาน (Admin ID)" style="width: 85%; margin-bottom: 10px; font-size: 14px;">
-                <input id="auth_admin_pass" type="password" class="swal2-input" placeholder="รหัสผ่าน (Password)" style="width: 85%; font-size: 14px;">
-            </div>
-        `;
-
-        const authResult = await Swal.fire({
+window.showUnlockSurveyModal = async (userId, studentId, useAdminVerifyApi = false) => {
+        Swal.fire({
             title: 'ยืนยันการทำรายการ',
-            html: authHtml,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#1976D2',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'ใช่ ทำรายการต่อ',
-            cancelButtonText: 'ยกเลิก / ปิด',
-            reverseButtons: true, 
-            preConfirm: () => {
-                const aId = document.getElementById('auth_admin_id').value.trim();
-                const aPass = document.getElementById('auth_admin_pass').value.trim();
-                if (!aId || !aPass) {
-                    Swal.showValidationMessage('กรุณากรอกบัญชีและรหัสผ่านแอดมินเพื่อยืนยันสิทธิ์');
-                    return false;
-                }
-                return { adminId: aId, adminPass: aPass };
-            }
-        });
-
-        if (!authResult.isConfirmed) return; 
-        const authorizedAdmin = authResult.value;
-
-        const questions = [
-            { id: 'q1', text: '1. การเข้าใช้งานจากต่างประเทศ/VPN เป็นการใช้งานด้วยตัวท่านเอง เพื่อการเรียน/ทำงาน ใช่หรือไม่?' },
-            { id: 'q2', text: '2. ท่านเคยบอกรหัสผ่าน หรือฝากให้บุคคลอื่นเข้าระบบแทนท่านหรือไม่?' }, 
-            { id: 'q3', text: '3. ในช่วง 7 วันที่ผ่านมา ท่านใช้ Wi-Fi สาธารณะ หรือคอมพิวเตอร์สาธารณะเข้าระบบหรือไม่?' }, 
-            { id: 'q4', text: '4. ท่านใช้รหัสผ่านของระบบนี้ ซ้ำกับรหัสผ่านของอีเมล โซเชียลมีเดีย หรือเว็บอื่นๆ หรือไม่?' }, 
-            { id: 'q5', text: '5. ท่านเคยคลิกลิงก์แปลกปลอมที่ส่งมาทาง อีเมล, SMS หรือแชท ในช่วงที่ผ่านมาหรือไม่?' }, 
-            { id: 'q6', text: '6. อุปกรณ์ที่ท่านใช้เข้าระบบ ขาดการอัปเดต หรือไม่มีโปรแกรมป้องกันไวรัส (Antivirus) ใช่หรือไม่?' }, 
-            { id: 'q7', text: '7. ท่านเคยเผลอกรอกรหัสผ่านในเว็บที่หน้าตาคล้ายระบบนี้ แต่ URL (ชื่อเว็บ) ไม่ถูกต้อง หรือไม่?' }, 
-            { id: 'q8', text: '8. ท่านพบความผิดปกติในบัญชี เช่น มีการแก้ไขข้อมูล/ยื่นคำร้อง ที่ท่านไม่ได้ทำ หรือไม่?' }, 
-            { id: 'q9', text: '9. ท่านได้บันทึกรหัสผ่าน (Save Password) ทิ้งไว้ในเบราว์เซอร์ของเครื่องที่ไม่ได้ใช้คนเดียวหรือไม่?' }, 
-            { id: 'q10', text: '10. ท่านยินยอมและพร้อมที่จะ "เปลี่ยนรหัสผ่านใหม่ทันที" หลังจากปลดล็อกบัญชีใช่หรือไม่?' } 
-        ];
-
-        let surveyHtml = `<div style="text-align: left; font-size: 14px; max-height: 450px; overflow-y: auto; padding-right: 10px;">
-            <p style="color: #d32f2f; font-weight: bold; margin-bottom: 15px;">⚠️ กรุณาสอบถามนักศึกษาเพื่อประเมินระดับความเสี่ยง (10 ข้อ)</p>`;
-        questions.forEach(q => {
-            surveyHtml += `
-            <div style="margin-bottom: 12px; background: #f9f9f9; padding: 10px; border-radius: 5px;">
-                <label style="font-weight: 500;">${q.text}</label><br>
-                <div style="margin-top: 5px;">
-                    <input type="radio" name="${q.id}" value="yes" id="${q.id}_yes"> <label for="${q.id}_yes" style="margin-right: 15px; cursor: pointer;">ใช่</label>
-                    <input type="radio" name="${q.id}" value="no" id="${q.id}_no"> <label for="${q.id}_no" style="cursor: pointer;">ไม่ใช่</label>
-                </div>
-            </div>`;
-        });
-        surveyHtml += `</div>`;
-
-        const surveyResult = await Swal.fire({
-            title: 'แบบประเมินความเสี่ยงเชิงลึก',
-            html: surveyHtml,
-            width: '750px',
-            showCancelButton: true,
-            confirmButtonText: 'ประเมินผล',
-            cancelButtonText: 'ยกเลิก',
-            confirmButtonColor: '#2e7d32',
-            preConfirm: () => {
-                const ans = {};
-                for (let i = 1; i <= 10; i++) {
-                    const val = document.querySelector(`input[name="q${i}"]:checked`)?.value;
-                    if (!val) { Swal.showValidationMessage('กรุณาสอบถามและตอบให้ครบ 10 ข้อ'); return false; }
-                    ans[`q${i}`] = val;
-                }
-                return ans;
-            }
-        });
-
-        if (!surveyResult.isConfirmed) return;
-
-        const ans = surveyResult.value;
-        let riskScore = 0;
-        if (ans.q1 === 'no') riskScore++;
-        if (ans.q10 === 'no') riskScore++;
-        ['q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9'].forEach(k => { if (ans[k] === 'yes') riskScore++; });
-
-        let rLevel = '', rCol = '', rIcon = '';
-        if (riskScore <= 2) { rLevel = 'ต่ำ (Low Risk)'; rCol = '#2e7d32'; rIcon = 'success'; }
-        else if (riskScore <= 5) { rLevel = 'ปานกลาง (Medium Risk)'; rCol = '#f57c00'; rIcon = 'warning'; }
-        else { rLevel = 'สูงมาก (High Risk)'; rCol = '#d32f2f'; rIcon = 'error'; }
-
-        const finalConfirm = await Swal.fire({
-            title: 'สรุปผลการประเมิน',
             html: `
-                <div style="font-size: 16px;">
-                    <p>ระดับความเสี่ยง: <span style="color: ${rCol}; font-weight: bold;">${rLevel}</span></p>
-                    <p>พบความเสี่ยงจำนวน <b>${riskScore} / 10</b> ข้อ</p>
-                    <hr style="margin: 15px 0;">
-                    <p style="font-size: 14px; text-align: left;">
-                        ${riskScore > 2 ? '<b>คำแนะนำ:</b> กรุณากำชับให้นักศึกษาเปลี่ยนรหัสผ่านทันที' : '<b>คำแนะนำ:</b> บัญชีปลอดภัย สามารถปลดล็อกได้'}
-                    </p>
+                <div style="text-align: center; margin-bottom: 15px;">
+                    <span style="color:#d32f2f; font-size: 15px; font-weight: bold;">
+                        บัญชีนี้ถูกตั้งค่าให้ต้องทำแบบประเมินความเสี่ยงก่อนปลดล็อก
+                    </span>
+                </div>
+                <div style="background-color: #fff5f5; border: 1px solid #ffcdd2; border-left: 5px solid #d32f2f; padding: 15px; text-align: left; margin-bottom: 20px; border-radius: 8px;">
+                    <div style="color:#b71c1c; font-size: 14px; font-weight: bold; margin-bottom: 8px; display: flex; align-items: center; gap: 5px;">
+                        <i class="material-icons" style="font-size: 18px;">admin_panel_settings</i> กรุณาแจ้งผู้มีสิทธิ์อนุมัติเพื่อดำเนินการ:
+                    </div>
+                    <div style="color: #424242; font-size: 14px; padding-left: 25px; line-height: 1.6;">
+                        <div>1. คุณชิดชญา กุจะพันธ์</div>
+                        <div>2. คุณฐาปนัทพัฏทฐากร ฉายยิ่งเชี่ยว</div>
+                    </div>
+                </div>
+                <div style="font-size: 16px; font-weight: bold; color: #1e293b;">
+                    ท่านต้องการทำรายการต่อใช่หรือไม่?
                 </div>
             `,
-            icon: rIcon, showCancelButton: true, confirmButtonText: 'ยืนยันปลดล็อกบัญชี', confirmButtonColor: '#1976D2'
-        });
-
-        if (finalConfirm.isConfirmed) {
-            if (useAdminVerifyApi) {
-                showLoading('กำลังดำเนินการปลดล็อก');
-                try {
-                    const res = await callApi("adminUnlockAccount", { 
-                        studentId: studentId, adminId: currentUser.studentId, 
-                        authAdminId: authorizedAdmin.adminId, authAdminPass: authorizedAdmin.adminPass,
-                        riskScore: riskScore, riskLevel: rLevel, token: userToken 
-                    });
-                    hideLoading();
-                    if (res.success) {
-                        Swal.fire('สำเร็จ', res.message, 'success').then(() => document.getElementById('btnAdminCheckVerify').click());
-                    } else showAlert(res.message, 'error');
-                } catch (err) { hideLoading(); showAlert(err.message, 'error'); }
-            } else {
-                executeStatusUpdate(userId, 'Active', '');
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'ใช่, ทำรายการต่อ',
+            cancelButtonText: 'ยกเลิก',
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#64748b'
+        }).then(r1 => {
+            if (r1.isConfirmed) {
+                const adminFullName = currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : 'ไม่ทราบชื่อ';
+                Swal.fire({
+                    title: 'ยืนยันตัวตนผู้ทำรายการ',
+                    html: `ผู้ทำรายการ: <b style="color: #28a745; font-size: 16px;">${adminFullName}</b><br><br>กรุณากดยืนยันเพื่อส่งคำสั่ง ระบบจะตรวจสอบสิทธิ์ของท่านอย่างลับๆ`,
+                    icon: 'info',
+                    showCancelButton: true,
+                    confirmButtonText: 'ส่งคำสั่งปลดล็อก',
+                    cancelButtonText: 'ยกเลิก',
+                    confirmButtonColor: '#28a745'
+                }).then(r2 => {
+                    if (r2.isConfirmed) {
+                        if (useAdminVerifyApi) {
+                            executeAdminUnlockVerifyPage(studentId);
+                        } else {
+                            executeStatusUpdate(userId, 'Active', '');
+                        }
+                    }
+                });
             }
-        }
+        });
     };
 
 </script>
