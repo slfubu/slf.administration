@@ -1946,7 +1946,7 @@
                     </div>
                 </div>
 
-    <div id="missingProfileSection" class="section">
+                   <div id="missingProfileSection" class="section">
     <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
             <h2 style="margin: 0; display: flex; align-items: center; gap: 10px;">
@@ -3305,7 +3305,6 @@
     setupNav('navAdminAnnouncement', 'adminAnnouncementSection');
     setupNav('navAdminTransfer', 'adminTransferSection');
     setupNav('navAdminLoan2569Dashboard', 'adminLoan2569DashboardSection');
-    setupNav('navMissingProfile', 'missingProfileSection', loadMissingProfileUsers);
 
 
     document.querySelectorAll('.submenu-toggle').forEach(item => {
@@ -8361,6 +8360,9 @@ window.executeStatusUpdate = async (userId, newStatus, reason) => {
 let missingProfilesCache = [];
 let missingCurrentPage = 1;
 let missingRowsPerPage = 50;
+
+
+setupNav('navMissingProfile', 'missingProfileSection', loadMissingProfileUsers);
 
 async function loadMissingProfileUsers() {
     showLoading('กำลังค้นหาบัญชีที่ยังไม่ลงประวัติ');
