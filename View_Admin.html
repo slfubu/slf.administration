@@ -7979,56 +7979,186 @@ window.loadLoanFacultyStats = async () => {
     }
 };
 window.showUnlockSurveyModal = async (userId, studentId, useAdminVerifyApi = false) => {
-        Swal.fire({
-            title: 'ยืนยันการทำรายการ',
+    const adminFullName = currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : 'ไม่ทราบชื่อ';
+
+    const confirmStep1 = await Swal.fire({
+        title: 'ยืนยันการทำรายการ',
+        html: `
+            <div style="text-align: center; margin-bottom: 15px;">
+                <span style="color:#d32f2f; font-size: 15px; font-weight: bold;">
+                    บัญชีนี้ถูกระงับด้วยเงื่อนไขความเสี่ยงสูง กรุณาคัดกรองก่อนปลดล็อก
+                </span>
+            </div>
+            <div style="background-color: #fff5f5; border: 1px solid #ffcdd2; border-left: 5px solid #d32f2f; padding: 15px; text-align: left; margin-bottom: 20px; border-radius: 8px;">
+                <div style="color:#b71c1c; font-size: 14px; font-weight: bold; margin-bottom: 8px; display: flex; align-items: center; gap: 5px;">
+                    <i class="material-icons" style="font-size: 18px;">admin_panel_settings</i> กรุณาแจ้งผู้มีสิทธิ์อนุมัติเพื่อดำเนินการ:
+                </div>
+                <div style="color: #424242; font-size: 14px; padding-left: 25px; line-height: 1.6;">
+                    <div>1. คุณชิดชญา กุจะพันธ์</div>
+                    <div>2. คุณฐาปนัทพัฏทฐากร ฉายยิ่งเชี่ยว</div>
+                </div>
+            </div>
+            <div style="font-size: 16px; font-weight: bold; color: #1e293b; margin-bottom: 15px;">
+                ผู้ทำรายการ: <span style="color: #28a745;">${adminFullName}</span>
+            </div>
+            <div style="font-size: 14px; color: #475569;">
+                คลิก "เริ่มคัดกรอง" เพื่อสอบถามข้อมูล 10 ข้อ จากนักศึกษา
+            </div>
+        `,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'เริ่มคัดกรอง',
+        cancelButtonText: 'ยกเลิก',
+        confirmButtonColor: '#0288d1',
+        cancelButtonColor: '#64748b'
+    });
+
+    if (!confirmStep1.isConfirmed) return;
+
+    const surveyStep = await Swal.fire({
+        title: 'แบบคัดกรองความเสี่ยงทางไซเบอร์ (10 ข้อ)',
+        html: `
+            <div style="text-align: left; font-size: 14px; max-height: 450px; overflow-y: auto; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc;">
+                <p style="color: #d32f2f; font-weight: bold; margin-top: 0; margin-bottom: 15px; border-bottom: 1px solid #cbd5e1; padding-bottom: 10px;">
+                    กรุณาสอบถามนักศึกษาเพื่อประเมินความเสี่ยงของการถูกแฮ็กหรือข้อมูลรั่วไหล
+                </p>
+                
+                <div style="margin-bottom: 15px;">
+                    <label><b>ข้อ 1 (IP Anomaly):</b> ระบบพบการล็อกอินจากพื้นที่ผิดปกติ/ต่างประเทศ นักศึกษาได้ใช้ VPN หรือเดินทางไปต่างประเทศในช่วงเวลาดังกล่าวหรือไม่?</label><br>
+                    <input type="radio" name="q1" value="ใช่" id="q1_yes"> <label for="q1_yes">ใช่ (ทำด้วยตนเอง)</label>
+                    <input type="radio" name="q1" value="ไม่ใช่" id="q1_no" style="margin-left: 15px;"> <label for="q1_no">ไม่ใช่ (ถูกล็อกอินจากที่อื่น)</label>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label><b>ข้อ 2 (Phishing):</b> นักศึกษาเคยคลิกลิงก์ที่น่าสงสัยจากอีเมล SMS หรือข้อความแชท ที่นำไปสู่หน้าเว็บให้กรอกรหัสผ่านหรือไม่?</label><br>
+                    <input type="radio" name="q2" value="เคย" id="q2_yes"> <label for="q2_yes">เคย / ไม่แน่ใจ</label>
+                    <input type="radio" name="q2" value="ไม่เคย" id="q2_no" style="margin-left: 15px;"> <label for="q2_no">ไม่เคย</label>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label><b>ข้อ 3 (Data Leak):</b> รหัสผ่านของระบบ กยศ. เป็นรหัสเดียวกับที่ใช้ในแอปพลิเคชันหรือเว็บไซต์อื่นที่เคยมีข่าวข้อมูลรั่วไหลหรือไม่?</label><br>
+                    <input type="radio" name="q3" value="ใช่" id="q3_yes"> <label for="q3_yes">ใช่ (ใช้รหัสผ่านซ้ำ)</label>
+                    <input type="radio" name="q3" value="ไม่ใช่" id="q3_no" style="margin-left: 15px;"> <label for="q3_no">ไม่ใช่ (ตั้งแยกเฉพาะ)</label>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label><b>ข้อ 4 (Device Security):</b> อุปกรณ์ที่ใช้ล็อกอิน (มือถือ/คอมพิวเตอร์) มีการติดตั้งแอปพลิเคชันเถื่อน หรือมีความเสี่ยงในการติดมัลแวร์ (Malware) หรือไม่?</label><br>
+                    <input type="radio" name="q4" value="มี" id="q4_yes"> <label for="q4_yes">มี / ไม่แน่ใจ</label>
+                    <input type="radio" name="q4" value="ไม่มี" id="q4_no" style="margin-left: 15px;"> <label for="q4_no">ไม่มี</label>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label><b>ข้อ 5 (Unauthorized Access):</b> นักศึกษาเคยให้รหัสผ่านแก่ผู้อื่น หรือจ้างบุคคลอื่นให้ดำเนินการเข้าระบบแทนหรือไม่?</label><br>
+                    <input type="radio" name="q5" value="เคย" id="q5_yes"> <label for="q5_yes">เคย</label>
+                    <input type="radio" name="q5" value="ไม่เคย" id="q5_no" style="margin-left: 15px;"> <label for="q5_no">ไม่เคย</label>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label><b>ข้อ 6 (Public Network):</b> นักศึกษาเคยล็อกอินเข้าใช้งานระบบผ่านเครือข่าย Wi-Fi สาธารณะที่ไม่มีการเข้ารหัสความปลอดภัยหรือไม่?</label><br>
+                    <input type="radio" name="q6" value="เคย" id="q6_yes"> <label for="q6_yes">เคย</label>
+                    <input type="radio" name="q6" value="ไม่เคย" id="q6_no" style="margin-left: 15px;"> <label for="q6_no">ไม่เคย</label>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label><b>ข้อ 7 (Session Hijacking):</b> นักศึกษาเคยล็อกอินค้างไว้ในคอมพิวเตอร์สาธารณะ หรืออุปกรณ์ของบุคคลอื่นโดยไม่ได้กดออกจากระบบหรือไม่?</label><br>
+                    <input type="radio" name="q7" value="เคย" id="q7_yes"> <label for="q7_yes">เคย</label>
+                    <input type="radio" name="q7" value="ไม่เคย" id="q7_no" style="margin-left: 15px;"> <label for="q7_no">ไม่เคย</label>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label><b>ข้อ 8 (MFA/Contact):</b> เบอร์โทรศัพท์หรืออีเมลที่ใช้รับรหัสยืนยันตัวตน (OTP) ปัจจุบันมีเพียงนักศึกษาคนเดียวที่สามารถเข้าถึงได้ใช่หรือไม่?</label><br>
+                    <input type="radio" name="q8" value="ใช่" id="q8_yes"> <label for="q8_yes">ใช่</label>
+                    <input type="radio" name="q8" value="ไม่ใช่" id="q8_no" style="margin-left: 15px;"> <label for="q8_no">ไม่ใช่ (มีคนอื่นเข้าถึงได้)</label>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label><b>ข้อ 9 (Brute Force):</b> สาเหตุที่บัญชีถูกล็อก เกิดจากนักศึกษากรอกรหัสผ่านผิดหลายครั้งด้วยตนเองใช่หรือไม่?</label><br>
+                    <input type="radio" name="q9" value="ใช่" id="q9_yes"> <label for="q9_yes">ใช่ (ลืมรหัสผ่านเอง)</label>
+                    <input type="radio" name="q9" value="ไม่ใช่" id="q9_no" style="margin-left: 15px;"> <label for="q9_no">ไม่ใช่ (ถูกผู้อื่นสุ่มรหัส)</label>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label><b>ข้อ 10 (Mitigation):</b> นักศึกษาได้ทำการเปลี่ยนรหัสผ่านใหม่ให้มีความปลอดภัย (Strong Password) และสแกนไวรัสในอุปกรณ์เรียบร้อยแล้วใช่หรือไม่?</label><br>
+                    <input type="radio" name="q10" value="ใช่" id="q10_yes"> <label for="q10_yes">ดำเนินการแล้ว</label>
+                    <input type="radio" name="q10" value="ไม่ใช่" id="q10_no" style="margin-left: 15px;"> <label for="q10_no">ยังไม่ได้ดำเนินการ</label>
+                </div>
+                
+                <div style="margin-top: 20px; border-top: 1px solid #cbd5e1; padding-top: 15px;">
+                    <label style="font-weight: bold; color: #1976D2;">บันทึกข้อสังเกตเพิ่มเติม (ถ้ามี)</label>
+                    <textarea id="survey_note" class="modern-input" rows="3" placeholder="ระบุข้อมูลเพิ่มเติม เช่น ยืนยันพิกัดที่พบความเสี่ยง..." style="width: 100%; border: 1px solid #cbd5e1; border-radius: 4px; padding: 8px; margin-top: 5px;"></textarea>
+                </div>
+            </div>
+        `,
+        width: '650px',
+        showCancelButton: true,
+        confirmButtonText: 'วิเคราะห์ผล',
+        cancelButtonText: 'ยกเลิก',
+        confirmButtonColor: '#0288d1',
+        preConfirm: () => {
+            let riskScore = 0;
+            for (let i = 1; i <= 10; i++) {
+                const checkedEl = document.querySelector(`input[name="q${i}"]:checked`);
+                if (!checkedEl) {
+                    Swal.showValidationMessage(`กรุณาระบุข้อมูลคัดกรองในข้อที่ ${i}`);
+                    return false;
+                }
+                const val = checkedEl.value;
+                if (i === 1 && val === 'ไม่ใช่') riskScore++;
+                if (i === 2 && val === 'เคย') riskScore++;
+                if (i === 3 && val === 'ใช่') riskScore++;
+                if (i === 4 && val === 'มี') riskScore++;
+                if (i === 5 && val === 'เคย') riskScore++;
+                if (i === 6 && val === 'เคย') riskScore++;
+                if (i === 7 && val === 'เคย') riskScore++;
+                if (i === 8 && val === 'ไม่ใช่') riskScore++;
+                if (i === 9 && val === 'ไม่ใช่') riskScore++;
+                if (i === 10 && val === 'ไม่ใช่') riskScore++;
+            }
+            const note = document.getElementById('survey_note').value;
+            return { note: note, riskScore: riskScore };
+        }
+    });
+
+    if (surveyStep.isConfirmed) {
+        const result = surveyStep.value;
+        let riskLevel = 'ต่ำ (ตรวจสอบแล้วปลอดภัย)';
+        let riskColor = '#28a745';
+
+        // จัดระดับความเสี่ยงจาก 10 คะแนน
+        if (result.riskScore >= 6) {
+            riskLevel = 'สูง (เข้าข่ายบัญชีถูกแฮ็ก/รหัสรั่วไหล)';
+            riskColor = '#d32f2f';
+        } else if (result.riskScore >= 3) {
+            riskLevel = 'ปานกลาง (มีความเสี่ยงข้อมูลหลุด)';
+            riskColor = '#f57c00';
+        }
+
+        const confirmUnlock = await Swal.fire({
+            title: 'ผลวิเคราะห์ระดับความเสี่ยง',
             html: `
-                <div style="text-align: center; margin-bottom: 15px;">
-                    <span style="color:#d32f2f; font-size: 15px; font-weight: bold;">
-                        บัญชีนี้ถูกตั้งค่าให้ต้องทำแบบประเมินความเสี่ยงก่อนปลดล็อก
-                    </span>
+                <div style="font-size: 48px; font-weight: bold; color: ${riskColor}; margin: 10px 0;">
+                    ${result.riskScore} <span style="font-size: 24px; color: #666;">/ 10</span>
                 </div>
-                <div style="background-color: #fff5f5; border: 1px solid #ffcdd2; border-left: 5px solid #d32f2f; padding: 15px; text-align: left; margin-bottom: 20px; border-radius: 8px;">
-                    <div style="color:#b71c1c; font-size: 14px; font-weight: bold; margin-bottom: 8px; display: flex; align-items: center; gap: 5px;">
-                        <i class="material-icons" style="font-size: 18px;">admin_panel_settings</i> กรุณาแจ้งผู้มีสิทธิ์อนุมัติเพื่อดำเนินการ:
-                    </div>
-                    <div style="color: #424242; font-size: 14px; padding-left: 25px; line-height: 1.6;">
-                        <div>1. คุณชิดชญา กุจะพันธ์</div>
-                        <div>2. คุณฐาปนัทพัฏทฐากร ฉายยิ่งเชี่ยว</div>
-                    </div>
+                <div style="font-size: 18px; font-weight: bold; color: ${riskColor}; margin-bottom: 20px;">
+                    ระดับความเสี่ยง: ${riskLevel}
                 </div>
+                <div style="font-size: 14px; color: #555; background: #f8fafc; padding: 10px; border-radius: 8px; text-align: left;">
+                    <b>หมายเหตุการคัดกรอง:</b><br>${result.note || '-'}
+                </div>
+                <hr style="margin: 20px 0; border: 0; border-top: 1px dashed #cbd5e1;">
                 <div style="font-size: 16px; font-weight: bold; color: #1e293b;">
-                    ท่านต้องการทำรายการต่อใช่หรือไม่?
+                    ยืนยันการปลดล็อกบัญชีเพื่อให้นักศึกษากลับมาใช้งานหรือไม่?
                 </div>
             `,
-            icon: 'warning',
+            icon: result.riskScore >= 6 ? 'warning' : 'info',
             showCancelButton: true,
-            confirmButtonText: 'ใช่, ทำรายการต่อ',
+            confirmButtonText: 'ยืนยันการปลดล็อก',
             cancelButtonText: 'ยกเลิก',
-            confirmButtonColor: '#d33',
+            confirmButtonColor: '#28a745',
             cancelButtonColor: '#64748b'
-        }).then(r1 => {
-            if (r1.isConfirmed) {
-                const adminFullName = currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : 'ไม่ทราบชื่อ';
-                Swal.fire({
-                    title: 'ยืนยันตัวตนผู้ทำรายการ',
-                    html: `ผู้ทำรายการ: <b style="color: #28a745; font-size: 16px;">${adminFullName}</b><br><br>กรุณากดยืนยันเพื่อส่งคำสั่ง ระบบจะตรวจสอบสิทธิ์ของท่านอย่างลับๆ`,
-                    icon: 'info',
-                    showCancelButton: true,
-                    confirmButtonText: 'ส่งคำสั่งปลดล็อก',
-                    cancelButtonText: 'ยกเลิก',
-                    confirmButtonColor: '#28a745'
-                }).then(r2 => {
-                    if (r2.isConfirmed) {
-                        if (useAdminVerifyApi) {
-                            executeAdminUnlockVerifyPage(studentId);
-                        } else {
-                            executeStatusUpdate(userId, 'Active', '');
-                        }
-                    }
-                });
-            }
         });
-    };
+
+        if (confirmUnlock.isConfirmed) {
+            if (useAdminVerifyApi) {
+                executeAdminUnlockVerifyPage(studentId);
+            } else {
+                const finalNote = `[Security Screen] เสี่ยง ${result.riskScore}/10 (${riskLevel}) - ${result.note}`;
+                executeStatusUpdate(userId, 'Active', finalNote);
+            }
+        }
+    }
+};
 
 </script>
 </body>
