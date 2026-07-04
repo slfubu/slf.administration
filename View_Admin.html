@@ -8160,6 +8160,36 @@ window.showUnlockSurveyModal = async (userId, studentId, useAdminVerifyApi = fal
     }
 };
 
+window.executeStatusUpdate = async (userId, newStatus, reason) => {
+    showLoading('กำลังอัปเดตสถานะบัญชี');
+    try {
+        const res = await callApi("updateUser", {
+            userId: userId,
+            status: newStatus,
+            suspendReason: reason,
+            adminId: adminId,
+            token: userToken
+        });
+        
+        if (checkAuthError(res)) { 
+            hideLoading(); 
+            return; 
+        }
+        hideLoading();
+
+        if (res.success) {
+            Swal.fire('ทำรายการสำเร็จ', 'อัปเดตสถานะบัญชีเรียบร้อยแล้ว', 'success');
+            if (typeof loadUsersForAdmin === 'function') loadUsersForAdmin(true);
+            if (typeof loadSuspendedUsers === 'function') loadSuspendedUsers();
+        } else {
+            Swal.fire('ผิดพลาด', res.message, 'error');
+        }
+    } catch (err) {
+        hideLoading();
+        Swal.fire('ข้อผิดพลาดระบบ', err.message, 'error');
+    }
+};
+
 </script>
 </body>
 </html>
