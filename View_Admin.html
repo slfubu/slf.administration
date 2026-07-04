@@ -2610,6 +2610,56 @@
             </form>
         </div>
     </div>
+        <div id="missingProfileSection" class="section">
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+            <h2 style="margin: 0; display: flex; align-items: center; gap: 10px;">
+                <i class="material-icons" style="color: #e53e3e;">person_off</i> บัญชีที่สมัครแต่ยังไม่ลงประวัติ
+            </h2>
+            <button class="btn btn-danger" id="btnBulkSuspend" onclick="executeBulkSuspend()" style="display: none; border-radius: 8px; box-shadow: 0 4px 10px rgba(220,53,69,0.2);">
+                <i class="material-icons" style="font-size: 18px; margin-right: 5px;">block</i> ระงับบัญชีที่เลือก (<span id="bulkSuspendCount">0</span>)
+            </button>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #f8f9fa; padding: 10px; border-radius: 6px; border: 1px solid #eee;">
+            <div style="display: flex; align-items: center; gap: 10px; font-size: 14px;">
+                <span>แสดงหน้าละ</span>
+                <select id="missingRowsPerPage" class="modern-input" style="padding: 5px; width: auto; height: auto; margin-bottom: 0; min-height: 30px; border-radius: 6px;" onchange="changeMissingRowsPerPage()">
+                    <option value="50" selected>50</option>
+                    <option value="100">100</option>
+                    <option value="500">500</option>
+                    <option value="10000">ทั้งหมด</option>
+                </select>
+                <span>รายการ</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 5px;">
+                <button id="btnMissingPrev" class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px; border-radius: 6px;" onclick="changeMissingPage(-1)" disabled>ก่อนหน้า</button>
+                <span id="missingPageInfo" style="font-size: 14px; font-weight: bold; margin: 0 10px; color: #e53e3e;">หน้า 1 / 1</span>
+                <button id="btnMissingNext" class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px; border-radius: 6px;" onclick="changeMissingPage(1)" disabled>ถัดไป</button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="clean-table" id="missingProfileTable">
+                <thead>
+                    <tr>
+                        <th style="width: 5%; text-align: center;">
+                            <input type="checkbox" id="selectAllMissing" onclick="toggleAllMissing(this)" style="transform: scale(1.3); cursor: pointer; accent-color: #e53e3e;">
+                        </th>
+                        <th>รหัสนักศึกษา</th>
+                        <th>ชื่อ-สกุล</th>
+                        <th>คณะ</th>
+                        <th>อีเมล</th>
+                        <th>สถานะ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="6" style="text-align:center; padding: 20px; color:#777;">กำลังโหลดข้อมูล</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
     <div id="petitionUpdateModal" class="modal">
         <!-- แก้ไขความกว้างตรง max-width จาก 650px เป็น 900px -->
@@ -2685,57 +2735,6 @@
             </form>
         </div>
     </div>
-
-    <div id="missingProfileSection" class="section">
-    <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
-            <h2 style="margin: 0; display: flex; align-items: center; gap: 10px;">
-                <i class="material-icons" style="color: #e53e3e;">person_off</i> บัญชีที่สมัครแต่ยังไม่ลงประวัติ
-            </h2>
-            <button class="btn btn-danger" id="btnBulkSuspend" onclick="executeBulkSuspend()" style="display: none; border-radius: 8px; box-shadow: 0 4px 10px rgba(220,53,69,0.2);">
-                <i class="material-icons" style="font-size: 18px; margin-right: 5px;">block</i> ระงับบัญชีที่เลือก (<span id="bulkSuspendCount">0</span>)
-            </button>
-        </div>
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #f8f9fa; padding: 10px; border-radius: 6px; border: 1px solid #eee;">
-            <div style="display: flex; align-items: center; gap: 10px; font-size: 14px;">
-                <span>แสดงหน้าละ</span>
-                <select id="missingRowsPerPage" class="modern-input" style="padding: 5px; width: auto; height: auto; margin-bottom: 0; min-height: 30px; border-radius: 6px;" onchange="changeMissingRowsPerPage()">
-                    <option value="50" selected>50</option>
-                    <option value="100">100</option>
-                    <option value="500">500</option>
-                    <option value="10000">ทั้งหมด</option>
-                </select>
-                <span>รายการ</span>
-            </div>
-            <div style="display: flex; align-items: center; gap: 5px;">
-                <button id="btnMissingPrev" class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px; border-radius: 6px;" onclick="changeMissingPage(-1)" disabled>ก่อนหน้า</button>
-                <span id="missingPageInfo" style="font-size: 14px; font-weight: bold; margin: 0 10px; color: #e53e3e;">หน้า 1 / 1</span>
-                <button id="btnMissingNext" class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px; border-radius: 6px;" onclick="changeMissingPage(1)" disabled>ถัดไป</button>
-            </div>
-        </div>
-
-        <div class="table-container">
-            <table class="clean-table" id="missingProfileTable">
-                <thead>
-                    <tr>
-                        <th style="width: 5%; text-align: center;">
-                            <input type="checkbox" id="selectAllMissing" onclick="toggleAllMissing(this)" style="transform: scale(1.3); cursor: pointer; accent-color: #e53e3e;">
-                        </th>
-                        <th>รหัสนักศึกษา</th>
-                        <th>ชื่อ-สกุล</th>
-                        <th>คณะ</th>
-                        <th>อีเมล</th>
-                        <th>สถานะ</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td colspan="6" style="text-align:center; padding: 20px; color:#777;">กำลังโหลดข้อมูล</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
 
     <div id="bulkPetitionUpdateModal" class="modal">
     <div class="modal-content modern-admin-modal" style="max-width: 500px; border-radius: 12px;">
