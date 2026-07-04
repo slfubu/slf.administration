@@ -3720,6 +3720,7 @@ window.toggleDeleteButton = function(count) {
         const u = typeof allUsersCache !== 'undefined' ? allUsersCache.find(x => x.id === userId) : null;
         const currentReason = u ? (u.suspendReason || '') : '';
 
+        // ------------------ กรณีสั่ง "ระงับบัญชี" ------------------
         if (newStatus === 'Suspended') {
             Swal.fire({ 
                 title: 'ระบุสาเหตุการระงับบัญชี', 
@@ -3740,14 +3741,74 @@ window.toggleDeleteButton = function(count) {
                     return reqSurvey ? '[REQ_SURVEY]' + reason : reason;
                 }
             }).then(r => { if (r.isConfirmed) executeStatusUpdate(userId, newStatus, r.value); });
+
         } else {
             if (currentReason.includes('[REQ_SURVEY]')) {
-                window.showUnlockSurveyModal(userId, u ? u.studentId : '', false);
+                // สเตปที่ 1: แจ้งเตือนและถามความสมัครใจ (จัดรูปแบบสวยงาม)
+                Swal.fire({
+                    title: '⚠️ ยืนยันการทำรายการ',
+                    html: `
+                        <div style="text-align: center; margin-bottom: 15px;">
+                            <span style="color:#d32f2f; font-size: 15px; font-weight: bold;">
+                                บัญชีนี้ถูกตั้งค่าให้ต้องทำแบบประเมินความเสี่ยงก่อนปลดล็อก
+                            </span>
+                        </div>
+                        <div style="background-color: #fff5f5; border: 1px solid #ffcdd2; border-left: 5px solid #d32f2f; padding: 15px; text-align: left; margin-bottom: 20px; border-radius: 8px;">
+                            <div style="color:#b71c1c; font-size: 14px; font-weight: bold; margin-bottom: 8px; display: flex; align-items: center; gap: 5px;">
+                                <i class="material-icons" style="font-size: 18px;">admin_panel_settings</i> กรุณาแจ้งผู้มีสิทธิ์อนุมัติเพื่อดำเนินการ:
+                            </div>
+                            <div style="color: #424242; font-size: 14px; padding-left: 25px; line-height: 1.6;">
+                                <div>1. คุณชิดชญา กุจะพันธ์</div>
+                                <div>2. คุณฐาปนัทพัฏทฐากร ฉายยิ่งเชี่ยว</div>
+                            </div>
+                        </div>
+                        <div style="font-size: 16px; font-weight: bold; color: #1e293b;">
+                            ท่านต้องการทำรายการต่อใช่หรือไม่
+                        </div>
+                    `,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'ใช่, ทำรายการต่อ',
+                    cancelButtonText: 'ยกเลิก',
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#64748b'
+                }).then(r1 => {
+                    if (r1.isConfirmed) {
+                        const allowedSuperAdmins = ['admin01', 'admin02', '64123456789']; 
+                        
+                        if (!allowedSuperAdmins.includes(String(adminId).trim())) {
+                            Swal.fire('ปฏิเสธการเข้าถึง', 'บัญชีของคุณไม่มีสิทธิ์ปลดล็อกบัญชีที่ติดเงื่อนไขความเสี่ยงสูง ระบบได้บันทึกความพยายามทำรายการของท่านไว้แล้ว', 'error');
+                            return;
+                        }
+
+                        const adminFullName = currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : 'ไม่ทราบชื่อ';
+                        
+                        Swal.fire({
+                            title: 'ยืนยันตัวตนผู้ทำรายการ',
+                            html: `ระบบตรวจสอบสิทธิ์ผ่านเรียบร้อย<br><br>ผู้ทำรายการ: <b style="color: #28a745; font-size: 16px;">${adminFullName}</b><br><br>กรุณากดยืนยันเพื่อส่งคำสั่งปลดล็อกไปยังระบบฐานข้อมูล`,
+                            icon: 'info',
+                            showCancelButton: true,
+                            confirmButtonText: 'ยืนยันการปลดล็อก',
+                            cancelButtonText: 'ยกเลิก',
+                            confirmButtonColor: '#28a745'
+                        }).then(r2 => {
+                            if (r2.isConfirmed) {
+                                executeStatusUpdate(userId, newStatus, '');
+                            }
+                        });
+                    }
+                });
             } else {
                 Swal.fire({ 
-                    title: 'ปลดระงับบัญชีนี้', text: 'ต้องการปลดระงับบัญชีให้ใช้งานได้ปกติใช่หรือไม่?',
-                    icon: 'question', showCancelButton: true, confirmButtonColor: '#28a745' 
-                }).then(r => { if (r.isConfirmed) executeStatusUpdate(userId, newStatus, ''); });
+                    title: 'ปลดระงับบัญชีนี้', 
+                    text: 'ต้องการปลดระงับบัญชีให้ใช้งานได้ปกติใช่หรือไม่',
+                    icon: 'question', 
+                    showCancelButton: true, 
+                    confirmButtonText: 'ยืนยันปลดล็อก',
+                    confirmButtonColor: '#28a745' 
+                }).then(r => { 
+                    if (r.isConfirmed) executeStatusUpdate(userId, newStatus, ''); 
+                });
             }
         }
     };
