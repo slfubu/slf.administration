@@ -246,14 +246,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     Swal.fire({
                         icon: 'error',
-                        title: 'บัญชีของท่านถูกระงับการใช้งานชั่วคราว',
+                        title: 'บัญชีถูกระงับการใช้งานระบบชั่วคราว',
                         html: `
                             <div style="text-align: left; font-size: 15px; margin-top: 10px; background: #fff5f5; border: 1px solid #ffcdd2; padding: 15px; border-radius: 8px;">
                                 <p style="margin: 0 0 10px 0; color: #333;">
                                     <b>สาเหตุ:</b> <span style="color:#d32f2f;">${escapeHTML(displayReason)}</span>
                                 </p>
                                 <p style="margin: 0; color: #555; font-size: 14px; border-top: 1px dashed #ffcdd2; padding-top: 10px;">
-                                    กรุณาติดต่อเจ้าหน้าที่ กยศ. มหาวิทยาลัยอุบลราชธานี เพื่อสอบถามข้อมูลและดำเนินการปลดล็อกบัญชี
+                                    กรุณานำบัตรประจำตัวประชาชนติดต่อสถานศึกษา มหาวิทยาลัยอุบลราชธานี
                                 </p>
                             </div>
                         `,
