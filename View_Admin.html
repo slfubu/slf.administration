@@ -6255,46 +6255,111 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     }
 
-    // 2. ปลดล็อกบัญชีที่ถูกระงับ (Unlock Account)
     const btnUnlockAcc = document.getElementById('btnAdminUnlockAccount');
     if (btnUnlockAcc) {
         btnUnlockAcc.onclick = async () => {
             const studentId = document.getElementById('adminCheckStudentId').value.trim();
-            Swal.fire({
-                title: 'ยืนยันการปลดล็อกบัญชี',
-                text: `ต้องการปลดล็อกบัญชีของนักศึกษารหัส ${studentId} เพื่อให้เข้าใช้งานได้ปกติ ใช่หรือไม่`,
+            
+            const surveyHtml = `
+                <div style="text-align: left; font-size: 14px;">
+                    <p style="color: #d32f2f; font-weight: bold; margin-bottom: 15px;">
+                        กรุณาสอบถามประเมินความเสี่ยงนักศึกษา ก่อนทำการปลดล็อกบัญชี
+                    </p>
+                    <div style="margin-bottom: 10px;">
+                        <label><b>1.</b> การเข้าใช้งานจากต่างประเทศ/VPN เป็นการกระทำของท่านเองใช่หรือไม่?</label><br>
+                        <input type="radio" name="q1" value="yes" id="q1_yes"> <label for="q1_yes">ใช่</label> &nbsp;
+                        <input type="radio" name="q1" value="no" id="q1_no"> <label for="q1_no">ไม่ใช่</label>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label><b>2.</b> ท่านเคยบอกรหัสผ่าน หรือฝากให้บุคคลอื่นเข้าใช้งานระบบแทนหรือไม่?</label><br>
+                        <input type="radio" name="q2" value="yes" id="q2_yes"> <label for="q2_yes">ใช่</label> &nbsp;
+                        <input type="radio" name="q2" value="no" id="q2_no"> <label for="q2_no">ไม่ใช่</label>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label><b>3.</b> ช่วงที่ผ่านมา ท่านได้เข้าระบบผ่านคอมพิวเตอร์สาธารณะ/อุปกรณ์ผู้อื่นหรือไม่?</label><br>
+                        <input type="radio" name="q3" value="yes" id="q3_yes"> <label for="q3_yes">ใช่</label> &nbsp;
+                        <input type="radio" name="q3" value="no" id="q3_no"> <label for="q3_no">ไม่ใช่</label>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label><b>4.</b> ท่านใช้รหัสผ่านของระบบนี้ ซ้ำกับรหัสผ่านของเว็บไซต์อื่นหรือไม่?</label><br>
+                        <input type="radio" name="q4" value="yes" id="q4_yes"> <label for="q4_yes">ใช่</label> &nbsp;
+                        <input type="radio" name="q4" value="no" id="q4_no"> <label for="q4_no">ไม่ใช่</label>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label><b>5.</b> ท่านเคยคลิกลิงก์แปลกปลอม หรือกรอกรหัสผ่านในเว็บที่ไม่ใช่ของมหาวิทยาลัยหรือไม่?</label><br>
+                        <input type="radio" name="q5" value="yes" id="q5_yes"> <label for="q5_yes">ใช่</label> &nbsp;
+                        <input type="radio" name="q5" value="no" id="q5_no"> <label for="q5_no">ไม่ใช่</label>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label><b>6.</b> ท่านยินยอมที่จะเปลี่ยนรหัสผ่านใหม่ทันทีหลังจากปลดล็อกบัญชีใช่หรือไม่?</label><br>
+                        <input type="radio" name="q6" value="yes" id="q6_yes"> <label for="q6_yes">ใช่</label> &nbsp;
+                        <input type="radio" name="q6" value="no" id="q6_no"> <label for="q6_no">ไม่ใช่</label>
+                    </div>
+                </div>
+            `;
+
+            const { value: surveyResults } = await Swal.fire({
+                title: 'แบบประเมินความเสี่ยงก่อนปลดล็อก',
+                html: surveyHtml,
                 icon: 'warning',
+                width: '600px',
                 showCancelButton: true,
-                confirmButtonColor: '#28a745', 
-                confirmButtonText: 'ใช่ ปลดล็อกเลย'
-            }).then(async (result) => {
-                if (result.isConfirmed) {
-                    showLoading('กำลังดำเนินการปลดล็อก');
-                    try {
-                        const res = await callApi("adminUnlockAccount", { 
-                            studentId: studentId, 
-                            adminId: currentUser.studentId, 
-                            token: userToken
-                        });
-                        hideLoading();
-                        
-                        if (res.success) {
-                            Swal.fire('ปลดล็อกสำเร็จ', res.message, 'success').then(() => {
-                                document.getElementById('btnAdminCheckVerify').click(); 
-                            });
-                        } else {
-                            showAlert(res.message, 'error');
-                        }
-                    } catch (err) {
-                        hideLoading();
-                        showAlert(err.message, 'error');
+                confirmButtonText: 'บันทึกและปลดล็อกบัญชี',
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: '#2e7d32',
+                cancelButtonColor: '#d33',
+                preConfirm: () => {
+                    const q1 = document.querySelector('input[name="q1"]:checked')?.value;
+                    const q2 = document.querySelector('input[name="q2"]:checked')?.value;
+                    const q3 = document.querySelector('input[name="q3"]:checked')?.value;
+                    const q4 = document.querySelector('input[name="q4"]:checked')?.value;
+                    const q5 = document.querySelector('input[name="q5"]:checked')?.value;
+                    const q6 = document.querySelector('input[name="q6"]:checked')?.value;
+
+                    if (!q1 || !q2 || !q3 || !q4 || !q5 || !q6) {
+                        Swal.showValidationMessage('กรุณาสอบถามและตอบแบบประเมินให้ครบทั้ง 6 ข้อ');
+                        return false;
                     }
+                    return { q1, q2, q3, q4, q5, q6 };
                 }
             });
+
+            if (surveyResults) {
+                const isHighRisk = (surveyResults.q2 === 'yes' || surveyResults.q3 === 'yes' || surveyResults.q4 === 'yes' || surveyResults.q5 === 'yes');
+                
+                if(isHighRisk) {
+                    await Swal.fire({
+                        icon: 'info',
+                        title: 'พบบัญชีมีความเสี่ยง',
+                        text: 'กรุณากำชับให้นักศึกษาเปลี่ยนรหัสผ่านทันที และห้ามใช้รหัสผ่านซ้ำกับเว็บอื่น',
+                        confirmButtonText: 'รับทราบ',
+                    });
+                }
+
+                showLoading('กำลังดำเนินการปลดล็อก');
+                try {
+                    const res = await callApi("adminUnlockAccount", { 
+                        studentId: studentId, 
+                        adminId: currentUser.studentId, 
+                        token: userToken
+                    });
+                    hideLoading();
+                    
+                    if (res.success) {
+                        Swal.fire('ปลดล็อกสำเร็จ', res.message, 'success').then(() => {
+                            document.getElementById('btnAdminCheckVerify').click(); 
+                        });
+                    } else {
+                        showAlert(res.message, 'error');
+                    }
+                } catch (err) {
+                    hideLoading();
+                    showAlert(err.message, 'error');
+                }
+            }
         };
     }
 
-    // 3. บังคับรีเซ็ตรหัสผ่าน (Force Reset Password)
     const btnForceReset = document.getElementById('btnAdminForceReset');
     if (btnForceReset) {
         btnForceReset.onclick = async () => {
