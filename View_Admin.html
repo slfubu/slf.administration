@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://script.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.ipify.org https://cdn.jsdelivr.net; img-src 'self' data: https:;">
 
   <title>ระบบบริหารงานกองทุนเงินให้กู้ยืมเพื่อการศึกษา มหาวิทยาลัยอุบลราชธานี</title>
@@ -12,6 +13,8 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  
   <link rel="stylesheet" href="style.css">
   <script src="api.js"></script>
   
@@ -8507,25 +8510,35 @@ function executeBulkSuspend() {
                 if (r.isConfirmed) {
                     showLoading();
                     try {
-                        const res = await callApi("adminSuspendAccountVerify", { 
-                            studentId: studentId,
-                            reason: r.value,
+                        const usersRes = await callApi("searchUsersBackend", { query: studentId, adminId: adminId, token: userToken });
+                        if (checkAuthError(usersRes)) { hideLoading(); return; }
+                      
+                        const targetUser = (Array.isArray(usersRes) ? usersRes : []).find(u => String(u.studentId).trim() === studentId);
+                        
+                        if (!targetUser || !targetUser.id) {
+                            hideLoading();
+                            Swal.fire('ข้อผิดพลาด', 'ไม่พบข้อมูลอ้างอิงบัญชีในระบบ (Document ID)', 'error');
+                            return;
+                        }
+
+                        const res = await callApi("updateUser", { 
+                            userId: targetUser.id,   // <--- ส่ง ID ภายในที่หามาได้
+                            status: 'Suspended',     // <--- ส่งสถานะระงับ
+                            suspendReason: r.value,  // <--- ส่งสาเหตุ
                             adminId: adminId, 
                             token: userToken 
                         });
 
-                        if (checkAuthError(res)) { hideLoading(); return; }
                         hideLoading();
 
                         if (res.success) {
-                            Swal.fire('สำเร็จ', res.message, 'success');
+                            Swal.fire('สำเร็จ', 'ระงับบัญชีเรียบร้อยแล้ว', 'success');
                             
                             const checkBtn = document.getElementById('btnAdminCheckVerify');
                             if(checkBtn) checkBtn.click();
                             
-                            if (typeof loadSuspendedUsers === 'function') loadSuspendedUsers();
                         } else {
-                            Swal.fire('ผิดพลาด', res.message, 'error');
+                            Swal.fire('ผิดพลาด', res.message || 'ไม่สามารถระงับบัญชีได้', 'error');
                         }
                     } catch(err) {
                         hideLoading();
