@@ -8479,79 +8479,93 @@ function executeBulkSuspend() {
     });
 }
 
-// ========================================================
-    // บล็อกคำสั่งสำหรับปุ่ม "ระงับบัญชีนี้" (หน้ายืนยันตัวตน)
-    // ใช้หลักการเดียวกับหน้า "จัดการผู้ใช้งานระบบ" (เรียกใช้ API: updateUser)
-    // ========================================================
-    const btnAdminSuspendAccount = document.getElementById('btnAdminSuspendAccount');
-    if (btnAdminSuspendAccount) {
-        btnAdminSuspendAccount.onclick = async () => {
-            const studentId = document.getElementById('adm_ver_studentId').textContent.trim();
-            if (!studentId || studentId === '-') {
-                Swal.fire('แจ้งเตือน', 'ไม่พบรหัสนักศึกษาบนหน้าจอ', 'warning');
-                return;
-            }
-
-            // 1. ถามสาเหตุการระงับ
-            const { value: reason } = await Swal.fire({
-                title: 'ระบุสาเหตุการระงับบัญชี',
-                input: 'text',
-                inputPlaceholder: 'ระบุสาเหตุ...',
-                showCancelButton: true,
-                confirmButtonText: 'ยืนยัน',
-                confirmButtonColor: '#ef4444',
-                inputValidator: (value) => { if (!value) return 'ต้องระบุสาเหตุการระงับ!' }
-            });
-
-            if (!reason) return;
-
-            showLoading();
-            try {
-                // 2. ค้นหา Document ID (id) ของนักศึกษาคนนี้ด้วยรหัสนักศึกษา
-                // เราใช้ searchUsersBackend เพื่อดึงข้อมูล User ทั้งก้อนออกมา
-                const searchRes = await callApi("searchUsersBackend", { 
-                    query: studentId, 
-                    adminId: adminId, 
-                    token: userToken 
-                });
-
-                if (checkAuthError(searchRes)) { hideLoading(); return; }
-
-                // กรองหารายการที่ตรงกับ studentId เป๊ะๆ
-                const target = Array.isArray(searchRes) ? searchRes.find(u => String(u.studentId).trim() === studentId) : null;
-                
-                if (!target || !target.id) {
-                    hideLoading();
-                    console.error("Search Result:", searchRes); // ดูค่าใน Console ได้ถ้ายังผิดพลาด
-                    Swal.fire('ข้อผิดพลาด', 'ไม่พบข้อมูลบัญชีนี้ในฐานข้อมูล (Document ID ไม่ถูกต้อง)', 'error');
-                    return;
+// =========================================================================
+// บล็อกโค้ดสำหรับปุ่ม "ระงับบัญชีนี้" ในหน้าบริการยืนยันตัวตน (Verify Page)
+// =========================================================================
+const btnAdminSuspendAccount = document.getElementById('btnAdminSuspendAccount');
+if (btnAdminSuspendAccount) {
+    btnAdminSuspendAccount.onclick = () => {
+        const studentId = document.getElementById('adm_ver_studentId').textContent;
+        
+        Swal.fire({
+            title: 'ระบุสาเหตุการระงับบัญชี',
+            html: `
+                <input id="swal-suspend-reason-ver" class="swal2-input" placeholder="ระบุสาเหตุการระงับ" style="width: 85%;">
+                <div style="margin-top: 15px; text-align: left; padding: 0 25px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #d32f2f; font-weight: bold; font-size: 14px;">
+                        <input type="checkbox" id="swal-require-survey-ver" style="width: 18px; height: 18px;" checked>
+                        บังคับให้ทำแบบสอบถามความเสี่ยง ก่อนปลดล็อก
+                    </label>
+                </div>
+            `,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'ระงับบัญชี',
+            confirmButtonColor: '#d33',
+            cancelButtonText: 'ยกเลิก',
+            preConfirm: () => {
+                const reason = document.getElementById('swal-suspend-reason-ver').value.trim();
+                const reqSurvey = document.getElementById('swal-require-survey-ver').checked;
+                if (!reason) { 
+                    Swal.showValidationMessage('กรุณาระบุสาเหตุการระงับบัญชี'); 
+                    return false; 
                 }
-
-                // 3. เรียกใช้ API updateUser เหมือนหน้าจัดการบัญชี
-                const res = await callApi("updateUser", { 
-                    userId: target.id,           // ใช้ ID ภายในระบบที่หามาได้
-                    status: 'Suspended',         // เปลี่ยนสถานะ
-                    suspendReason: reason,       // ใส่สาเหตุ
-                    adminId: adminId, 
-                    token: userToken 
-                });
-
-                hideLoading();
-
-                if (res.success) {
-                    Swal.fire('สำเร็จ', 'ระงับบัญชีเรียบร้อยแล้ว', 'success');
-                    // สั่งให้หน้าจอรีเฟรชข้อมูลใหม่
-                    const checkBtn = document.getElementById('btnAdminCheckVerify');
-                    if(checkBtn) checkBtn.click();
-                } else {
-                    Swal.fire('ผิดพลาด', res.message || 'ไม่สามารถระงับบัญชีได้', 'error');
-                }
-            } catch (err) {
-                hideLoading();
-                Swal.fire('Error', err.message, 'error');
+                return reqSurvey ? '[REQ_SURVEY]' + reason : reason;
             }
-        };
+        }).then(r => { 
+            if (r.isConfirmed) {
+                executeAdminSuspendVerifyPage(studentId, r.value);
+            }
+        });
+    };
+}
+
+// ฟังก์ชันส่งคำสั่ง API เพื่อระงับบัญชี
+async function executeAdminSuspendVerifyPage(studentId, reason) {
+    showLoading('กำลังดำเนินการระงับบัญชี...');
+    try {
+        // 1. ค้นหาข้อมูลผู้ใช้งานเพื่อเอา userId (UUID) ออกมาก่อน
+        const searchRes = await callApi("searchUsersBackend", { query: studentId, adminId: adminId, token: userToken });
+        if (checkAuthError(searchRes)) { hideLoading(); return; }
+        
+        // แปลงผลลัพธ์ให้เป็น Array ป้องกัน Error
+        const usersArray = Array.isArray(searchRes) ? searchRes : (searchRes.data || []);
+        const targetUser = usersArray.find(u => String(u.studentId).trim() === String(studentId).trim());
+        
+        if (!targetUser || !targetUser.id) {
+            hideLoading();
+            Swal.fire('ผิดพลาด', 'ไม่พบข้อมูลบัญชีผู้ใช้งานนี้ในระบบ', 'error');
+            return;
+        }
+
+        // 2. เรียกใช้ API updateUser เพื่อเปลี่ยนสถานะเป็น Suspended
+        const updateRes = await callApi("updateUser", { 
+            userId: targetUser.id, 
+            updatedData: { 
+                status: 'Suspended', 
+                suspendReason: reason 
+            }, 
+            adminId: adminId, 
+            token: userToken 
+        });
+        
+        if (checkAuthError(updateRes)) { hideLoading(); return; }
+        hideLoading();
+        
+        if (updateRes.success) {
+            Swal.fire('สำเร็จ', 'ระงับบัญชีเรียบร้อยแล้ว', 'success');
+            // จำลองการกดปุ่ม "ตรวจสอบข้อมูล" เพื่อรีเฟรชสถานะใหม่ในหน้าจอ
+            const checkBtn = document.getElementById('btnAdminCheckVerify');
+            if(checkBtn) checkBtn.click();
+        } else {
+            Swal.fire('ผิดพลาด', updateRes.message, 'error');
+        }
+    } catch(err) {
+        hideLoading();
+        Swal.fire('Error', err.message, 'error');
     }
+}
+// =========================================================================
 
 </script>
 </body>
