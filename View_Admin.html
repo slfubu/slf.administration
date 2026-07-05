@@ -8510,33 +8510,9 @@ function executeBulkSuspend() {
                 if (r.isConfirmed) {
                     showLoading();
                     try {
-                        const usersRes = await callApi("searchUsersBackend", { query: studentId, adminId: adminId, token: userToken });
-                        if (checkAuthError(usersRes)) { hideLoading(); return; }
-                        
-                        const usersList = Array.isArray(usersRes) ? usersRes : (usersRes.data || []);
-                        const targetUser = usersList.find(u => String(u.studentId).trim() === studentId);
-                        
-                        if (!targetUser) {
-                            hideLoading();
-                            Swal.fire('ข้อผิดพลาด', 'ไม่พบข้อมูลบัญชีนี้ในระบบผู้ใช้งาน', 'error');
-                            return;
-                        }
-
-                        const targetUserId = targetUser.id || targetUser.ID || targetUser._id;
-                        if (!targetUserId) {
-                            hideLoading();
-                            Swal.fire('ข้อผิดพลาด', 'ไม่พบรหัสอ้างอิงบัญชี (Document ID) กรุณาติดต่อผู้พัฒนาระบบ', 'error');
-                            return;
-                        }
-
-                        const res = await callApi("updateUser", { 
-                            userId: targetUserId,
-                            updatedData: {
-                                status: 'Suspended',
-                                suspendReason: r.value,
-                                FailedAttempts: 0,
-                                failedAttempts: 0
-                            },
+                        const res = await callApi("adminSuspendAccountVerify", { 
+                            studentId: studentId,
+                            reason: r.value,
                             adminId: adminId, 
                             token: userToken 
                         });
@@ -8545,7 +8521,7 @@ function executeBulkSuspend() {
                         hideLoading();
 
                         if (res.success) {
-                            Swal.fire('สำเร็จ', 'ระงับบัญชีเรียบร้อยแล้ว', 'success');
+                            Swal.fire('สำเร็จ', res.message, 'success');
                             
                             const checkBtn = document.getElementById('btnAdminCheckVerify');
                             if(checkBtn) checkBtn.click();
