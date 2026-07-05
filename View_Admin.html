@@ -6371,6 +6371,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     if (btnSuspend) {
                         btnSuspend.onclick = () => {
+                            const currentStudentId = res.data.studentId;
                             Swal.fire({
                                 title: 'ระบุสาเหตุการระงับบัญชี',
                                 html: `
@@ -6389,11 +6390,42 @@ document.addEventListener("DOMContentLoaded", () => {
                                     if (!reason) { Swal.showValidationMessage('กรุณาระบุสาเหตุ'); return false; }
                                     return reqSurvey ? '[REQ_SURVEY]' + reason : reason;
                                 }
-                            }).then(r => { 
+                            }).then(async r => { 
                                 if (r.isConfirmed) {
-                                    if (typeof executeStatusUpdate === 'function') {
-                                        executeStatusUpdate(res.data.studentId, 'Suspended', r.value);
-                                        setTimeout(() => document.getElementById('btnAdminCheckVerify').click(), 1500);
+                                    showLoading('กำลังตรวจสอบและระงับบัญชี');
+                                    try {
+                                        // 1. ค้นหา Document ID ภายในระบบก่อน
+                                        const searchRes = await callApi("searchUsersBackend", { query: currentStudentId, adminId: adminId, token: userToken });
+                                        if (checkAuthError(searchRes)) { hideLoading(); return; }
+                                        
+                                        const targetUser = Array.isArray(searchRes) ? searchRes.find(u => String(u.studentId).trim() === currentStudentId) : null;
+                                        
+                                        if (!targetUser || !targetUser.id) {
+                                            hideLoading();
+                                            Swal.fire('ข้อผิดพลาด', 'ไม่พบข้อมูลอ้างอิงบัญชีในระบบ', 'error');
+                                            return;
+                                        }
+
+                                        // 2. เรียก API updateUser เพื่อระงับบัญชี
+                                        const resUpd = await callApi("updateUser", { 
+                                            userId: targetUser.id,           // ใช้ ID ภายในระบบ
+                                            status: 'Suspended',             // ปรับสถานะเป็นระงับ
+                                            suspendReason: r.value,          // ใส่สาเหตุ
+                                            adminId: adminId, 
+                                            token: userToken 
+                                        });
+
+                                        hideLoading();
+                                        if (resUpd.success) {
+                                            Swal.fire('สำเร็จ', 'ระงับบัญชีเรียบร้อยแล้ว', 'success');
+                                            // กดปุ่มตรวจสอบข้อมูลใหม่เพื่อรีเฟรชหน้าจออัตโนมัติ
+                                            document.getElementById('btnAdminCheckVerify').click();
+                                        } else {
+                                            Swal.fire('ผิดพลาด', resUpd.message || 'ไม่สามารถระงับบัญชีได้', 'error');
+                                        }
+                                    } catch (err) {
+                                        hideLoading();
+                                        Swal.fire('ข้อผิดพลาดระบบ', err.message, 'error');
                                     }
                                 }
                             });
