@@ -94,7 +94,7 @@ function setupNav(id, sectionId, callback) {
                     Swal.fire({
                         icon: 'warning',
                         title: 'ข้อความแจ้งเตือน',
-                        text: 'ระบบพบว่าบัญชีนักศึกษายังไม่ได้อัพโหลดภาพประจำตัวนักศึกษาที่หน้าหลัก กรุณาบันทึกภาพโปรไฟล์ก่อนจึงค่อยทำรายการอื่น',
+                        text: 'ระบบพบว่าบัญชีของท่านยังไม่ได้อัปโหลดรูปภาพประจำตัวนักศึกษา กรุณาบันทึกรูปภาพโปรไฟล์ให้เรียบร้อยก่อนทำรายการอื่น',
                         confirmButtonColor: '#1976D2'
                     }).then(() => {
                         showSection('userDashboardSection');
@@ -195,7 +195,6 @@ async function updateUserDashboard() {
             if (res && res.status === 'submitted') {
                 let submitDate = res.data.timestamp || res.data.date || '-';
                 
-                // แปลงรูปแบบวันที่และเวลาให้เป็นภาษาไทยอ่านง่าย
                 if (submitDate !== '-') {
                     const d = new Date(submitDate);
                     if (!isNaN(d)) {
@@ -217,7 +216,7 @@ async function updateUserDashboard() {
                     </div>
                 `;
             } 
-            // กรณีที่ 2: มีสิทธิ์แต่ "ยังไม่ได้กดยื่นกู้เข้ามา" หรือ "ยังไม่บันทึกประวัติ"
+
             else if (res && (res.status === 'eligible_check' || res.status === 'no_profile')) {
                 loanStatusEl.innerHTML = `
                     <span style="color: #c62828; font-weight: bold; display: inline-flex; align-items: center; gap: 4px;">
@@ -233,7 +232,7 @@ async function updateUserDashboard() {
                     </span>
                 `;
             }
-            // กรณีเกิดข้อผิดพลาดอื่นๆ หรือสถานะที่ไม่รู้จัก
+
             else {
                 loanStatusEl.innerHTML = `<span style="color: #777;">ไม่พบสิทธิ์รายชื่อเป็นผู้กู้ยืมในระบบ</span>`;
             }
@@ -376,7 +375,6 @@ async function loadMyActivityHistory() {
     }
 }
 
-// ประกาศตัวแปร Global ไว้เก็บข้อมูลคิวทั้งหมด
 window.allQueueSlotsCache = [];
 
 async function loadUserQueueSlots() {
@@ -393,11 +391,10 @@ async function loadUserQueueSlots() {
         c.innerHTML = '';
         
         if (!slots || slots.length === 0) { 
-            c.innerHTML = '<div style="text-align:center; padding:40px; color:#999;">ขณะนี้ไม่มีรอบคิวที่เปิดให้บริการ</div>'; 
+            c.innerHTML = '<div style="text-align:center; padding:40px; color:#999;">ขณะนี้ไม่มีรอบคิวที่เปิดให้บริการ หากมีข้อผิดพลาดกรุณาติดต่อสถานศึกษา</div>'; 
             return; 
         }
         
-        // เก็บข้อมูลลง Cache และเรียกฟังก์ชันแสดงวันที่ (Step 1)
         window.allQueueSlotsCache = slots;
         window.renderQueueDates(); 
         
@@ -524,7 +521,7 @@ window.renderQueueTimes = function(dateStr) {
 window.bookQ = function(id) {
     Swal.fire({ title: 'ยืนยันการจองคิว', text: 'ท่านต้องการจองคิวการรับบริการในรอบเวลานี้ใช่หรือไม่', icon: 'question', showCancelButton: true }).then(async r => {
         if(r.isConfirmed){
-            showLoading('กำลังออกบัตรคิว');
+            showLoading('กำลังออกบัตรคิว อาจใช้เวลาสักครู่');
             try {
                 const res = await callApi('bookQueue', {
                     studentId: currentUser.studentId,
@@ -534,7 +531,13 @@ window.bookQ = function(id) {
                 if(res.success){
                     await window.loadMyQueue(); 
                     hideLoading();
-                    Swal.fire('การดำเนินการเสร็จสมบูรณ์','ระบบได้ออกหมายเลขคิว: '+res.queueNumber+' ให้ท่านเรียบร้อยแล้ว','success');
+                    
+                    Swal.fire({
+                        title: 'การดำเนินการเสร็จสมบูรณ์',
+                        html: 'ระบบได้ออกหมายเลขคิว: <b>' + res.queueNumber + '</b> ให้ท่านเรียบร้อยแล้ว<br><br><span style="color:#d32f2f; font-weight:bold;">กรุณาบันทึกภาพหน้าจอบัตรคิวนี้เพื่อนำแสดงต่อเจ้าหน้าที่ในวันรับบริการ</span>',
+                        icon: 'success'
+                    });
+                    
                 } else {
                     hideLoading();
                     Swal.fire('ข้อความแจ้งเตือนจากระบบ', res.message, 'error');
@@ -574,14 +577,13 @@ window.loadMyQueue = async function() {
                 else if (t.date.includes('ศุกร์')) dayOfWeek = 5;
                 else if (t.date.includes('เสาร์')) dayOfWeek = 6;
                 else {
-                    // ถ้าไม่มีชื่อวันภาษาไทย ให้เช็คจากรูปแบบตัวเลข DD/MM/YYYY
                     const parts = t.date.split('/');
                     if(parts.length === 3) {
                         let y = parseInt(parts[2]); 
                         if(y > 2500) y -= 543;
                         dayOfWeek = new Date(y, parseInt(parts[1])-1, parseInt(parts[0])).getDay();
                     } 
-                    // เช็คจากรูปแบบตัวเลข YYYY-MM-DD
+
                     else if (t.date.includes('-')) {
                         const d = new Date(t.date);
                         if (!isNaN(d.getTime())) dayOfWeek = d.getDay();
@@ -635,11 +637,11 @@ window.loadMyQueue = async function() {
                 });
             }
             
-            return true; // คืนค่าว่ามีคิวแล้ว
+            return true; 
         } else {
             ta.style.display = 'none'; 
             ba.style.display = 'block';
-            return false; // คืนค่าว่ายังไม่มีคิว
+            return false; 
         }
     } catch (err) {
         console.error("Queue Error:", err);
@@ -715,7 +717,7 @@ async function checkMyEligibility() {
                 Swal.fire({
                     icon: 'warning',
                     title: 'ยังไม่ได้บันทึกทะเบียนประวัติ',
-                    text: 'ท่านยังไม่ได้ทำการบันทึกทะเบียนประวัติในระบบ กรุณาบันทึกข้อมูลให้เรียบร้อยก่อนยื่นคำร้องขอกู้ยืมเงิน',
+                    text: 'ท่านยังไม่ได้บันทึกข้อมูลทะเบียนประวัติในระบบ กรุณาบันทึกข้อมูลให้เรียบร้อยก่อนดำเนินการยื่นคำร้องขอกู้ยืมเงิน',
                     showCancelButton: true,
                     confirmButtonColor: '#1976D2',
                     cancelButtonColor: '#6c757d',
@@ -828,9 +830,16 @@ function toggleLoanOption(type) {
 
 function calcLoanTotal() {
     let total = 0;
-    if(document.getElementById('checkLiving').checked) total += 18000;
-    if(document.getElementById('checkTuition').checked) total += parseFloat(document.getElementById('inputTuition').value) || 0;
-    document.getElementById('showTotalLoan').textContent = total.toLocaleString();
+    const chkLiving = document.getElementById('checkLiving');
+    const chkTuition = document.getElementById('checkTuition');
+    const inputTuition = document.getElementById('inputTuition');
+
+    if(chkLiving && chkLiving.checked) total += 18000;
+    if(chkTuition && chkTuition.checked && inputTuition) {
+        total += parseFloat(inputTuition.value) || 0;
+    }
+    const showTotal = document.getElementById('showTotalLoan');
+    if(showTotal) showTotal.textContent = total.toLocaleString();
 }
 
 function confirmSubmitLoan() {
@@ -839,7 +848,7 @@ function confirmSubmitLoan() {
     const tVal = document.getElementById('inputTuition').value;
     
     if (!isL && !isT) return Swal.fire('ข้อความแจ้งเตือน', 'กรุณาเลือกประเภทการขอกู้ยืมอย่างน้อย 1 รายการ', 'warning');
-    if (isT && (!tVal || tVal <= 0)) return Swal.fire('ข้อความแจ้งเตือน', 'กรุณาระบุจำนวนเงินค่าเล่าเรียนตามความเป็นจริง', 'warning');
+    if (isT && (!tVal || tVal <= 0)) return Swal.fire('ข้อความแจ้งเตือน', 'กรุณาระบุจำนวนเงินค่าเล่าเรียนให้ถูกต้องตามความเป็นจริง', 'warning');
 
     Swal.fire({ title:'ยืนยันการทำรายการ', text:'กรุณาตรวจสอบข้อมูลยอดเงินกู้ยืมให้ถูกต้องก่อนการยืนยัน หากส่งข้อมูลเข้าสู่ระบบแล้วจะไม่สามารถดำเนินการแก้ไขได้ ท่านยืนยันที่จะทำรายการต่อหรือไม่', icon:'warning', showCancelButton:true }).then(async r => {
         if(r.isConfirmed) {
@@ -1279,7 +1288,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('resignForm').addEventListener('submit', (e) => {
         e.preventDefault();
         const tEl = document.querySelector('input[name="resignType"]:checked');
-        if(!tEl) return Swal.fire('ข้อความแจ้งเตือน', 'กรุณาระบุรูปแบบการลาออกของท่าน', 'warning');
+        if(!tEl) return Swal.fire('ข้อความแจ้งเตือน', 'กรุณาเลือกรูปแบบการลาออกของท่าน', 'warning');
         
         Swal.fire({ title:'ยืนยันการทำรายการ', text:'เมื่อทำการส่งคำร้องเข้าสู่ระบบแล้ว ท่านจะไม่สามารถกลับมาแก้ไขข้อมูลได้อีก ท่านยืนยันที่จะดำเนินการต่อหรือไม่', icon:'warning', showCancelButton:true }).then(async r => {
             if(r.isConfirmed) {
@@ -1314,7 +1323,7 @@ document.addEventListener('DOMContentLoaded', () => {
             (val==="2" && set['pet_type2_open']==='false') || 
             (val==="3" && set['pet_type3_open']==='false') || 
             (val==="4" && set['pet_type4_open']==='false')) {
-            Swal.fire({ icon:'error', title:'ไม่สามารถทำรายการได้', text:'ไม่อยู่ในช่วงระยะเวลาที่สถานศึกษากำหนดให้ยื่นคำร้อง' });
+            Swal.fire({ icon:'error', title:'ไม่สามารถทำรายการได้', text:'ขณะนี้ไม่อยู่ในช่วงระยะเวลาที่สถานศึกษากำหนดให้ยื่นคำร้อง' });
             this.value = "";
         }
     });
@@ -1332,7 +1341,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return Swal.fire({ 
                 icon: 'error', 
                 title: 'ไม่สามารถทำรายการได้', 
-                text: 'ไม่อยู่ในช่วงระยะเวลาที่สถานศึกษากำหนดให้ยื่นคำร้อง',
+                text: 'ขณะนี้ไม่อยู่ในช่วงระยะเวลาที่สถานศึกษากำหนดให้ยื่นคำร้อง',
                 confirmButtonColor: '#d32f2f'
             });
         }
@@ -1340,13 +1349,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (petType === "4") {
             showLoading('กำลังตรวจสอบข้อมูลรายชื่อของท่านในระบบ');
             try {
-                
                 const checkRes = await callApi('checkStudentEligibility2569', {
                     studentId: currentUser.studentId,
                     token: userToken
                 });
                 hideLoading();
-                
                 
                 if (checkRes.status === 'eligible_check' || checkRes.status === 'submitted') {
                     return Swal.fire({
@@ -1360,11 +1367,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 hideLoading();
                 console.error(err);
                 Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อฐานข้อมูลเพื่อตรวจสอบสิทธิ์ได้ กรุณาลองใหม่', 'error');
-                return; // หยุดการทำงานตรงนี้ ป้องกันการส่งคำร้องทะลุเงื่อนไข
+                return; 
             }
         }
 
-        Swal.fire({ title:'ยืนยันการส่งคำร้องออนไลน์', icon:'question', showCancelButton:true }).then(async r => {
+        Swal.fire({ 
+            title: 'ยืนยันการส่งคำร้องออนไลน์', 
+            text: 'ท่านประสงค์ที่จะส่งคำร้องออนไลน์เข้าสู่ระบบใช่หรือไม่', 
+            icon: 'question', 
+            showCancelButton: true 
+        }).then(async r => {
             if(r.isConfirmed) {
                 showLoading();
                 const payload = createSecurePayload({ 
@@ -1538,7 +1550,7 @@ document.getElementById('transferForm')?.addEventListener('submit', (e) => {
     
     const idCard = document.getElementById('tfIdCard').value;
     if (idCard === 'ยังไม่พบข้อมูลในระบบ') {
-        return Swal.fire('ไม่สามารถบันทึกได้', 'กรุณาบันทึกทะเบียนประวัติเพื่อให้ระบบดึงเลขบัตรประชาชนมาทำรายการได้', 'error');
+        return Swal.fire('ไม่สามารถบันทึกได้', 'กรุณาบันทึกข้อมูลทะเบียนประวัติก่อน เพื่อให้ระบบสามารถดึงข้อมูลเลขประจำตัวประชาชนมาดำเนินการได้', 'error');
     }
 
     const name = document.getElementById('tfName').value;
