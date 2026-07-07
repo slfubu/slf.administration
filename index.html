@@ -200,15 +200,15 @@
         position: fixed !important; 
         top: 0 !important; 
         left: 0 !important; 
-        width: 100vw !important; 
-        height: 100vh !important; 
+        width: 100vw !important; /* บังคับกว้างเต็มจอ */
+        height: 100vh !important; /* บังคับสูงเต็มจอ */
         margin: 0 !important;
         padding: 0 !important;
         background: rgba(15, 23, 42, 0.85); 
         z-index: 999999 !important; 
         display: flex !important; 
-        justify-content: center !important; 
-        align-items: center !important; 
+        justify-content: center !important; /* จัดกึ่งกลางแนวนอน */
+        align-items: center !important; /* จัดกึ่งกลางแนวตั้ง */
         backdrop-filter: blur(8px);
         font-family: 'Sarabun', sans-serif;
         box-sizing: border-box;
@@ -226,6 +226,7 @@
         margin: auto; 
         box-sizing: border-box;
 
+        /* Flexbox บังคับให้ข้อความและไอคอนอยู่กึ่งกลาง */
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
@@ -253,7 +254,7 @@
         font-size: 24px; 
         font-weight: 700;
         text-align: center !important;
-        width: 100% !important; 
+        width: 100% !important;
         display: block !important;
     }
     .m-desc {
@@ -262,7 +263,7 @@
         line-height: 1.7; 
         margin-bottom: 25px;
         text-align: center !important;
-        width: 100% !important; 
+        width: 100% !important;
     }
     .m-badge {
         display: inline-flex;
@@ -289,7 +290,7 @@
         <h2 class="m-title">ขออภัยในความไม่สะดวก</h2>
         <p class="m-desc">
             เนื่องจากขณะนี้มีผู้เข้าใช้บริการเป็นจำนวนมาก กรุณารอเข้าใช้งานอีกครั้งในเวลาถัดไป<br>
-            หมายเหตุ: ระบบจะทำการประมวลผลข้อมูลในช่วงเวลา 21.30 - 00.01 น.
+            หมายเหตุ: ระบบจะทำการประมวลผลข้อมูลในช่วงเวลา 23.30 - 00.30 น.
         </p>
         
         <div class="m-badge" id="mBadge">
@@ -323,27 +324,23 @@
         }
     }
 
-    (function startCountdown() {
-        let timeLeft = 20;
+    let maintenanceTimeLeft = 20;
+    let maintenanceTimer = setInterval(() => {
         const timerEl = document.getElementById('mCountdown');
         const badgeEl = document.getElementById('mBadge');
         const retryBtn = document.getElementById('mRetryBtn');
 
-        if (!timerEl) return; 
-
-        const timerInt = setInterval(() => {
-            timeLeft--;
-            timerEl.textContent = timeLeft;
+        if (timerEl) {
+            maintenanceTimeLeft--;
+            timerEl.innerText = maintenanceTimeLeft; 
             
-            if (timeLeft <= 0) {
-                clearInterval(timerInt); 
+            if (maintenanceTimeLeft <= 0) {
+                clearInterval(maintenanceTimer); 
                 if (badgeEl) badgeEl.style.display = 'none'; 
-                if (retryBtn) {
-                    retryBtn.style.display = 'block'; 
-                }
+                if (retryBtn) retryBtn.style.display = 'block'; 
             }
-        }, 1000);
-    })();
+        }
+    }, 1000);
 </script>
 
 <script src="main.js"></script>
