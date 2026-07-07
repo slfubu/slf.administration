@@ -200,15 +200,15 @@
         position: fixed !important; 
         top: 0 !important; 
         left: 0 !important; 
-        width: 100vw !important; /* บังคับกว้างเต็มจอ */
-        height: 100vh !important; /* บังคับสูงเต็มจอ */
+        width: 100vw !important; 
+        height: 100vh !important; 
         margin: 0 !important;
         padding: 0 !important;
         background: rgba(15, 23, 42, 0.85); 
         z-index: 999999 !important; 
         display: flex !important; 
-        justify-content: center !important; /* จัดกึ่งกลางแนวนอน */
-        align-items: center !important; /* จัดกึ่งกลางแนวตั้ง */
+        justify-content: center !important; 
+        align-items: center !important; 
         backdrop-filter: blur(8px);
         font-family: 'Sarabun', sans-serif;
         box-sizing: border-box;
@@ -217,15 +217,20 @@
         background: #ffffff; 
         padding: 45px 35px; 
         border-radius: 24px; 
-        text-align: center; 
         max-width: 450px; 
         width: 90%; 
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         animation: modalFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         position: relative;
         overflow: hidden;
-        margin: auto; /* ตัวช่วยจัดกึ่งกลางสำรอง */
+        margin: auto; 
         box-sizing: border-box;
+
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
     }
     .maintenance-box::before {
         content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px;
@@ -236,19 +241,28 @@
         width: 80px; height: 80px;
         background: #fff8e1;
         border-radius: 50%;
-        margin: 0 auto 20px auto; /* บังคับไอคอนให้อยู่ตรงกลาง */
+        margin: 0 auto 20px auto; 
         color: #f39c12;
         cursor: pointer;
         animation: iconPulse 2s infinite;
         user-select: none;
     }
     .m-title {
-        color: #1e293b; margin: 0 0 12px 0; font-size: 24px; font-weight: 700;
-        text-align: center;
+        color: #1e293b; 
+        margin: 0 0 12px 0; 
+        font-size: 24px; 
+        font-weight: 700;
+        text-align: center !important;
+        width: 100% !important; 
+        display: block !important;
     }
     .m-desc {
-        color: #64748b; font-size: 15px; line-height: 1.7; margin-bottom: 25px;
-        text-align: center;
+        color: #64748b; 
+        font-size: 15px; 
+        line-height: 1.7; 
+        margin-bottom: 25px;
+        text-align: center !important;
+        width: 100% !important; 
     }
     .m-badge {
         display: inline-flex;
@@ -275,7 +289,7 @@
         <h2 class="m-title">ขออภัยในความไม่สะดวก</h2>
         <p class="m-desc">
             เนื่องจากขณะนี้มีผู้เข้าใช้บริการเป็นจำนวนมาก กรุณารอเข้าใช้งานอีกครั้งในเวลาถัดไป<br>
-            หมายเหตุ: ระบบจะทำการประมวลผลข้อมูลประจำวันในช่วงเวลา 22.30 - 01.00 น. 
+            หมายเหตุ: ระบบจะทำการประมวลผลข้อมูลในช่วงเวลา 21.30 - 00.01 น.
         </p>
         
         <div class="m-badge" id="mBadge">
@@ -283,7 +297,7 @@
             กรุณารอ <span id="mCountdown" style="font-size: 20px; margin: 0 6px; color: #d32f2f;">20</span> วินาที
         </div>
 
-        <button id="mRetryBtn" class="btn-login-new" style="display: none; width: 100%; margin-top: 20px; background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); border-radius: 30px; box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);" onclick="closeMaintenanceModal()">
+        <button id="mRetryBtn" style="display: none; width: 100%; margin-top: 20px; background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); border-radius: 30px; box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3); color: white; font-weight: bold; font-size: 16px; padding: 12px; border: none; cursor: pointer;" onclick="closeMaintenanceModal()">
             รับทราบ / ลองใหม่อีกครั้ง
         </button>
         
@@ -309,28 +323,27 @@
         }
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
+    (function startCountdown() {
         let timeLeft = 20;
         const timerEl = document.getElementById('mCountdown');
         const badgeEl = document.getElementById('mBadge');
         const retryBtn = document.getElementById('mRetryBtn');
-        const modal = document.getElementById('maintenanceModal');
-        if (modal && window.getComputedStyle(modal).display !== 'none') {
-            const timerInt = setInterval(() => {
-                timeLeft--;
-                if(timerEl) timerEl.textContent = timeLeft;
-                
-                if(timeLeft <= 0) {
-                    clearInterval(timerInt);
-                    if(badgeEl) badgeEl.style.display = 'none'; 
-                    if(retryBtn) {
-                        retryBtn.style.display = 'block'; 
-                        retryBtn.style.animation = 'modalFadeIn 0.4s ease forwards';
-                    }
+
+        if (!timerEl) return; 
+
+        const timerInt = setInterval(() => {
+            timeLeft--;
+            timerEl.textContent = timeLeft;
+            
+            if (timeLeft <= 0) {
+                clearInterval(timerInt); 
+                if (badgeEl) badgeEl.style.display = 'none'; 
+                if (retryBtn) {
+                    retryBtn.style.display = 'block'; 
                 }
-            }, 1000);
-        }
-    });
+            }
+        }, 1000);
+    })();
 </script>
 
 <script src="main.js"></script>
