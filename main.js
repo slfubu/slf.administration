@@ -250,10 +250,10 @@ document.addEventListener("DOMContentLoaded", () => {
                         html: `
                             <div style="text-align: left; font-size: 15px; margin-top: 10px; background: #fff5f5; border: 1px solid #ffcdd2; padding: 15px; border-radius: 8px;">
                                 <p style="margin: 0 0 10px 0; color: #333;">
-                                    <b>สาเหตุ:</b> <span style="color:#d32f2f;">${escapeHTML(displayReason)}</span>
+                                    <b>คำชี้แจง:</b> <span style="color:#d32f2f;">${escapeHTML(displayReason)}</span>
                                 </p>
                                 <p style="margin: 0; color: #555; font-size: 14px; border-top: 1px dashed #ffcdd2; padding-top: 10px;">
-                                    กรุณานำบัตรประจำตัวประชาชนติดต่อสถานศึกษา มหาวิทยาลัยอุบลราชธานี
+                                    <b>คำแนะนำ:</b> กรุณานำบัตรประจำตัวประชาชนติดต่อสถานศึกษา กยศ. มหาวิทยาลัยอุบลราชธานี เพื่อดำเนินการตรวจสอบสิทธิ์ต่อไป
                                 </p>
                             </div>
                         `,
@@ -274,10 +274,13 @@ document.addEventListener("DOMContentLoaded", () => {
                         html: `
                             <div style="text-align: left; font-size: 15px; margin-top: 10px; background: #fff8e1; border: 1px solid #ffe0b2; padding: 15px; border-radius: 8px;">
                                 <p style="margin: 0 0 10px 0; color: #333; line-height: 1.6;">
-                                    <b>ข้อมูลการแจ้งเตือน:</b> <span style="color:#e65100;">${escapeHTML(res.message)}</span>
+                                    <b>คำชี้แจง:</b> <span style="color:#e65100;">${escapeHTML(res.message)}</span>
                                 </p>
-                                <p style="margin: 0; color: #555; font-size: 14px; border-top: 1px dashed #ffe0b2; padding-top: 10px; line-height: 1.5;">
-                                    กองทุนเงินให้กู้ยืมเพื่อการศึกษา มหาวิทยาลัยอุบลราชธานี<br>ขออภัยในความไม่สะดวก มา ณ ที่นี้
+                                <p style="margin: 0 0 10px 0; color: #555; font-size: 14px; border-top: 1px dashed #ffe0b2; padding-top: 10px; line-height: 1.6;">
+                                    <b>คำแนะนำ:</b> เพื่อรักษาเสถียรภาพในการประมวลผลข้อมูลของระบบ กรุณารอประมาณ 5 - 10 นาที แล้วจึงดำเนินการทำรายการเข้าสู่ระบบใหม่อีกครั้ง หรือหลีกเลี่ยงการเข้าใช้งานในช่วงเวลาที่มีผู้ใช้งานหนาแน่น
+                                </p>
+                                <p style="margin: 0; color: #777; font-size: 13px; line-height: 1.5; text-align: center;">
+                                    กองทุนเงินให้กู้ยืมเพื่อการศึกษา มหาวิทยาลัยอุบลราชธานี <br>ขออภัยในความไม่สะดวกเป็นอย่างยิ่ง
                                 </p>
                             </div>
                         `,
