@@ -3878,6 +3878,33 @@ window.actionSuspend = async (userId, newStatus) => {
     }
 };
 
+   const btnAdminUnlockAccount = document.getElementById('btnAdminUnlockAccount');
+if (btnAdminUnlockAccount) {
+    btnAdminUnlockAccount.onclick = async () => {
+        const studentId = document.getElementById('adm_ver_studentId').textContent;
+        const suspendReasonEl = document.getElementById('adm_ver_suspendReason');
+        const suspendReason = suspendReasonEl ? suspendReasonEl.textContent : '';
+
+        if (suspendReason.includes('[REQ_SURVEY]')) {
+            if (!(await checkSuperAdminPermission())) return;
+            if (typeof window.showUnlockSurveyModal === 'function') {
+                window.showUnlockSurveyModal(null, studentId, true);
+            }
+        } else {
+            Swal.fire({
+                title: 'ปลดล็อกบัญชี',
+                text: `ต้องการปลดล็อกบัญชีของรหัส ${studentId} ใช่หรือไม่`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'ยืนยัน',
+                confirmButtonColor: '#28a745'
+            }).then(r => {
+                if (r.isConfirmed) executeAdminUnlockVerifyPage(studentId);
+            });
+        }
+    };
+}
+
     async function executeAdminUnlockVerifyPage(studentId) {
         showLoading();
         try {
