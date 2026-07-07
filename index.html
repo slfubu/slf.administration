@@ -275,12 +275,17 @@
         <h2 class="m-title">ขออภัยในความไม่สะดวก</h2>
         <p class="m-desc">
             เนื่องจากขณะนี้มีผู้เข้าใช้บริการเป็นจำนวนมาก กรุณารอเข้าใช้งานอีกครั้งในเวลาถัดไป<br>
-            หมายเหตุ: ระบบจะทำการประมวลผลข้อมูลในช่วงเวลา 21.30 - 00.01 น.
+            หมายเหตุ: ระบบจะทำการประมวลผลข้อมูลประจำวันในช่วงเวลา 22.30 - 01.00 น. 
         </p>
-        <div class="m-badge">
-            <i class="material-icons" style="font-size: 16px; margin-right: 6px;">schedule</i>
-            กรุณารอเข้าใช้งานอีกครั้งในภายหลัง
+        
+        <div class="m-badge" id="mBadge">
+            <i class="material-icons" style="font-size: 18px; margin-right: 6px;">schedule</i>
+            กรุณารอ <span id="mCountdown" style="font-size: 20px; margin: 0 6px; color: #d32f2f;">20</span> วินาที
         </div>
+
+        <button id="mRetryBtn" class="btn-login-new" style="display: none; width: 100%; margin-top: 20px; background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); border-radius: 30px; box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);" onclick="closeMaintenanceModal()">
+            รับทราบ / ลองใหม่อีกครั้ง
+        </button>
         
     </div>
 </div>
@@ -290,13 +295,42 @@
     function adminBypass() {
         clickCount++;
         if (clickCount >= 3) {
-            const modal = document.getElementById('maintenanceModal');
+            closeMaintenanceModal();
+        }
+        setTimeout(() => { clickCount = 0; }, 2000);
+    }
+
+    function closeMaintenanceModal() {
+        const modal = document.getElementById('maintenanceModal');
+        if (modal) {
             modal.style.opacity = '0';
             modal.style.transition = 'opacity 0.3s ease';
             setTimeout(() => { modal.style.display = 'none'; }, 300);
         }
-        setTimeout(() => { clickCount = 0; }, 2000);
     }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        let timeLeft = 20;
+        const timerEl = document.getElementById('mCountdown');
+        const badgeEl = document.getElementById('mBadge');
+        const retryBtn = document.getElementById('mRetryBtn');
+        const modal = document.getElementById('maintenanceModal');
+        if (modal && window.getComputedStyle(modal).display !== 'none') {
+            const timerInt = setInterval(() => {
+                timeLeft--;
+                if(timerEl) timerEl.textContent = timeLeft;
+                
+                if(timeLeft <= 0) {
+                    clearInterval(timerInt);
+                    if(badgeEl) badgeEl.style.display = 'none'; 
+                    if(retryBtn) {
+                        retryBtn.style.display = 'block'; 
+                        retryBtn.style.animation = 'modalFadeIn 0.4s ease forwards';
+                    }
+                }
+            }, 1000);
+        }
+    });
 </script>
 
 <script src="main.js"></script>
