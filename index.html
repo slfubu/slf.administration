@@ -186,34 +186,98 @@
         </div>
     </div>
 
-    <div id="maintenanceModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 99999; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
-    <div style="background: #ffffff; padding: 40px; border-radius: 12px; text-align: center; max-width: 500px; width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+<style>
+    @keyframes modalFadeIn {
+        from { opacity: 0; transform: scale(0.9) translateY(20px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    @keyframes iconPulse {
+        0% { box-shadow: 0 0 0 0 rgba(243, 156, 18, 0.4); }
+        70% { box-shadow: 0 0 0 15px rgba(243, 156, 18, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(243, 156, 18, 0); }
+    }
+    .maintenance-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+        background: rgba(15, 23, 42, 0.85); /* พื้นหลังสีเข้มอมน้ำเงิน ดูพรีเมียม */
+        z-index: 99999; display: flex; justify-content: center; align-items: center; 
+        backdrop-filter: blur(8px);
+        font-family: 'Sarabun', sans-serif;
+    }
+    .maintenance-box {
+        background: #ffffff; 
+        padding: 45px 35px; 
+        border-radius: 24px; 
+        text-align: center; 
+        max-width: 450px; 
+        width: 90%; 
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        animation: modalFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        position: relative;
+        overflow: hidden;
+    }
+    .maintenance-box::before {
+        content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px;
+        background: linear-gradient(90deg, #f39c12, #e67e22);
+    }
+    .m-icon-wrapper {
+        display: inline-flex; justify-content: center; align-items: center;
+        width: 80px; height: 80px;
+        background: #fff8e1;
+        border-radius: 50%;
+        margin-bottom: 20px;
+        color: #f39c12;
+        cursor: pointer;
+        animation: iconPulse 2s infinite;
+        user-select: none;
+    }
+    .m-title {
+        color: #1e293b; margin: 0 0 12px 0; font-size: 24px; font-weight: 700;
+    }
+    .m-desc {
+        color: #64748b; font-size: 15px; line-height: 1.7; margin-bottom: 25px;
+    }
+    .m-badge {
+        display: inline-block;
+        background: #fef2f2;
+        color: #dc2626;
+        padding: 10px 20px;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 15px;
+        border: 1px solid #fee2e2;
+    }
+</style>
+
+<div id="maintenanceModal" class="maintenance-overlay">
+    <div class="maintenance-box">
         
-        <div onclick="adminBypass()" style="display: inline-block; cursor: pointer;">
-            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#f39c12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="8" x2="12" y2="12"></line>
-                <line x1="12" y1="16" x2="12.01" y2="16"></line>
-            </svg>
+        <div class="m-icon-wrapper" onclick="adminBypass()" title="Maintenance">
+            <i class="material-icons" style="font-size: 42px;">engineering</i>
         </div>
 
-        <h2 style="color: #333; margin: 20px 0 15px 0; font-family: 'Sarabun', sans-serif;">ประกาศปิดปรับปรุงระบบ</h2>
-        <p style="color: #555; font-size: 16px; line-height: 1.6; font-family: 'Sarabun', sans-serif; margin-bottom: 0;">
-            ระบบกำลังอยู่ระหว่างการประมวลผลข้อมูล<br>และปรับปรุงประสิทธิภาพการทำงาน<br>
-            <strong style="color: #d32f2f;">กรุณารอเข้าใช้งานอีกครั้งในภายหลัง</strong>
+        <h2 class="m-title">ระบบปิดประมวลผลชั่วคราว</h2>
+        <p class="m-desc">
+            ขณะนี้ระบบกำลังอยู่ระหว่างการประมวลผล<br>
+            ปรับปรุงฐานข้อมูลนักศึกษาให้เป็นปัจจุบันและปรับปรุงประสิทธิภาพการทำงานทางเทคนิค เพื่อให้บริการที่ดียิ่งขึ้น
         </p>
+        <div class="m-badge">
+            <i class="material-icons" style="font-size: 16px; vertical-align: text-bottom; margin-right: 4px;">schedule</i>
+            กรุณารอเข้าใช้งานอีกครั้งในภายหลัง
+        </div>
+        
     </div>
 </div>
 
 <script>
-    // โค้ดทางลับสำหรับแอดมิน: คลิกที่ไอคอน 3 ครั้งภายใน 2 วินาที เพื่อซ่อนป๊อปอัป
     let clickCount = 0;
     function adminBypass() {
         clickCount++;
         if (clickCount >= 3) {
-            document.getElementById('maintenanceModal').style.display = 'none'; // ซ่อนป๊อปอัป
+            const modal = document.getElementById('maintenanceModal');
+            modal.style.opacity = '0';
+            modal.style.transition = 'opacity 0.3s ease';
+            setTimeout(() => { modal.style.display = 'none'; }, 300);
         }
-
         setTimeout(() => { clickCount = 0; }, 2000);
     }
 </script>
