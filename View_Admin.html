@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://script.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.ipify.org https://cdn.jsdelivr.net; img-src 'self' data: https:;">
 
   <title>ระบบบริหารงานกองทุนเงินให้กู้ยืมเพื่อการศึกษา มหาวิทยาลัยอุบลราชธานี</title>
@@ -12,6 +13,8 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  
   <link rel="stylesheet" href="style.css">
   <script src="api.js"></script>
   
@@ -3803,75 +3806,116 @@ window.toggleDeleteButton = function(count) {
         });
     };
 
-    window.actionSuspend = (userId, newStatus) => {
-        const u = typeof allUsersCache !== 'undefined' ? allUsersCache.find(x => x.id === userId) : null;
-        const currentReason = u ? (u.suspendReason || '') : '';
+    window.actionSuspend = async (userId, newStatus) => {
+    const u = typeof allUsersCache !== 'undefined' ? allUsersCache.find(x => x.id === userId) : null;
+    const currentReason = u ? (u.suspendReason || '') : '';
 
-        if (newStatus === 'Suspended') {
-            Swal.fire({ 
-                title: 'ระบุสาเหตุการระงับบัญชี', 
-                html: `
-                    <input id="swal-suspend-reason" class="swal2-input" placeholder="ระบุสาเหตุการระงับ" style="width: 85%;">
-                    <div style="margin-top: 15px; text-align: left; padding: 0 25px;">
-                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #d32f2f; font-weight: bold; font-size: 14px;">
-                            <input type="checkbox" id="swal-require-survey" style="width: 18px; height: 18px;" checked>
-                            บังคับให้ทำแบบสอบถามความเสี่ยง ก่อนปลดล็อก
-                        </label>
-                    </div>
-                `,
-                showCancelButton: true, confirmButtonText: 'ระงับบัญชี', confirmButtonColor: '#d33',
-                preConfirm: () => {
-                    const reason = document.getElementById('swal-suspend-reason').value.trim();
-                    const reqSurvey = document.getElementById('swal-require-survey').checked;
-                    if (!reason) { Swal.showValidationMessage('กรุณาระบุสาเหตุ'); return false; }
-                    return reqSurvey ? '[REQ_SURVEY]' + reason : reason;
-                }
-            }).then(r => { if (r.isConfirmed) executeStatusUpdate(userId, newStatus, r.value); });
-
-        } else {
-            if (currentReason.includes('[REQ_SURVEY]')) {
-                // เรียกใช้ฟังก์ชันกลาง (false = เรียกจากหน้าจัดการผู้ใช้งาน)
-                window.showUnlockSurveyModal(userId, u ? u.studentId : '', false);
-            } else {
-                Swal.fire({ 
-                    title: 'ปลดระงับบัญชีนี้', 
-                    text: 'ต้องการปลดระงับบัญชีให้ใช้งานได้ปกติใช่หรือไม่?',
-                    icon: 'question', 
-                    showCancelButton: true, 
-                    confirmButtonText: 'ยืนยันปลดล็อก',
-                    confirmButtonColor: '#28a745' 
-                }).then(r => { 
-                    if (r.isConfirmed) executeStatusUpdate(userId, newStatus, ''); 
-                });
+    if (newStatus === 'Suspended') {
+        Swal.fire({ 
+            title: 'ระบุสาเหตุการระงับบัญชี', 
+            html: `
+                <input id="swal-suspend-reason" class="swal2-input" placeholder="ระบุสาเหตุการระงับ" style="width: 85%;">
+                <div style="margin-top: 15px; text-align: left; padding: 0 25px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #d32f2f; font-weight: bold; font-size: 14px;">
+                        <input type="checkbox" id="swal-require-survey" style="width: 18px; height: 18px;" checked>
+                        บังคับให้ทำแบบสอบถามความเสี่ยง ก่อนปลดล็อก
+                    </label>
+                </div>
+            `,
+            showCancelButton: true, confirmButtonText: 'ระงับบัญชี', confirmButtonColor: '#d33',
+            preConfirm: () => {
+                const reason = document.getElementById('swal-suspend-reason').value.trim();
+                const reqSurvey = document.getElementById('swal-require-survey').checked;
+                if (!reason) { Swal.showValidationMessage('กรุณาระบุสาเหตุ'); return false; }
+                return reqSurvey ? '[REQ_SURVEY]' + reason : reason;
             }
+        }).then(r => { if (r.isConfirmed) executeStatusUpdate(userId, newStatus, r.value); });
+
+    } else {
+        if (currentReason.includes('[REQ_SURVEY]')) {
+            showLoading('กำลังตรวจสอบสิทธิ์');
+            try {
+                const res = await callApi("getSuperAdminDetails", { adminId: adminId, token: userToken });
+                hideLoading();
+                if (res && res.success) {
+                    if (!res.isSuperAdmin) {
+                        let listHtml = res.list.map(name => `คุณ${name}`).join('<br>');
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'ไม่มีสิทธิ์พิจารณาดำเนินการ',
+                            html: `<div style="text-align: left; font-size: 14px;">บัญชีนี้ถูกระงับด้วยเงื่อนไขความเสี่ยงสูง กรุณาแจ้งผู้มีสิทธิ์อนุมัติเพื่อดำเนินการ<br><br>${listHtml}</div>`
+                        });
+                        return;
+                    }
+                    if (typeof window.showUnlockSurveyModal === 'function') {
+                        window.showUnlockSurveyModal(userId, u ? u.studentId : '', false);
+                    }
+                } else {
+                    Swal.fire('ผิดพลาด', 'ไม่สามารถเชื่อมต่อฐานข้อมูลได้', 'error');
+                }
+            } catch(err) {
+                hideLoading();
+                Swal.fire('ผิดพลาด', err.message, 'error');
+            }
+        } else {
+            Swal.fire({ 
+                title: 'ปลดระงับบัญชีนี้', 
+                text: 'ต้องการปลดระงับบัญชีให้ใช้งานได้ปกติใช่หรือไม่?',
+                icon: 'question', 
+                showCancelButton: true, 
+                confirmButtonText: 'ยืนยันปลดล็อก',
+                confirmButtonColor: '#28a745' 
+            }).then(r => { if (r.isConfirmed) executeStatusUpdate(userId, newStatus, ''); });
         }
-    };
+    }
+};
 
     const btnAdminUnlockAccount = document.getElementById('btnAdminUnlockAccount');
-    if (btnAdminUnlockAccount) {
-        btnAdminUnlockAccount.onclick = () => {
-            const studentId = document.getElementById('adm_ver_studentId').textContent;
-            const suspendReasonEl = document.getElementById('adm_ver_suspendReason');
-            const suspendReason = suspendReasonEl ? suspendReasonEl.textContent : '';
+if (btnAdminUnlockAccount) {
+    btnAdminUnlockAccount.onclick = async () => {
+        const studentId = document.getElementById('adm_ver_studentId').textContent;
+        const suspendReasonEl = document.getElementById('adm_ver_suspendReason');
+        const suspendReason = suspendReasonEl ? suspendReasonEl.textContent : '';
 
-            if (suspendReason.includes('[REQ_SURVEY]')) {
-                if (typeof window.showUnlockSurveyModal === 'function') {
-                    window.showUnlockSurveyModal(null, studentId, true);
+        if (suspendReason.includes('[REQ_SURVEY]')) {
+            showLoading('กำลังตรวจสอบสิทธิ์');
+            try {
+                const res = await callApi("getSuperAdminDetails", { adminId: adminId, token: userToken });
+                hideLoading();
+                if (res && res.success) {
+                    if (!res.isSuperAdmin) {
+                        let listHtml = res.list.map(name => `คุณ${name}`).join('<br>');
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'ไม่มีสิทธิ์พิจารณาดำเนินการ',
+                            html: `<div style="text-align: left; font-size: 14px;">บัญชีนี้ถูกระงับด้วยเงื่อนไขความเสี่ยงสูง กรุณาแจ้งผู้มีสิทธิ์อนุมัติเพื่อดำเนินการ<br><br>${listHtml}</div>`
+                        });
+                        return;
+                    }
+                    if (typeof window.showUnlockSurveyModal === 'function') {
+                        window.showUnlockSurveyModal(null, studentId, true);
+                    }
+                } else {
+                    Swal.fire('ผิดพลาด', 'ไม่สามารถเชื่อมต่อฐานข้อมูลได้', 'error');
                 }
-            } else {
-                Swal.fire({
-                    title: 'ปลดล็อกบัญชี',
-                    text: `ต้องการปลดล็อกบัญชีของรหัส ${studentId} เพื่อให้เข้าใช้งานได้ปกติ ใช่หรือไม่`,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'ใช่ ปลดล็อกเลย',
-                    confirmButtonColor: '#28a745'
-                }).then(r => {
-                    if (r.isConfirmed) executeAdminUnlockVerifyPage(studentId);
-                });
+            } catch(err) {
+                hideLoading();
+                Swal.fire('ผิดพลาด', err.message, 'error');
             }
-        };
-    }
+        } else {
+            Swal.fire({
+                title: 'ปลดล็อกบัญชี',
+                text: `ต้องการปลดล็อกบัญชีของรหัส ${studentId} ใช่หรือไม่`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'ยืนยัน',
+                confirmButtonColor: '#28a745'
+            }).then(r => {
+                if (r.isConfirmed) executeAdminUnlockVerifyPage(studentId);
+            });
+        }
+    };
+}
 
     async function executeAdminUnlockVerifyPage(studentId) {
         showLoading();
