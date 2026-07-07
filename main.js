@@ -267,6 +267,23 @@ document.addEventListener("DOMContentLoaded", () => {
                         text: 'อีเมลของท่านไม่ได้รับอนุญาตให้ใช้สิทธิ์แอดมิน',
                         confirmButtonText: 'ปิดหน้าต่าง'
                     });
+                } else if (res.isQueueFull) { 
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'แจ้งเตือนสถานะการเข้าใช้งานระบบ',
+                        html: `
+                            <div style="text-align: left; font-size: 15px; margin-top: 10px; background: #fff8e1; border: 1px solid #ffe0b2; padding: 15px; border-radius: 8px;">
+                                <p style="margin: 0 0 10px 0; color: #333; line-height: 1.6;">
+                                    <b>ข้อมูลการแจ้งเตือน:</b> <span style="color:#e65100;">${escapeHTML(res.message)}</span>
+                                </p>
+                                <p style="margin: 0; color: #555; font-size: 14px; border-top: 1px dashed #ffe0b2; padding-top: 10px; line-height: 1.5;">
+                                    กองทุนเงินให้กู้ยืมเพื่อการศึกษา มหาวิทยาลัยอุบลราชธานี<br>ขออภัยในความไม่สะดวก มา ณ ที่นี้
+                                </p>
+                            </div>
+                        `,
+                        confirmButtonText: 'รับทราบ',
+                        confirmButtonColor: '#f57c00'
+                    });
                 } else {
                     showAlert(res.message, 'error');
                 }
@@ -275,6 +292,7 @@ document.addEventListener("DOMContentLoaded", () => {
             hideLoading(); btnSubmit.disabled = false; showAlert(err.message, 'error');
         }
     });
+
 
     document.getElementById('signupForm').addEventListener('submit', async (e) => {
         e.preventDefault();
