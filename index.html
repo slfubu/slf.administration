@@ -197,11 +197,21 @@
         100% { box-shadow: 0 0 0 0 rgba(243, 156, 18, 0); }
     }
     .maintenance-overlay {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-        background: rgba(15, 23, 42, 0.85); /* พื้นหลังสีเข้มอมน้ำเงิน ดูพรีเมียม */
-        z-index: 99999; display: flex; justify-content: center; align-items: center; 
+        position: fixed !important; 
+        top: 0 !important; 
+        left: 0 !important; 
+        width: 100vw !important; /* บังคับกว้างเต็มจอ */
+        height: 100vh !important; /* บังคับสูงเต็มจอ */
+        margin: 0 !important;
+        padding: 0 !important;
+        background: rgba(15, 23, 42, 0.85); 
+        z-index: 999999 !important; 
+        display: flex !important; 
+        justify-content: center !important; /* จัดกึ่งกลางแนวนอน */
+        align-items: center !important; /* จัดกึ่งกลางแนวตั้ง */
         backdrop-filter: blur(8px);
         font-family: 'Sarabun', sans-serif;
+        box-sizing: border-box;
     }
     .maintenance-box {
         background: #ffffff; 
@@ -214,6 +224,8 @@
         animation: modalFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         position: relative;
         overflow: hidden;
+        margin: auto; /* ตัวช่วยจัดกึ่งกลางสำรอง */
+        box-sizing: border-box;
     }
     .maintenance-box::before {
         content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px;
@@ -224,7 +236,7 @@
         width: 80px; height: 80px;
         background: #fff8e1;
         border-radius: 50%;
-        margin-bottom: 20px;
+        margin: 0 auto 20px auto; /* บังคับไอคอนให้อยู่ตรงกลาง */
         color: #f39c12;
         cursor: pointer;
         animation: iconPulse 2s infinite;
@@ -232,12 +244,16 @@
     }
     .m-title {
         color: #1e293b; margin: 0 0 12px 0; font-size: 24px; font-weight: 700;
+        text-align: center;
     }
     .m-desc {
         color: #64748b; font-size: 15px; line-height: 1.7; margin-bottom: 25px;
+        text-align: center;
     }
     .m-badge {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         background: #fef2f2;
         color: #dc2626;
         padding: 10px 20px;
@@ -245,6 +261,7 @@
         font-weight: 600;
         font-size: 15px;
         border: 1px solid #fee2e2;
+        margin: 0 auto;
     }
 </style>
 
@@ -255,13 +272,13 @@
             <i class="material-icons" style="font-size: 42px;">engineering</i>
         </div>
 
-        <h2 class="m-title">ระบบปิดประมวลผลชั่วคราว</h2>
+        <h2 class="m-title">ระบบปิดประมวลผลชั่วคราว ประมาณ 3 ชั่วโมง</h2>
         <p class="m-desc">
-            ขณะนี้ระบบกำลังอยู่ระหว่างการประมวลผล<br>
-            ปรับปรุงฐานข้อมูลนักศึกษาให้เป็นปัจจุบันและปรับปรุงประสิทธิภาพการทำงานทางเทคนิค เพื่อให้บริการที่ดียิ่งขึ้น
+            ขออภัยในความไม่สะดวก ขณะนี้ระบบปิดประมวลผลชั่วคราว<br>
+            ปรับปรุงฐานข้อมูลเเละปรับปรุงประสิทธิภาพการทำงานทางเทคนิค เพื่อให้บริการที่ดียิ่งขึ้น
         </p>
         <div class="m-badge">
-            <i class="material-icons" style="font-size: 16px; vertical-align: text-bottom; margin-right: 4px;">schedule</i>
+            <i class="material-icons" style="font-size: 16px; margin-right: 6px;">schedule</i>
             กรุณารอเข้าใช้งานอีกครั้งในภายหลัง
         </div>
         
