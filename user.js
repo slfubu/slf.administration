@@ -120,7 +120,7 @@ window.currentSystemSettings = {};
 
 function renderStudentMenus(globalSettings, hasSpecialAccess) {
     const menus = [
-    'menu_userProfile', 'menu_userActivity', 'menu_userQueue', 
+    'menu_userProfile', 'menu_userActivity', 
     'menu_loan2569', 'menu_userResign', 'menu_userPetition', 
     'menu_userTrackPetition', 'menu_overLoan', 'menu_userTransfer' 
     ]; 
@@ -155,6 +155,15 @@ async function applyStudentMenuSettings() {
         sessionStorage.setItem('ubu_cached_special_access', String(permissions.hasSpecialAccess));
     } catch (error) {
         console.error("Menu Settings Error:", error);
+        Swal.fire({
+            icon: 'warning',
+            title: 'โหลดเมนูไม่สมบูรณ์',
+            text: 'ขณะนี้มีผู้ใช้งานจำนวนมาก ทำให้ดึงสิทธิ์เมนูไม่สำเร็จ กรุณากดตกลงเพื่อโหลดข้อมูลอีกครั้ง',
+            confirmButtonText: 'โหลดหน้าจอใหม่',
+            allowOutsideClick: false
+        }).then(() => {
+            window.location.reload(); 
+        });
     }
 }
 
