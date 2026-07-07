@@ -1,4 +1,4 @@
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzUOViP1Y5PoFW8QMuRWkXkWS9Hojmo_FLEojvTwj2WxfbtE8WAibtiMMFIaRc1s5Ws/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz12gLInHJqme8YB9b29eZKn81XoDjkPpEfHyYXKkAOS3dw6f_d8NnexTKDbIUGQs08/exec";
 
 async function callApi(actionName, payloadData = {}) {
     try {
