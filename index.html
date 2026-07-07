@@ -320,7 +320,9 @@
         if (modal) {
             modal.style.opacity = '0';
             modal.style.transition = 'opacity 0.3s ease';
-            setTimeout(() => { modal.style.display = 'none'; }, 300);
+            setTimeout(() => { 
+                modal.style.setProperty('display', 'none', 'important'); 
+            }, 300);
         }
     }
 
