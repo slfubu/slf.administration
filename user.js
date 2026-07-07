@@ -120,11 +120,10 @@ window.currentSystemSettings = {};
 
 function renderStudentMenus(globalSettings, hasSpecialAccess) {
     const menus = [
-    'menu_userProfile', 'menu_userActivity', 'menu_userQueue', 
+    'menu_userProfile', 'menu_userActivity', 
     'menu_loan2569', 'menu_userResign', 'menu_userPetition', 
     'menu_userTrackPetition', 'menu_overLoan', 'menu_userTransfer' 
     ]; 
-    
     menus.forEach(id => {
         const el = document.getElementById(id);
         if (el) {
