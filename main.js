@@ -140,7 +140,6 @@ document.addEventListener("DOMContentLoaded", () => {
         togglePasswordVisibility('resetConfirmPassword', this);
     });
 
-
     document.getElementById('btnVerifyIdentity').addEventListener('click', async () => {
         const studentId = document.getElementById('resetStudentId').value.trim();
         const phone = document.getElementById('resetPhone').value.trim();
@@ -267,54 +266,6 @@ document.addEventListener("DOMContentLoaded", () => {
                         text: 'อีเมลของท่านไม่ได้รับอนุญาตให้ใช้สิทธิ์แอดมิน',
                         confirmButtonText: 'ปิดหน้าต่าง'
                     });
-                } else if (res.isQueueFull) { 
-                    let timerInterval;
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'แจ้งเตือนสถานะการเข้าใช้งาน',
-                        html: `
-                            <div style="text-align: left; font-size: 15px; margin-top: 10px; background: #fff8e1; border: 1px solid #ffe0b2; padding: 15px; border-radius: 8px;">
-                                <p style="margin: 0 0 10px 0; color: #d32f2f; font-weight: bold; font-size: 16px;">
-                                    ขออภัยในความไม่สะดวก
-                                </p>
-                                <p style="margin: 0 0 10px 0; color: #333; line-height: 1.6;">
-                                    เนื่องจากขณะนี้มีผู้เข้าใช้บริการเป็นจำนวนมาก กรุณารอเข้าใช้งานอีกครั้งในเวลาถัดไป
-                                </p>
-                                <p style="margin: 0 0 10px 0; color: #555; font-size: 14px; border-top: 1px dashed #ffe0b2; padding-top: 10px; line-height: 1.6;">
-                                    <b>หมายเหตุ:</b> ระบบจะทำการประมวลผลข้อมูลในช่วงเวลา 00.00 - 01.00 น. โปรดหลีกเลี่ยงการใช้งานช่วงเวลาดังกล่าว
-                                </p>
-                                <div style="text-align: center; margin-top: 15px; font-size: 16px; font-weight: bold; color: #e65100;">
-                                    <i class="material-icons" style="vertical-align: middle; font-size: 18px;">schedule</i>
-                                    กรุณารอ <span id="countdown_timer" style="font-size: 20px;">20</span> วินาที
-                                </div>
-                            </div>
-                        `,
-                        confirmButtonText: 'กรุณารอ 20 วินาที',
-                        confirmButtonColor: '#9e9e9e', 
-                        allowOutsideClick: false, 
-                        allowEscapeKey: false, 
-                        didOpen: () => {
-                            Swal.disableButtons(); 
-                            let timeLeft = 20;
-                            const timerDisplay = document.getElementById('countdown_timer');
-                            
-                            timerInterval = setInterval(() => {
-                                timeLeft -= 1;
-                                if (timerDisplay) timerDisplay.textContent = timeLeft;
-                                Swal.getConfirmButton().textContent = `กรุณารอ ${timeLeft} วินาที`;
-                                
-                                if (timeLeft <= 0) {
-                                    clearInterval(timerInterval);
-                                    Swal.enableButtons(); // ปลดล็อกปุ่ม
-                                    Swal.getConfirmButton().textContent = 'รับทราบ / ลองใหม่อีกครั้ง';
-                                    Swal.getConfirmButton().style.backgroundColor = '#f57c00'; 
-                                }
-                            }, 1000);
-                        },
-                        willClose: () => {
-                            clearInterval(timerInterval);
-                        }
-                    });
                 } else {
                     showAlert(res.message, 'error');
                 }
@@ -323,7 +274,6 @@ document.addEventListener("DOMContentLoaded", () => {
             hideLoading(); btnSubmit.disabled = false; showAlert(err.message, 'error');
         }
     });
-
 
     document.getElementById('signupForm').addEventListener('submit', async (e) => {
         e.preventDefault();
