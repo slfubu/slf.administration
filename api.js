@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbzDCwJUqTsaVmd2VpQTNuO7q56wd0lyXbH_mq1eaHBHAUtxR39Rma-C29k0oaqX8yZJ/exec";
+const API_URL = "";
 
 async function callApi(action, payload) {
     const loader = document.getElementById('customLoader');
