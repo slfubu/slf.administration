@@ -1905,13 +1905,19 @@
                 <i class="material-icons" style="vertical-align:bottom;">upload_file</i> นำเข้าไฟล์ข้อมูลจากระบบ กยศ. (เริ่มอ่านข้อมูลแถวที่ 4)
             </label>
             <div style="display:flex; gap:10px; align-items:center; margin-top:15px; flex-wrap: wrap;">
-                <input type="file" id="gysExcelInput" accept=".xlsx, .xls" class="modern-input" style="background:white; padding:10px; flex: 1; min-width: 250px;">
-                <button class="btn btn-primary" onclick="uploadGysExcelFile()" style="height: 45px; background: #1976d2; border-color: #1976d2;">
-                    <i class="material-icons">cloud_upload</i> ประมวลผลและบันทึก
+                <!-- เพิ่ม Dropdown ให้เลือกว่าเป็นไฟล์ของใคร -->
+                <select id="gysBorrowerType" class="modern-input" style="background: white; min-width: 180px; margin-bottom: 0; height: 45px;">
+                    <option value="รายเก่า">อัปโหลดกลุ่ม: รายเก่า</option>
+                    <option value="รายใหม่">อัปโหลดกลุ่ม: รายใหม่</option>
+                </select>
+                
+                <input type="file" id="gysExcelInput" accept=".xlsx, .xls" class="modern-input" style="background:white; padding:10px; flex: 1; min-width: 250px; margin-bottom: 0;">
+                <button class="btn btn-primary" onclick="uploadGysExcelFile()" style="height: 45px; background: #1976d2; border-color: #1976d2; white-space: nowrap;">
+                    <i class="material-icons">cloud_upload</i> ประมวลผล
                 </button>
             </div>
             <small style="color: #555; display: block; margin-top: 8px;">
-                * ระบบจะดักข้อมูลซ้ำให้อัตโนมัติ โดยอ้างอิงจาก <b>ปีการศึกษา + ภาคเรียน + เลข ปชช.</b> (หากมีรายเก่าติดมา ระบบจะข้ามการบันทึกซ้ำ)
+                * เลือกว่าข้อมูลเซ็ตนี้คือ <b>รายเก่า</b> หรือ <b>รายใหม่</b> หากอัปโหลดรายใหม่ระบบจะดักคนซ้ำให้อัตโนมัติและแยกประเภทให้
             </small>
         </div>
 
@@ -1922,36 +1928,55 @@
                 <div class="stat-value" id="gysTotalStudents">0</div>
                 <div class="stat-unit">คน</div>
             </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white;">
+                <i class="material-icons stat-watermark">history</i>
+                <div class="stat-title">ผู้กู้รายเก่า</div>
+                <div class="stat-value" id="gysOldCount">0</div>
+                <div class="stat-unit">คน</div>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
+                <i class="material-icons stat-watermark">fiber_new</i>
+                <div class="stat-title">ผู้กู้รายใหม่</div>
+                <div class="stat-value" id="gysNewCount">0</div>
+                <div class="stat-unit">คน</div>
+            </div>
             <div class="stat-card bg-green">
                 <i class="material-icons stat-watermark">account_balance_wallet</i>
                 <div class="stat-title">ยอดขอเบิกกู้รวมทั้งสิ้น</div>
-                <div class="stat-value" id="gysTotalAmount" style="font-size: 28px;">0.00</div>
+                <div class="stat-value" id="gysTotalAmount" style="font-size: 24px;">0.00</div>
                 <div class="stat-unit">บาท</div>
             </div>
         </div>
 
-        <h3 style="color: #333; margin-bottom: 15px; font-size: 18px; border-bottom: 2px solid #eee; padding-bottom: 10px;">
-            <i class="material-icons" style="vertical-align: text-bottom;">bar_chart</i> สรุปข้อมูลแยกตามคณะ
+        <h3 style="color: #333; margin-bottom: 15px; font-size: 18px; border-bottom: 2px solid #eee; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+            <div><i class="material-icons" style="vertical-align: text-bottom;">bar_chart</i> สรุปข้อมูลแยกตามคณะ</div>
+            
+            <div style="display: flex; gap: 10px;">
+                <!-- เพิ่มตัวกรองตาราง -->
+                <select id="gysFilterType" class="modern-input" style="margin-bottom: 0; padding: 5px 10px; width: auto; height: 35px; font-size: 14px;" onchange="renderGysTable()">
+                    <option value="all">แสดงทุกประเภท</option>
+                    <option value="รายเก่า">เฉพาะรายเก่า</option>
+                    <option value="รายใหม่">เฉพาะรายใหม่</option>
+                </select>
+                <button class="btn btn-secondary" onclick="loadGysDashboardData()" style="padding: 5px 15px; height: 35px;">
+                    <i class="material-icons" style="font-size: 18px;">refresh</i> รีเฟรช
+                </button>
+            </div>
         </h3>
-        
-        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-            <button class="btn btn-secondary" onclick="loadGysDashboardData()">
-                <i class="material-icons">refresh</i> รีเฟรชข้อมูล
-            </button>
-        </div>
 
         <div class="table-container">
             <table class="clean-table" id="gysSummaryTable">
                 <thead style="background: #f8fafc;">
                     <tr>
                         <th style="width: 10%; text-align: center;">ลำดับ</th>
-                        <th style="width: 40%;">คณะ / สังกัด</th>
-                        <th style="width: 20%; text-align: center;">จำนวนผู้กู้ (คน)</th>
+                        <th style="width: 30%;">คณะ / สังกัด</th>
+                        <th style="width: 15%; text-align: center;">ประเภท</th>
+                        <th style="width: 15%; text-align: center;">จำนวนผู้กู้ (คน)</th>
                         <th style="width: 30%; text-align: right; padding-right: 20px;">ยอดค่าเล่าเรียนที่ขอเบิก (บาท)</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td colspan="4" style="text-align:center; padding: 30px; color:#999;">กรุณากดรีเฟรช หรือ นำเข้าไฟล์ข้อมูล</td></tr>
+                    <tr><td colspan="5" style="text-align:center; padding: 30px; color:#999;">กำลังโหลดข้อมูล</td></tr>
                 </tbody>
             </table>
         </div>
@@ -3491,7 +3516,7 @@
     setupNav('navAdminAnnouncement', 'adminAnnouncementSection');
     setupNav('navAdminTransfer', 'adminTransferSection');
     setupNav('navAdminLoan2569Dashboard', 'adminLoan2569DashboardSection');
-    setupNav('navAdminLoanImportDashboard', 'adminLoanImportDashboardSection');
+    setupNav('navAdminLoanImportDashboard', 'adminLoanImportDashboardSection', loadGysDashboardData);
 
 
     document.querySelectorAll('.submenu-toggle').forEach(item => {
@@ -8927,9 +8952,9 @@ async function executeAdminSuspendVerifyPage(studentId, reason) {
         }
     };
 
-// 2. ฟังก์ชันอัปโหลดไฟล์ Excel
 window.uploadGysExcelFile = () => {
     const fileInput = document.getElementById('gysExcelInput');
+    const borrowerType = document.getElementById('gysBorrowerType').value; // รับค่าประเภทผู้กู้
     if(!fileInput) return;
     const file = fileInput.files[0]; 
     
@@ -8940,7 +8965,7 @@ window.uploadGysExcelFile = () => {
     
     Swal.fire({
         title: 'กำลังประมวลผลไฟล์', 
-        html: 'ระบบกำลังอ่านข้อมูลและแยกรายการที่ซ้ำซ้อน<br>กรุณารอสักครู่ ห้ามปิดหน้าต่างนี้',
+        html: `ระบบกำลังบันทึกเป็นกลุ่ม: <b>${borrowerType}</b><br>และคัดแยกข้อมูลที่ซ้ำซ้อน...`,
         allowOutsideClick: false, 
         didOpen: () => { Swal.showLoading() }
     });
@@ -8953,6 +8978,7 @@ window.uploadGysExcelFile = () => {
                 fileName: file.name, 
                 mimeType: file.type || "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
                 content: base64Content,
+                borrowerType: borrowerType, // ส่งประเภทไปหลังบ้าน
                 adminId: adminId, 
                 token: userToken
             });
@@ -8960,11 +8986,11 @@ window.uploadGysExcelFile = () => {
             if (r.success) {
                 Swal.fire({
                     title: 'นำเข้าข้อมูลสำเร็จ',
-                    html: `บันทึกข้อมูลใหม่: <b>${r.insertedCount}</b> รายการ<br>ข้ามข้อมูลซ้ำ: <b>${r.duplicateCount}</b> รายการ`,
+                    html: `บันทึกข้อมูลใหม่ (${borrowerType}): <b>${r.insertedCount}</b> รายการ<br>ข้ามข้อมูลที่ซ้ำและมีอยู่แล้ว: <b>${r.duplicateCount}</b> รายการ`,
                     icon: 'success'
                 });
                 fileInput.value = '';
-                loadGysDashboardData(); // โหลดตารางใหม่
+                loadGysDashboardData(); 
             } else {
                 Swal.fire('ผิดพลาด', r.message, 'error'); 
             }
@@ -8976,10 +9002,11 @@ window.uploadGysExcelFile = () => {
     reader.readAsDataURL(file); 
 };
 
-// 3. ฟังก์ชันดึงข้อมูลมาแสดงที่ตาราง (โหลดเร็วเพราะดึงแค่ยอดสรุปจาก Backend)
+window.gysSummaryCache = [];
+
 window.loadGysDashboardData = async () => {
     const tb = document.querySelector('#gysSummaryTable tbody');
-    if(tb) tb.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px;">กำลังโหลดข้อมูล...</td></tr>';
+    if(tb) tb.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:30px;">กำลังโหลดข้อมูล...</td></tr>';
     
     try {
         const res = await callApi("getGysDashboardSummary", { adminId: adminId, token: userToken });
@@ -8988,30 +9015,53 @@ window.loadGysDashboardData = async () => {
         if (res.success) {
             document.getElementById('gysTotalStudents').textContent = res.grandTotalStudents.toLocaleString();
             document.getElementById('gysTotalAmount').textContent = res.grandTotalAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('gysOldCount').textContent = res.totalOld.toLocaleString();
+            document.getElementById('gysNewCount').textContent = res.totalNew.toLocaleString();
             
-            if (res.summaryData.length === 0) {
-                tb.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px; color:#999;">ยังไม่มีข้อมูลในระบบ</td></tr>';
-                return;
-            }
-
-            tb.innerHTML = '';
-            res.summaryData.forEach((row, index) => {
-                tb.innerHTML += `
-                    <tr>
-                        <td style="text-align: center;">${index + 1}</td>
-                        <td style="font-weight: 500;">${escapeHTML(row.faculty)}</td>
-                        <td style="text-align: center;">${row.count.toLocaleString()}</td>
-                        <td style="text-align: right; padding-right: 20px; font-weight: bold; color: #2e7d32;">
-                            ${row.totalAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                        </td>
-                    </tr>
-                `;
-            });
+            window.gysSummaryCache = res.summaryData;
+            renderGysTable(); // เรียกฟังก์ชันวาดตาราง
         }
     } catch(err) {
-        if(tb) tb.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red;">เกิดข้อผิดพลาด: ${err.message}</td></tr>`;
+        if(tb) tb.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">เกิดข้อผิดพลาด: ${err.message}</td></tr>`;
     }
 };
+
+window.renderGysTable = () => {
+    const tb = document.querySelector('#gysSummaryTable tbody');
+    const filterType = document.getElementById('gysFilterType').value;
+    if(!tb) return;
+    tb.innerHTML = '';
+
+    // กรองข้อมูลตามที่เลือก
+    let dataToShow = window.gysSummaryCache;
+    if (filterType !== 'all') {
+        dataToShow = window.gysSummaryCache.filter(row => row.borrowerType === filterType);
+    }
+
+    if (dataToShow.length === 0) {
+        tb.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:30px; color:#999;">ไม่พบข้อมูลตามเงื่อนไขที่เลือก</td></tr>';
+        return;
+    }
+
+    dataToShow.forEach((row, index) => {
+        const typeBadge = row.borrowerType === 'รายใหม่' 
+            ? '<span style="color: #10b981; font-weight: bold; background: #d1fae5; padding: 2px 8px; border-radius: 12px; font-size: 12px;">รายใหม่</span>'
+            : '<span style="color: #d97706; font-weight: bold; background: #fef3c7; padding: 2px 8px; border-radius: 12px; font-size: 12px;">รายเก่า</span>';
+
+        tb.innerHTML += `
+            <tr>
+                <td style="text-align: center;">${index + 1}</td>
+                <td style="font-weight: 500;">${escapeHTML(row.faculty)}</td>
+                <td style="text-align: center;">${typeBadge}</td>
+                <td style="text-align: center;">${row.count.toLocaleString()}</td>
+                <td style="text-align: right; padding-right: 20px; font-weight: bold; color: #2e7d32;">
+                    ${row.totalAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                </td>
+            </tr>
+        `;
+    });
+};
+
 </script>
 </body>
 </html>
