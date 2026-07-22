@@ -1,7 +1,7 @@
 <style>
     .sidebar.collapsed .nav-header {
-        display: none;
-    }
+    display: none !important;
+}
     
     .queue-ticket-expired {
         background-color: #f5f5f5 !important;
@@ -398,8 +398,8 @@
     }
     
     .sidebar.collapsed .nav-header {
-        display: none;
-    }
+    display: none !important;
+}
     
     .sidebar-header { 
         height: var(--topbar-height); 
