@@ -245,6 +245,11 @@
                                 <i class="material-icons" style="font-size: 18px;">summarize</i><span style="font-size: 14px;">รายงานและดาวน์โหลด</span>
                             </a>
                         </li>
+                        <li>
+                         <a href="#" id="navAdminLoanImportDashboard" class="nav-link" style="padding-left: 50px;">
+                         <i class="material-icons" style="font-size: 18px;">pie_chart</i><span style="font-size: 14px;">สรุปยอดเงินกู้ยืม (Excel)</span>
+                         </a>
+                        </li>
                     </ul>
                 </li>
 
@@ -1887,6 +1892,69 @@
     <div class="chart-heading" style="margin-top: 15px; border-bottom: 2px solid #333; font-size: 18px;">ข้อมูลเชิงลึกรายคณะ (จัดอันดับตามจำนวนยื่น)</div>
     <div id="facultyCardsContainer" class="fac-grid">
         <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #999;">กำลังประมวลผลข้อมูล</div>
+    </div>
+</div>
+
+<!-- ส่วนหน้าจอสรุปยอดผู้กู้ยืมจาก Excel -->
+<div id="adminLoanImportDashboardSection" class="section">
+    <div class="card">
+        <h2><i class="material-icons" style="color: #1976D2;">pie_chart</i> แดชบอร์ดสรุปยอดเงินกู้ยืม (นำเข้าจากไฟล์ กยศ.)</h2>
+        
+        <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #bbdefb;">
+            <label style="font-weight:bold; font-size:16px; color:#1565c0;">
+                <i class="material-icons" style="vertical-align:bottom;">upload_file</i> นำเข้าไฟล์ข้อมูลจากระบบ กยศ. (เริ่มอ่านข้อมูลแถวที่ 4)
+            </label>
+            <div style="display:flex; gap:10px; align-items:center; margin-top:15px; flex-wrap: wrap;">
+                <input type="file" id="gysExcelInput" accept=".xlsx, .xls" class="modern-input" style="background:white; padding:10px; flex: 1; min-width: 250px;">
+                <button class="btn btn-primary" onclick="uploadGysExcelFile()" style="height: 45px; background: #1976d2; border-color: #1976d2;">
+                    <i class="material-icons">cloud_upload</i> ประมวลผลและบันทึก
+                </button>
+            </div>
+            <small style="color: #555; display: block; margin-top: 8px;">
+                * ระบบจะดักข้อมูลซ้ำให้อัตโนมัติ โดยอ้างอิงจาก <b>ปีการศึกษา + ภาคเรียน + เลข ปชช.</b> (หากมีรายเก่าติดมา ระบบจะข้ามการบันทึกซ้ำ)
+            </small>
+        </div>
+
+        <div class="admin-stat-grid" style="margin-bottom: 25px;">
+            <div class="stat-card bg-blue">
+                <i class="material-icons stat-watermark">groups</i>
+                <div class="stat-title">จำนวนนักศึกษาทั้งหมด</div>
+                <div class="stat-value" id="gysTotalStudents">0</div>
+                <div class="stat-unit">คน</div>
+            </div>
+            <div class="stat-card bg-green">
+                <i class="material-icons stat-watermark">account_balance_wallet</i>
+                <div class="stat-title">ยอดขอเบิกกู้รวมทั้งสิ้น</div>
+                <div class="stat-value" id="gysTotalAmount" style="font-size: 28px;">0.00</div>
+                <div class="stat-unit">บาท</div>
+            </div>
+        </div>
+
+        <h3 style="color: #333; margin-bottom: 15px; font-size: 18px; border-bottom: 2px solid #eee; padding-bottom: 10px;">
+            <i class="material-icons" style="vertical-align: text-bottom;">bar_chart</i> สรุปข้อมูลแยกตามคณะ
+        </h3>
+        
+        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+            <button class="btn btn-secondary" onclick="loadGysDashboardData()">
+                <i class="material-icons">refresh</i> รีเฟรชข้อมูล
+            </button>
+        </div>
+
+        <div class="table-container">
+            <table class="clean-table" id="gysSummaryTable">
+                <thead style="background: #f8fafc;">
+                    <tr>
+                        <th style="width: 10%; text-align: center;">ลำดับ</th>
+                        <th style="width: 40%;">คณะ / สังกัด</th>
+                        <th style="width: 20%; text-align: center;">จำนวนผู้กู้ (คน)</th>
+                        <th style="width: 30%; text-align: right; padding-right: 20px;">ยอดค่าเล่าเรียนที่ขอเบิก (บาท)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="4" style="text-align:center; padding: 30px; color:#999;">กรุณากดรีเฟรช หรือ นำเข้าไฟล์ข้อมูล</td></tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -8857,6 +8925,94 @@ async function executeAdminSuspendVerifyPage(studentId, reason) {
         }
     };
 
+    // 1. ลงทะเบียนเมนูให้คลิกแล้วเปลี่ยนหน้า
+setupNav('navAdminLoanImportDashboard', 'adminLoanImportDashboardSection', loadGysDashboardData);
+
+// 2. ฟังก์ชันอัปโหลดไฟล์ Excel
+window.uploadGysExcelFile = () => {
+    const fileInput = document.getElementById('gysExcelInput');
+    if(!fileInput) return;
+    const file = fileInput.files[0]; 
+    
+    if (!file) {
+        Swal.fire('แจ้งเตือน', 'กรุณาเลือกไฟล์ Excel กยศ. ก่อนกดอัปโหลด', 'warning');
+        return;
+    }
+    
+    Swal.fire({
+        title: 'กำลังประมวลผลไฟล์', 
+        html: 'ระบบกำลังอ่านข้อมูลและแยกรายการที่ซ้ำซ้อน<br>กรุณารอสักครู่ ห้ามปิดหน้าต่างนี้',
+        allowOutsideClick: false, 
+        didOpen: () => { Swal.showLoading() }
+    });
+    
+    const reader = new FileReader();
+    reader.onload = async e => {
+        try {
+            const base64Content = e.target.result.split(',')[1];
+            const r = await callApi("uploadGysExcelData", {
+                fileName: file.name, 
+                mimeType: file.type || "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
+                content: base64Content,
+                adminId: adminId, 
+                token: userToken
+            });
+            
+            if (r.success) {
+                Swal.fire({
+                    title: 'นำเข้าข้อมูลสำเร็จ',
+                    html: `บันทึกข้อมูลใหม่: <b>${r.insertedCount}</b> รายการ<br>ข้ามข้อมูลซ้ำ: <b>${r.duplicateCount}</b> รายการ`,
+                    icon: 'success'
+                });
+                fileInput.value = '';
+                loadGysDashboardData(); // โหลดตารางใหม่
+            } else {
+                Swal.fire('ผิดพลาด', r.message, 'error'); 
+            }
+        } catch(err) {
+            Swal.fire('ข้อผิดพลาดระบบ', err.message, 'error');
+        }
+    };
+    reader.onerror = () => Swal.fire('ผิดพลาด', 'ไม่สามารถอ่านไฟล์ได้', 'error');
+    reader.readAsDataURL(file); 
+};
+
+// 3. ฟังก์ชันดึงข้อมูลมาแสดงที่ตาราง (โหลดเร็วเพราะดึงแค่ยอดสรุปจาก Backend)
+window.loadGysDashboardData = async () => {
+    const tb = document.querySelector('#gysSummaryTable tbody');
+    if(tb) tb.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px;">กำลังโหลดข้อมูล...</td></tr>';
+    
+    try {
+        const res = await callApi("getGysDashboardSummary", { adminId: adminId, token: userToken });
+        if(checkAuthError(res)) return;
+
+        if (res.success) {
+            document.getElementById('gysTotalStudents').textContent = res.grandTotalStudents.toLocaleString();
+            document.getElementById('gysTotalAmount').textContent = res.grandTotalAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            
+            if (res.summaryData.length === 0) {
+                tb.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px; color:#999;">ยังไม่มีข้อมูลในระบบ</td></tr>';
+                return;
+            }
+
+            tb.innerHTML = '';
+            res.summaryData.forEach((row, index) => {
+                tb.innerHTML += `
+                    <tr>
+                        <td style="text-align: center;">${index + 1}</td>
+                        <td style="font-weight: 500;">${escapeHTML(row.faculty)}</td>
+                        <td style="text-align: center;">${row.count.toLocaleString()}</td>
+                        <td style="text-align: right; padding-right: 20px; font-weight: bold; color: #2e7d32;">
+                            ${row.totalAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+    } catch(err) {
+        if(tb) tb.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red;">เกิดข้อผิดพลาด: ${err.message}</td></tr>`;
+    }
+};
 </script>
 </body>
 </html>
