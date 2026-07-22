@@ -275,13 +275,6 @@
         <span>รับเเจ้งข้อมูลย้ายสถานศึกษา</span>
     </a>
 </li>
-
-<li class="nav-item admin-nav" style="display:block;">
-    <a href="#" id="navAdminTuitionFee" class="nav-link" style="padding-left: 50px;">
-        <i class="material-icons" style="font-size: 18px;">account_balance_wallet</i><span style="font-size: 14px;">ระบบสรุปจำนวนเงินการกู้ยืม</span>
-    </a>
-</li>
-
             </ul>
         </aside>
 
@@ -336,7 +329,7 @@
                             </div>
                         </div>
 
-<h3 style="margin-top: 30px; color: #dc2626; display: flex; align-items: center; gap: 10px; font-size: 18px;">
+                          <h3 style="margin-top: 30px; color: #dc2626; display: flex; align-items: center; gap: 10px; font-size: 18px;">
                             <i class="material-icons">security</i> การแจ้งเตือนความปลอดภัย
                         </h3>
                         
@@ -1894,56 +1887,6 @@
     <div class="chart-heading" style="margin-top: 15px; border-bottom: 2px solid #333; font-size: 18px;">ข้อมูลเชิงลึกรายคณะ (จัดอันดับตามจำนวนยื่น)</div>
     <div id="facultyCardsContainer" class="fac-grid">
         <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #999;">กำลังประมวลผลข้อมูล</div>
-    </div>
-</div>
-
-<div id="adminTuitionFeeSection" class="section">
-    <div class="card">
-        <h2><i class="material-icons" style="color: #2e7d32;">account_balance_wallet</i> ตารางแสดงจำนวนนักศึกษาและจำนวนเงินกองทุนฯ</h2>
-        
-        <div style="background: #e8f5e9; padding: 20px; border-radius: 12px; border: 1px solid #c8e6c9; margin-bottom: 20px;">
-            <label style="font-weight:bold; color:#2e7d32;"><i class="material-icons" style="vertical-align:bottom;">upload_file</i> นำเข้าข้อมูล</label>
-            <div style="display:flex; gap:10px; margin-top:10px; flex-wrap: wrap;">
-                <input type="file" id="tuitionExcelInput" accept=".xlsx, .xls" class="modern-input" style="background:white; padding:8px; flex:1;">
-                <select id="tuitionBorrowerType" class="modern-input" style="width: 200px; font-weight:bold;">
-                    <option value="รายเก่า">นำเข้ากลุ่มผู้กู้ "รายเก่า"</option>
-                    <option value="รายใหม่">นำเข้ากลุ่มผู้กู้ "รายใหม่"</option>
-                </select>
-                <button class="btn btn-primary" onclick="uploadTuitionExcel()" style="background:#2e7d32; border:none; height:45px;">
-                    <i class="material-icons" style="vertical-align:middle; margin-right:5px;">backup</i> นำเข้าข้อมูล
-                </button>
-            </div>
-        </div>
-
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
-             <h3 style="margin:0;"><i class="material-icons" style="vertical-align: middle;">dashboard</i> แดชบอร์ดสรุปยอดการเบิกเงิน (แยกตามคณะ)</h3>
-             <button class="btn btn-login-new" onclick="exportTuitionFeeReport()" style="height: 45px; background: linear-gradient(135deg, #f57c00 0%, #ef6c00 100%);">
-                <i class="material-icons" style="vertical-align:middle;">file_download</i> ออกรายงานส่งผู้บริหาร
-             </button>
-        </div>
-
-        <div class="table-container">
-            <table class="clean-table" id="tuitionDashboardTable">
-                <thead>
-                    <tr>
-                        <th style="width: 10%; text-align: center;">ลำดับ</th>
-                        <th style="width: 40%;">คณะ</th>
-                        <th style="width: 20%; text-align: center;">จำนวนนักศึกษา (คน)</th>
-                        <th style="width: 30%; text-align: right; padding-right: 20px;">ยอดค่าเล่าเรียนที่เบิก (บาท)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td colspan="4" style="text-align:center; padding: 20px;">กำลังโหลดข้อมูล...</td></tr>
-                </tbody>
-                <tfoot style="background: #f1f5f9; font-weight: bold; font-size: 16px;">
-                    <tr>
-                        <td colspan="2" style="text-align: right; padding: 15px;">รวมทั้งสิ้น:</td>
-                        <td id="tuitionTotalCount" style="text-align: center; color: #1976D2; padding: 15px;">0</td>
-                        <td id="tuitionTotalAmount" style="text-align: right; color: #d32f2f; padding: 15px 20px;">0.00</td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
     </div>
 </div>
 
@@ -8912,107 +8855,6 @@ async function executeAdminSuspendVerifyPage(studentId, reason) {
             Swal.fire('Error', e.message, 'error');
         }
     };
-
-    setupNav('navAdminTuitionFee', 'adminTuitionFeeSection');
-
-const originalShowPage = window.showPage;
-window.showPage = async (id) => {
-    originalShowPage(id);
-    if(id === 'adminTuitionFeeSection') loadTuitionFeeDashboard();
-};
-
-window.uploadTuitionExcel = () => {
-    const fileInput = document.getElementById('tuitionExcelInput');
-    const borrowerType = document.getElementById('tuitionBorrowerType').value;
-    
-    if(!fileInput.files[0]) return Swal.fire('แจ้งเตือน', 'กรุณาเลือกไฟล์ Excel', 'warning');
-    
-    Swal.fire({
-        title: 'กำลังอัปโหลด', 
-        allowOutsideClick: false, 
-        didOpen: () => Swal.showLoading()
-    });
-    
-    const reader = new FileReader();
-    reader.onload = async e => {
-        try {
-            const res = await callApi("uploadTuitionFeeExcel", {
-                fileName: fileInput.files[0].name,
-                mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                content: e.target.result.split(',')[1],
-                borrowerType: borrowerType,
-                adminId: adminId,
-                token: userToken
-            });
-            if(checkAuthError(res)) return;
-            if (res.success) {
-                Swal.fire('สำเร็จ', res.message, 'success');
-                fileInput.value = '';
-                loadTuitionFeeDashboard();
-            } else {
-                Swal.fire('แจ้งเตือน', res.message, 'warning');
-            }
-        } catch(err) {
-            Swal.fire('Error', err.message, 'error');
-        }
-    };
-    reader.readAsDataURL(fileInput.files[0]);
-};
-
-window.loadTuitionFeeDashboard = async () => {
-    const tb = document.querySelector('#tuitionDashboardTable tbody');
-    if(tb) tb.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 30px;">กำลังประมวลผล...</td></tr>';
-    
-    try {
-        const res = await callApi("getTuitionFeeDashboardStats", { adminId: adminId, token: userToken });
-        if(checkAuthError(res)) return;
-        
-        let totalCount = 0;
-        let totalAmount = 0;
-        
-        if (res.success && res.data.length > 0) {
-            tb.innerHTML = '';
-            res.data.forEach((row, i) => {
-                totalCount += row.count;
-                totalAmount += row.amount;
-                tb.innerHTML += `<tr>
-                    <td style="text-align: center;">${i+1}</td>
-                    <td style="font-weight: bold; color: #333;">${escapeHTML(row.faculty)}</td>
-                    <td style="text-align: center; font-size: 15px;">${row.count.toLocaleString()}</td>
-                    <td style="text-align: right; color: #2e7d32; font-weight: bold; padding-right: 20px; font-size: 15px;">
-                        ${row.amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                    </td>
-                </tr>`;
-            });
-        } else {
-            tb.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 30px; color: #888;">ยังไม่มีข้อมูลในระบบ</td></tr>';
-        }
-        
-        document.getElementById('tuitionTotalCount').textContent = totalCount.toLocaleString();
-        document.getElementById('tuitionTotalAmount').textContent = totalAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-        
-    } catch(err) {
-         if(tb) tb.innerHTML = `<tr><td colspan="4" style="text-align:center;color:red;">Error: ${err.message}</td></tr>`;
-    }
-};
-
-window.exportTuitionFeeReport = async () => {
-    showLoading();
-    try {
-        const res = await callApi("exportTuitionFeeReportTemplate", { adminId: adminId, token: userToken });
-        if(checkAuthError(res)) { hideLoading(); return; }
-        hideLoading();
-        
-        if (res.success) {
-            downloadCSV(res.csvData, res.fileName);
-        } else {
-            Swal.fire('ผิดพลาด', res.message, 'error');
-        }
-    } catch(err) {
-        hideLoading();
-        Swal.fire('Error', err.message, 'error');
-    }
-};
 
 </script>
 </body>
