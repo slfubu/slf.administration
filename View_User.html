@@ -120,31 +120,34 @@
                             </div>
                             <div style="font-size: 14px; font-weight: bold; color: #555;" id="cardStudentId">-</div>
                         </div>
-                        <div class="student-card-right">
-                            <img src="https://lh3.googleusercontent.com/d/1RZyiY78Czi9T7-gZjUfAJ6yCHCLRI7UK" alt="UBU Logo" class="login-logo">
-                            <div class="student-header">
+
+                        <div class="student-card-right" style="position: relative;">
+                            <img src="https://lh3.googleusercontent.com/d/1RZyiY78Czi9T7-gZjUfAJ6yCHCLRI7UK" alt="UBU Logo" style="position: absolute; top: 15px; right: 20px; width: 100px; opacity: 0.15; pointer-events: none; z-index: 0;">
+                            
+                            <div class="student-header" style="position: relative; z-index: 1;">
                                 <div class="student-title-th" id="cardFullName">-</div>
                                 <div class="student-title-en">Ubon Ratchathani University</div>
                             </div>
-                            <div class="info-grid">
-                          <div class="info-item">
-                          <span class="info-label">คณะ/สังกัด:</span>
-                          <span class="info-value" id="cardFaculty">-</span>
+                            <div class="info-grid" style="position: relative; z-index: 1;">
+                                <div class="info-item">
+                                    <span class="info-label">คณะ/สังกัด:</span>
+                                    <span class="info-value" id="cardFaculty">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">อีเมล:</span>
+                                    <span class="info-value" id="cardEmail">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">สถานะบัญชี:</span>
+                                    <span class="info-value" style="color: green; font-weight: bold;"><i class="material-icons" style="font-size:14px; vertical-align:text-bottom;">verified_user</i> ปกติ</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">สถานะเเจ้งขอกู้ยืม กยศ. 2569:</span>
+                                    <span class="info-value" id="cardLoanStatus"><span style="color: #999;">กำลังตรวจสอบข้อมูล</span></span>
+                                </div>
+                            </div>
                         </div>
-    <div class="info-item">
-        <span class="info-label">อีเมล:</span>
-        <span class="info-value" id="cardEmail">-</span>
-    </div>
-    <div class="info-item">
-        <span class="info-label">สถานะบัญชี:</span>
-        <span class="info-value" style="color: green; font-weight: bold;"><i class="material-icons" style="font-size:14px; vertical-align:text-bottom;">verified_user</i> ปกติ</span>
-    </div>
-    <div class="info-item">
-        <span class="info-label">สถานะเเจ้งขอกู้ยืม กยศ. 2569:</span>
-        <span class="info-value" id="cardLoanStatus"><span style="color: #999;">กำลังตรวจสอบข้อมูล</span></span>
-    </div>
-</div>
-                        </div>
+
                     </div>
                 </div>
 
