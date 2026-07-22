@@ -3451,6 +3451,7 @@
         if(id === 'adminTransferSection') {loadTransferData();
         }
         if(id === 'adminLoan2569DashboardSection') loadLoanFacultyStats();
+        if(id === 'adminLoanImportDashboardSection') loadGysDashboardData();
     };
 
 
@@ -3490,6 +3491,7 @@
     setupNav('navAdminAnnouncement', 'adminAnnouncementSection');
     setupNav('navAdminTransfer', 'adminTransferSection');
     setupNav('navAdminLoan2569Dashboard', 'adminLoan2569DashboardSection');
+    setupNav('navAdminLoanImportDashboard', 'adminLoanImportDashboardSection');
 
 
     document.querySelectorAll('.submenu-toggle').forEach(item => {
@@ -8924,9 +8926,6 @@ async function executeAdminSuspendVerifyPage(studentId, reason) {
             Swal.fire('Error', e.message, 'error');
         }
     };
-
-    // 1. ลงทะเบียนเมนูให้คลิกแล้วเปลี่ยนหน้า
-setupNav('navAdminLoanImportDashboard', 'adminLoanImportDashboardSection', loadGysDashboardData);
 
 // 2. ฟังก์ชันอัปโหลดไฟล์ Excel
 window.uploadGysExcelFile = () => {
