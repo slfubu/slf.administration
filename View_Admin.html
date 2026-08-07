@@ -8903,25 +8903,26 @@ async function executeAdminSuspendVerifyPage(studentId, reason) {
         }
     };
 
-    window.openWalkInModal = () => {
-        document.getElementById('walkInStudentId').value = '';
-        const select = document.getElementById('walkInActId');
-        select.innerHTML = '<option value="">-- โหลดข้อมูลกิจกรรม... --</option>';
-        document.getElementById('walkInModal').style.display = 'flex';
-
-        select.innerHTML = '<option value="">-- เลือกกิจกรรมที่จะเพิ่มนักศึกษา --</option>';
-        const today = new Date(); 
-        today.setHours(0,0,0,0);
-        
-        const upcomingActs = adminActivitiesCache.filter(a => new Date(a.date) >= today);
-        if(upcomingActs.length === 0) {
-            select.innerHTML = '<option value="">ไม่มีกิจกรรมที่กำลังเปิดรับ</option>';
-        } else {
-            upcomingActs.forEach(a => {
-                select.innerHTML += `<option value="${a.id}">${formatDate(a.date)} (${a.period}) - ${a.name}</option>`;
-            });
-        }
-    };
+    window.openWalkInModal = () => { 
+    const actSelect = document.getElementById('walkInActId');
+    if (actSelect) {
+        actSelect.innerHTML = '<option value="">-- เลือกรอบกิจกรรม --</option>';
+        const sortedActivities = [...adminActivitiesCache].sort((a, b) => new Date(b.date) - new Date(a.date));
+        sortedActivities.forEach(act => {
+            if(act.status === 'Hide') return; 
+            const dateStr = formatDate(act.date);
+            actSelect.innerHTML += `<option value="${escapeHTML(act.id)}">${escapeHTML(act.name)} - วันที่ ${dateStr} (${escapeHTML(act.period)})</option>`;
+        });
+    }
+    const studentInput = document.getElementById('walkInStudentId');
+    if (studentInput) {
+        studentInput.value = '';
+    }
+    const modal = document.getElementById('walkInModal');
+    if (modal) {
+        modal.style.display = 'flex'; 
+    }
+};
 
     window.submitWalkIn = async () => {
         const sid = document.getElementById('walkInStudentId').value.trim();
