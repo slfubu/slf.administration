@@ -1948,18 +1948,52 @@
             </div>
         </div>
 
-        <h3 style="color: #333; margin-bottom: 15px; font-size: 18px; border-bottom: 2px solid #eee; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+        <!-- บล็อกใหม่: ฟอร์มบันทึกยอดผู้กู้เฉพาะค่าครองชีพ -->
+        <div style="background: #fff8e1; padding: 20px; border-radius: 12px; border: 1px solid #ffe0b2; margin-bottom: 25px;">
+            <h4 style="margin-top: 0; margin-bottom: 15px; color: #f57c00; display: flex; align-items: center; gap: 5px;">
+                <i class="material-icons">edit_note</i> บันทึกยอดผู้กู้ยืมเฉพาะค่าครองชีพ (ไม่ระบุคณะ) สำหรับเจ้าหน้าที่
+            </h4>
+            <div style="display:flex; gap:15px; align-items:center; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 150px;">
+                    <label style="font-size:14px; font-weight:bold;">จำนวนผู้กู้ (คน)</label>
+                    <input type="number" id="gysSpecialCount" class="modern-input" placeholder="ระบุจำนวน" oninput="document.getElementById('gysSpecialAmount').value = (this.value * 18000).toLocaleString()" style="margin-bottom:0; height: 45px;">
+                </div>
+                <div style="display:flex; align-items:center; padding-top:20px; font-weight:bold; font-size: 16px;"> X 18,000 บาท = </div>
+                <div style="flex: 1; min-width: 150px;">
+                    <label style="font-size:14px; font-weight:bold;">ยอดเงินที่ระบบคำนวณให้อัตโนมัติ (บาท)</label>
+                    <input type="text" id="gysSpecialAmount" class="modern-input" readonly placeholder="-" style="margin-bottom:0; background:#eee; font-weight:bold; color:#d32f2f; height: 45px;">
+                </div>
+                <div style="padding-top: 20px;">
+                    <button class="btn btn-success" onclick="saveGysSpecialLiving()" style="height: 45px; white-space: nowrap; font-size:15px;">
+                        <i class="material-icons">save</i> บันทึกยอดค่าครองชีพ
+                    </button>
+                </div>
+            </div>
+            <small style="color: #d84315; margin-top:10px; display:block;">* คำเตือน: ระบบจะบันทึกยอดนี้อ้างอิงจาก <b>ปีการศึกษา</b> และ <b>ภาคการศึกษา</b> ที่ท่านเลือกกรองข้อมูลด้านล่าง</small>
+        </div>
+
+        <h3 style="color: #333; margin-bottom: 15px; font-size: 18px; border-bottom: 2px solid #eee; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
             <div><i class="material-icons" style="vertical-align: text-bottom;">bar_chart</i> สรุปข้อมูลแยกตามคณะ</div>
             
-            <div style="display: flex; gap: 10px;">
-                <!-- เพิ่มตัวกรองตาราง -->
-                <select id="gysFilterType" class="modern-input" style="margin-bottom: 0; padding: 5px 10px; width: auto; height: 35px; font-size: 14px;" onchange="renderGysTable()">
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <!-- เพิ่มตัวกรอง ปีการศึกษา และ ภาคการศึกษา -->
+                <select id="gysFilterYear" class="modern-input" style="margin-bottom: 0; padding: 5px 10px; width: auto; height: 35px; font-size: 14px;" onchange="loadGysDashboardData()">
+                    <option value="all">ทุกปีการศึกษา</option>
+                </select>
+                <select id="gysFilterTerm" class="modern-input" style="margin-bottom: 0; padding: 5px 10px; width: auto; height: 35px; font-size: 14px;" onchange="loadGysDashboardData()">
+                    <option value="all">ทุกภาคการศึกษา</option>
+                </select>
+                <!-- ตัวกรองตารางเดิม -->
+                <select id="gysFilterType" class="modern-input" style="margin-bottom: 0; padding: 5px 10px; width: auto; height: 35px; font-size: 14px;" onchange="loadGysDashboardData()">
                     <option value="all">แสดงทุกประเภท</option>
                     <option value="รายเก่า">เฉพาะรายเก่า</option>
                     <option value="รายใหม่">เฉพาะรายใหม่</option>
                 </select>
                 <button class="btn btn-secondary" onclick="loadGysDashboardData()" style="padding: 5px 15px; height: 35px;">
                     <i class="material-icons" style="font-size: 18px;">refresh</i> รีเฟรช
+                </button>
+                <button class="btn btn-info" onclick="downloadGysSummary()" style="padding: 5px 15px; height: 35px; background: #0288d1; color: white;">
+                    <i class="material-icons" style="font-size: 18px;">download</i> ดาวน์โหลดรายงาน
                 </button>
             </div>
         </h3>
@@ -9033,7 +9067,6 @@ window.renderGysTable = () => {
     if(!tb) return;
     tb.innerHTML = '';
 
-    // กรองข้อมูลตามที่เลือก
     let dataToShow = window.gysSummaryCache;
     if (filterType !== 'all') {
         dataToShow = window.gysSummaryCache.filter(row => row.borrowerType === filterType);
@@ -9061,6 +9094,125 @@ window.renderGysTable = () => {
             </tr>
         `;
     });
+};
+
+window.loadGysDashboardData = async () => {
+    const year = document.getElementById('gysFilterYear') ? document.getElementById('gysFilterYear').value : 'all';
+    const term = document.getElementById('gysFilterTerm') ? document.getElementById('gysFilterTerm').value : 'all';
+    const type = document.getElementById('gysFilterType') ? document.getElementById('gysFilterType').value : 'all';
+    
+    showLoading();
+    try {
+        const res = await callApi("getGysDashboardSummary", { adminId: adminId, token: userToken, year: year, term: term, type: type });
+        if(checkAuthError(res)) { hideLoading(); return; }
+        hideLoading();
+        
+        if(res.success) {
+            document.getElementById('gysTotalStudents').textContent = res.grandTotalStudents.toLocaleString();
+            document.getElementById('gysTotalAmount').textContent = res.grandTotalAmount.toLocaleString(undefined, {minimumFractionDigits: 2});
+            document.getElementById('gysOldCount').textContent = res.totalOld.toLocaleString();
+            document.getElementById('gysNewCount').textContent = res.totalNew.toLocaleString();
+            
+            const ySel = document.getElementById('gysFilterYear');
+            const tSel = document.getElementById('gysFilterTerm');
+            
+            if(ySel && ySel.options.length <= 1 && res.years.length > 0) {
+                res.years.forEach(y => ySel.add(new Option('ปีการศึกษา ' + y, y)));
+                ySel.value = year;
+            }
+            if(tSel && tSel.options.length <= 1 && res.terms.length > 0) {
+                res.terms.forEach(t => tSel.add(new Option('ภาคการศึกษา ' + t, t)));
+                tSel.value = term;
+            }
+
+            if(document.getElementById('gysSpecialCount')) {
+                document.getElementById('gysSpecialCount').value = res.specialCount > 0 ? res.specialCount : '';
+                document.getElementById('gysSpecialAmount').value = res.specialCount > 0 ? (res.specialCount * 18000).toLocaleString() : '';
+            }
+            
+            // วาดตาราง
+            const tb = document.querySelector('#gysSummaryTable tbody');
+            if(tb) {
+                tb.innerHTML = '';
+                if(res.summaryData.length === 0) {
+                    tb.innerHTML = '<tr><td colspan="5" style="text-align:center;">ไม่พบข้อมูลในตัวกรองนี้</td></tr>';
+                } else {
+                    res.summaryData.forEach((row, i) => {
+                        let facStyle = row.faculty === 'ยอดผู้กู้ยืมเฉพาะค่าครองชีพไม่ระบุคณะ' ? 'color:#d32f2f; font-weight:bold;' : '';
+                        let typeStyle = row.borrowerType === 'เฉพาะค่าครองชีพ' ? 'color:#d32f2f; font-weight:bold;' : '';
+                        
+                        tb.innerHTML += `<tr>
+                            <td style="text-align:center; ${facStyle}">${i+1}</td>
+                            <td style="${facStyle}">${escapeHTML(row.faculty)}</td>
+                            <td style="text-align:center; ${typeStyle}">${escapeHTML(row.borrowerType)}</td>
+                            <td style="text-align:center; ${facStyle}">${row.count.toLocaleString()}</td>
+                            <td style="text-align:right; padding-right:20px; font-weight:bold; ${facStyle}">${row.totalAmount.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                        </tr>`;
+                    });
+                }
+            }
+        }
+    } catch(err) {
+        hideLoading();
+        console.error(err);
+    }
+};
+
+window.saveGysSpecialLiving = async () => {
+    const year = document.getElementById('gysFilterYear') ? document.getElementById('gysFilterYear').value : 'all';
+    const term = document.getElementById('gysFilterTerm') ? document.getElementById('gysFilterTerm').value : 'all';
+    const count = document.getElementById('gysSpecialCount').value;
+
+    if(year === 'all' || term === 'all') {
+        return Swal.fire('แจ้งเตือน', 'กรุณาเลือก ปีการศึกษา และ ภาคการศึกษา ก่อนบันทึกข้อมูลเฉพาะค่าครองชีพ (ห้ามเลือกแบบ "ทุกปีการศึกษา")', 'warning');
+    }
+
+    if(count === '' || count < 0) {
+        return Swal.fire('แจ้งเตือน', 'กรุณาระบุจำนวนคนที่ถูกต้อง', 'warning');
+    }
+
+    showLoading();
+    try {
+        const res = await callApi("saveGysSpecialLivingCount", { year: year, term: term, count: count, adminId: adminId, token: userToken });
+        if(checkAuthError(res)) { hideLoading(); return; }
+        hideLoading();
+        
+        if(res.success) {
+            Swal.fire('สำเร็จ', res.message, 'success');
+            loadGysDashboardData(); 
+        } else {
+            Swal.fire('ผิดพลาด', res.message, 'error');
+        }
+    } catch(err) {
+        hideLoading();
+        Swal.fire('Error', err.message, 'error');
+    }
+};
+
+window.downloadGysSummary = async () => {
+    const year = document.getElementById('gysFilterYear') ? document.getElementById('gysFilterYear').value : 'all';
+    const term = document.getElementById('gysFilterTerm') ? document.getElementById('gysFilterTerm').value : 'all';
+    const type = document.getElementById('gysFilterType') ? document.getElementById('gysFilterType').value : 'all';
+    
+    showLoading('ระบบกำลังเตรียมไฟล์รูปแบบ');
+    try {
+        const res = await callApi("getGysSummaryExport", { year: year, term: term, type: type, adminId: adminId, token: userToken });
+        if(checkAuthError(res)) { hideLoading(); return; }
+        hideLoading();
+        
+        if(res.success) {
+            const blob = new Blob([res.csvData], {type: 'text/csv;charset=utf-8;'}); 
+            const link = document.createElement("a"); 
+            link.href = URL.createObjectURL(blob); 
+            link.download = res.fileName; 
+            link.click(); 
+        } else {
+            Swal.fire('ผิดพลาด', res.message, 'error');
+        }
+    } catch(err) {
+        hideLoading();
+        Swal.fire('Error', err.message, 'error');
+    }
 };
 
 </script>
