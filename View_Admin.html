@@ -1898,11 +1898,11 @@
 <!-- ส่วนหน้าจอสรุปยอดผู้กู้ยืมจาก Excel -->
 <div id="adminLoanImportDashboardSection" class="section">
     <div class="card">
-        <h2><i class="material-icons" style="color: #1976D2;">pie_chart</i> แดชบอร์ดสรุปยอดเงินกู้ยืม (นำเข้าจากไฟล์ กยศ.)</h2>
+        <h2><i class="material-icons" style="color: #1976D2;">pie_chart</i> ฐานข้อมูลสรุปยอดเงินกู้ยืม กยศ. มหาวิทยาลัยอุบลราชธานี </h2>
         
         <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #bbdefb;">
             <label style="font-weight:bold; font-size:16px; color:#1565c0;">
-                <i class="material-icons" style="vertical-align:bottom;">upload_file</i> นำเข้าไฟล์ข้อมูลจากระบบ กยศ. (เริ่มอ่านข้อมูลแถวที่ 4)
+                <i class="material-icons" style="vertical-align:bottom;">upload_file</i> นำเข้าไฟล์ข้อมูลจากระบบ กยศ. (ระบบเริ่มอ่านข้อมูลแถวที่ 4)
             </label>
             <div style="display:flex; gap:10px; align-items:center; margin-top:15px; flex-wrap: wrap;">
                 <!-- เพิ่ม Dropdown ให้เลือกว่าเป็นไฟล์ของใคร -->
@@ -1924,19 +1924,19 @@
         <div class="admin-stat-grid" style="margin-bottom: 25px;">
             <div class="stat-card bg-blue">
                 <i class="material-icons stat-watermark">groups</i>
-                <div class="stat-title">จำนวนนักศึกษาทั้งหมด</div>
+                <div class="stat-title">จำนวนนักศึกษากู้ยืมทั้งหมด</div>
                 <div class="stat-value" id="gysTotalStudents">0</div>
                 <div class="stat-unit">คน</div>
             </div>
             <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white;">
                 <i class="material-icons stat-watermark">history</i>
-                <div class="stat-title">ผู้กู้รายเก่า</div>
+                <div class="stat-title">จำนวนผู้กู้รายเก่า</div>
                 <div class="stat-value" id="gysOldCount">0</div>
                 <div class="stat-unit">คน</div>
             </div>
             <div class="stat-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
                 <i class="material-icons stat-watermark">fiber_new</i>
-                <div class="stat-title">ผู้กู้รายใหม่</div>
+                <div class="stat-title">จำนวนผู้กู้รายใหม่</div>
                 <div class="stat-value" id="gysNewCount">0</div>
                 <div class="stat-unit">คน</div>
             </div>
@@ -1968,7 +1968,7 @@
                     </button>
                 </div>
             </div>
-            <small style="color: #d32f2f; margin-top:15px; display:block; font-size: 13px;">* คำเตือน: ระบบจะบันทึกยอดนี้อ้างอิงจาก <b style="color: #d32f2f;">ปีการศึกษา</b> และ <b style="color: #d32f2f;">ภาคการศึกษา</b> ที่ท่านเลือกกรองข้อมูลด้านล่าง</small>
+            <small style="color: #d32f2f; margin-top:15px; display:block; font-size: 13px;">* คำเตือน: ระบบจะบันทึกยอดนี้อ้างอิงจาก <b style="color: #d32f2f;">ปีการศึกษา</b> และ <b style="color: #d32f2f;">ภาคการศึกษา</b> ที่ท่านเลือกกรองข้อมูลด้านล่าง หากดำเนินการผิดพลาดกรุณาติดต่อผู้พัฒนาระบบ</small>
         </div>
 
         <h3 style="color: #333; margin-bottom: 15px; font-size: 18px; border-bottom: 2px solid #eee; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
@@ -1995,10 +1995,9 @@
             </div>
         </h3>
 
-        <!-- ส่วนที่เพิ่มใหม่: สำหรับโหลดไฟล์ AVS แยกตามวันที่ -->
-        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px dashed #cbd5e1; margin-bottom: 20px;">
+        <div style="display: flex; justify-content: flex-end; gap: 10px; align-items: center; flex-wrap: wrap; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px dashed #cbd5e1; margin-bottom: 20px;">
             <span style="font-weight: bold; color: #d97706; font-size: 15px;">
-                <i class="material-icons" style="vertical-align: middle;">assignment_turned_in</i> ส่งออกไฟล์ AVS:
+                <i class="material-icons" style="vertical-align: middle;">assignment_turned_in</i> สร้างไฟล์ส่งออก AVS ลงระบบบริการการศึกษา reg :
             </span>
             <select id="avsDateSelect" class="modern-input" style="width: auto; height: 38px; margin-bottom: 0; font-size: 14px;">
                 <option value="">-- โหลดวันที่อัปโหลด --</option>
