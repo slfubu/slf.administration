@@ -9193,7 +9193,6 @@ window.loadGysDashboardData = async () => {
     }
 };
 
-// ฟังก์ชันสำหรับปุ่ม "บันทึกยอดค่าครองชีพ"
 window.saveGysSpecialLiving = async () => {
     const year = document.getElementById('gysFilterYear') ? document.getElementById('gysFilterYear').value : 'all';
     const term = document.getElementById('gysFilterTerm') ? document.getElementById('gysFilterTerm').value : 'all';
@@ -9207,7 +9206,6 @@ window.saveGysSpecialLiving = async () => {
         return Swal.fire('แจ้งเตือน', 'กรุณาระบุจำนวนคนที่ถูกต้อง', 'warning');
     }
 
-    // แสดง Pop-up ยืนยันให้เจ้าหน้าที่ตรวจสอบ ปีการศึกษา และ ภาคเรียน อีกครั้ง
     Swal.fire({
         title: 'ยืนยันการบันทึกข้อมูล',
         html: `คุณกำลังบันทึกยอดผู้กู้ยืมเฉพาะค่าครองชีพ จำนวน <b>${count}</b> คน<br><br>` +
@@ -9229,19 +9227,17 @@ window.saveGysSpecialLiving = async () => {
                 if(checkAuthError(res)) { hideLoading(); return; }
                 
                 if(res.success) {
-                    // เคลียร์ข้อมูลในช่องหลังบันทึกเสร็จ
                     document.getElementById('gysSpecialCount').value = '';
                     document.getElementById('gysSpecialAmount').value = '';
                     
-                    // โหลดข้อมูลตารางใหม่ทันที 
                     await loadGysDashboardData(); 
                     
-                    hideLoading(); // ปิด Loading ของการเซฟ
+                    hideLoading(); 
                     Swal.fire({
                         title: 'สำเร็จ', 
                         text: res.message, 
                         icon: 'success',
-                        timer: 1500, // ให้ปิดหน้าต่างแจ้งเตือนเองใน 1.5 วินาที
+                        timer: 1500, 
                         showConfirmButton: false
                     });
                 } else {
@@ -9259,36 +9255,39 @@ window.saveGysSpecialLiving = async () => {
 window.downloadGysSummary = async () => {
     const year = document.getElementById('gysFilterYear') ? document.getElementById('gysFilterYear').value : 'all';
     
-    showLoading('กำลังสร้างไฟล์ Excel (รูปแบบตารางผสานเซลล์)...');
+    showLoading('ระบบกำลังสร้างไฟล์ Excel');
     try {
         const res = await callApi("getGysSummaryExport", { year: year, adminId: adminId, token: userToken });
         if(checkAuthError(res)) { hideLoading(); return; }
         hideLoading();
         
         if(res.success) {
-            // สร้าง Workbook ของ Excel
             const wb = XLSX.utils.book_new();
             const ws = XLSX.utils.aoa_to_sheet(res.aoa);
 
-            // ตั้งค่า Merge Cells ให้ตรงกับในรูปภาพ
             ws['!merges'] = [
-                { s: {r: 0, c: 0}, e: {r: 0, c: 12} }, // แถวบนสุด (ชื่อตาราง)
-                { s: {r: 1, c: 0}, e: {r: 2, c: 0} },  // ผสานเซลล์ "คณะ" แนวตั้ง (2 แถว)
-                { s: {r: 1, c: 1}, e: {r: 1, c: 6} },  // ผสานเซลล์ "เทอม 1" แนวนอน (6 คอลัมน์)
-                { s: {r: 1, c: 7}, e: {r: 1, c: 12} }, // ผสานเซลล์ "เทอม 2" แนวนอน (6 คอลัมน์)
-                { s: {r: res.aoa.length - 1, c: 0}, e: {r: res.aoa.length - 1, c: 12} } // แถว Footer (ข้อมูล ณ วันที่)
+                { s: {r: 0, c: 0}, e: {r: 0, c: 12} }, 
+                { s: {r: 1, c: 0}, e: {r: 2, c: 0} },  
+                { s: {r: 1, c: 1}, e: {r: 1, c: 6} },  
+                { s: {r: 1, c: 7}, e: {r: 1, c: 12} }, 
+                { s: {r: res.aoa.length - 1, c: 0}, e: {r: res.aoa.length - 1, c: 12} } 
             ];
             
-            // ตั้งค่าความกว้างคอลัมน์ให้ดูสวยงามเมื่อเปิด
             ws['!cols'] = [
-                { wpx: 250 }, // ความกว้างคอลัมน์ "คณะ"
+                { wpx: 250 }, 
                 { wpx: 120 }, { wpx: 120 }, { wpx: 120 }, { wpx: 120 }, { wpx: 120 }, { wpx: 120 },
                 { wpx: 120 }, { wpx: 120 }, { wpx: 120 }, { wpx: 120 }, { wpx: 120 }, { wpx: 120 }
             ];
 
+            for (let cellAddress in ws) {
+                if (cellAddress[0] === '!') continue; 
+                let cell = ws[cellAddress];
+                if (cell.t === 'n') { 
+                    cell.z = '#,##0'; 
+                }
+            }
+
             XLSX.utils.book_append_sheet(wb, ws, "สรุปยอดเงินกู้ยืม");
-            
-            // ดาวน์โหลดออกมาเป็นไฟล์ Excel (.xlsx) โดยสมบูรณ์
             XLSX.writeFile(wb, res.fileName);
         } else {
             Swal.fire('ผิดพลาด', res.message, 'error');
