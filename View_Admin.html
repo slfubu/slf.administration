@@ -2038,8 +2038,11 @@
                             <div style="font-weight:700; color:#0f172a;">กราฟวงกลม 3 มิติแสดงสัดส่วนผู้กู้ยืม</div>
                             <div id="gysPieYearLabel" style="font-size:13px; color:#64748b; margin-top:3px;">ปีการศึกษา -</div>
                         </div>
+                        <button class="btn btn-info" onclick="downloadGysChartImage('gysBorrowerPieChart', 'gys_borrower_pie_chart')" style="padding: 6px 12px; height: 34px; background:#0ea5e9; color:#fff; border:none; border-radius:8px; font-size:13px; white-space:nowrap;">
+                            <i class="material-icons" style="font-size:16px; vertical-align:middle; margin-right:4px;">image</i> ดาวน์โหลดภาพกราฟ
+                        </button>
                     </div>
-                    <div style="height: 245px; position: relative;">
+                    <div style="height: 270px; position: relative;">
                         <canvas id="gysBorrowerPieChart"></canvas>
                     </div>
                     <div id="gysPieSummary" style="display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:10px; margin-top:12px;"></div>
@@ -9013,6 +9016,26 @@ function adjustHexColor_(hexColor, amount) {
     return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
 }
 
+
+window.downloadGysChartImage = function(canvasId, baseFileName) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas || typeof canvas.toDataURL !== 'function') {
+        return Swal.fire('แจ้งเตือน', 'ไม่พบกราฟที่ต้องการดาวน์โหลด', 'warning');
+    }
+
+    try {
+        const link = document.createElement('a');
+        const stamp = new Date().toISOString().slice(0, 19).replace(/[T:]/g, '-');
+        link.href = canvas.toDataURL('image/png', 1.0);
+        link.download = `${baseFileName || 'chart'}_${stamp}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } catch (err) {
+        Swal.fire('ผิดพลาด', 'ไม่สามารถดาวน์โหลดภาพกราฟได้: ' + err.message, 'error');
+    }
+};
+
 function registerGysPieDepthPlugin_() {
     if (window._gysPieDepthPluginRegistered || typeof Chart === 'undefined') return;
 
@@ -9052,6 +9075,72 @@ function registerGysPieDepthPlugin_() {
                 }
                 ctx.restore();
             });
+        }
+    });
+
+    Chart.register({
+        id: 'gysPieCalloutLabels',
+        afterDatasetsDraw(chart, args, pluginOptions) {
+            if (!pluginOptions || !pluginOptions.enabled) return;
+            if (!['pie', 'doughnut'].includes(chart.config.type)) return;
+
+            const datasetIndex = Number(pluginOptions.datasetIndex || 0);
+            const meta = chart.getDatasetMeta(datasetIndex);
+            const dataset = chart.data.datasets[datasetIndex];
+            if (!meta || !dataset || !Array.isArray(meta.data)) return;
+
+            const ctx = chart.ctx;
+            const labels = chart.data.labels || [];
+            const values = Array.isArray(dataset.data) ? dataset.data.map(v => Number(v || 0)) : [];
+            const total = values.reduce((sum, value) => sum + value, 0);
+            const lineColor = pluginOptions.lineColor || '#1e3a8a';
+            const textColor = pluginOptions.textColor || '#0f172a';
+            const valueColor = pluginOptions.valueColor || '#334155';
+            const lineWidth = Number(pluginOptions.lineWidth || 2);
+            const armLength = Number(pluginOptions.armLength || 22);
+            const horizontalLength = Number(pluginOptions.horizontalLength || 44);
+            const startOffset = Number(pluginOptions.startOffset || 10);
+
+            ctx.save();
+            meta.data.forEach((arc, i) => {
+                const value = Number(values[i] || 0);
+                if (value <= 0) return;
+
+                const props = arc.getProps(['x', 'y', 'startAngle', 'endAngle', 'outerRadius'], true);
+                const angle = (props.startAngle + props.endAngle) / 2;
+                const cos = Math.cos(angle);
+                const sin = Math.sin(angle);
+                const startX = props.x + cos * (props.outerRadius + startOffset);
+                const startY = props.y + sin * (props.outerRadius + startOffset);
+                const elbowX = props.x + cos * (props.outerRadius + armLength);
+                const elbowY = props.y + sin * (props.outerRadius + armLength);
+                const isRightSide = cos >= 0;
+                const endX = elbowX + (isRightSide ? horizontalLength : -horizontalLength);
+                const endY = elbowY;
+                const percent = total > 0 ? ((value / total) * 100).toFixed(2) : '0.00';
+                const mainLabel = String(labels[i] || '');
+                const valueLabel = `${value.toLocaleString()} คน (${percent}%)`;
+
+                ctx.beginPath();
+                ctx.strokeStyle = lineColor;
+                ctx.lineWidth = lineWidth;
+                ctx.moveTo(startX, startY);
+                ctx.lineTo(elbowX, elbowY);
+                ctx.lineTo(endX, endY);
+                ctx.stroke();
+
+                ctx.fillStyle = textColor;
+                ctx.font = '700 13px Sarabun';
+                ctx.textAlign = isRightSide ? 'left' : 'right';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText(mainLabel, endX + (isRightSide ? 6 : -6), endY - 2);
+
+                ctx.fillStyle = valueColor;
+                ctx.font = '500 12px Sarabun';
+                ctx.textBaseline = 'top';
+                ctx.fillText(valueLabel, endX + (isRightSide ? 6 : -6), endY + 2);
+            });
+            ctx.restore();
         }
     });
 
@@ -9173,7 +9262,7 @@ function renderGysBorrowerComparisonCharts_(res, requestedFilters = {}) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            layout: { padding: { top: 8, bottom: 18 } },
+            layout: { padding: { top: 18, right: 82, bottom: 28, left: 82 } },
             plugins: {
                 legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 10, padding: 18 } },
                 tooltip: {
@@ -9186,7 +9275,18 @@ function renderGysBorrowerComparisonCharts_(res, requestedFilters = {}) {
                         }
                     }
                 },
-                gysPieDepth: { enabled: true, depth: 16, darken: 35 }
+                gysPieDepth: { enabled: true, depth: 16, darken: 35 },
+                gysPieCalloutLabels: {
+                    enabled: true,
+                    datasetIndex: 0,
+                    lineColor: '#1e40af',
+                    textColor: '#0f172a',
+                    valueColor: '#475569',
+                    lineWidth: 2,
+                    armLength: 20,
+                    horizontalLength: 42,
+                    startOffset: 8
+                }
             }
         }
     });
