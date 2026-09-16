@@ -9070,14 +9070,15 @@ function renderGysBorrowerComparisonCharts_(res, requestedFilters = {}) {
 
     if (!barCanvas || !pieCanvas) return;
 
-    if (window.gysYearCompareChart) {
-        window.gysYearCompareChart.destroy();
-        window.gysYearCompareChart = null;
-    }
-    if (window.gysBorrowerPieChartObj) {
-        window.gysBorrowerPieChartObj.destroy();
-        window.gysBorrowerPieChartObj = null;
-    }
+    // ห้ามใช้ window.gysYearCompareChart เพราะ id ของ <canvas> ถูก browser ผูกเป็น global ชื่อเดียวกันได้
+    // ใช้ Chart.getChart(canvas) เพื่อทำลายเฉพาะ Chart instance จริง ป้องกัน destroy is not a function
+    const oldBarChart = (typeof Chart.getChart === 'function') ? Chart.getChart(barCanvas) : window.gysYearCompareChartInstance;
+    if (oldBarChart && typeof oldBarChart.destroy === 'function') oldBarChart.destroy();
+    window.gysYearCompareChartInstance = null;
+
+    const oldPieChart = (typeof Chart.getChart === 'function') ? Chart.getChart(pieCanvas) : window.gysBorrowerPieChartInstance;
+    if (oldPieChart && typeof oldPieChart.destroy === 'function') oldPieChart.destroy();
+    window.gysBorrowerPieChartInstance = null;
 
     const termLabel = requestedFilters.term && requestedFilters.term !== 'all'
         ? `ภาคเรียนที่ ${requestedFilters.term}`
@@ -9097,7 +9098,7 @@ function renderGysBorrowerComparisonCharts_(res, requestedFilters = {}) {
     const newCounts = yearlyData.map(item => Number(item.newCount || 0));
     const totals = yearlyData.map(item => Number(item.totalCount || 0));
 
-    window.gysYearCompareChart = new Chart(barCanvas.getContext('2d'), {
+    window.gysYearCompareChartInstance = new Chart(barCanvas.getContext('2d'), {
         type: 'bar',
         data: {
             labels: barLabels,
@@ -9157,7 +9158,7 @@ function renderGysBorrowerComparisonCharts_(res, requestedFilters = {}) {
     registerGysPieDepthPlugin_();
 
     const pieColors = ['#f59e0b', '#10b981'];
-    window.gysBorrowerPieChartObj = new Chart(pieCanvas.getContext('2d'), {
+    window.gysBorrowerPieChartInstance = new Chart(pieCanvas.getContext('2d'), {
         type: 'pie',
         data: {
             labels: ['รายเก่า', 'รายใหม่'],
