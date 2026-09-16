@@ -1,5 +1,4 @@
-<style>
-    .sidebar.collapsed .nav-header {
+.sidebar.collapsed .nav-header {
     display: none !important;
 }
     
@@ -2399,4 +2398,3 @@
         padding: 30px 20px;
         color: white;
     }
-</style>
