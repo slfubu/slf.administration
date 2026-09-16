@@ -2024,8 +2024,8 @@
             <div style="display:grid; grid-template-columns: minmax(0, 1.65fr) minmax(320px, 1fr); gap: 20px; align-items: stretch;">
                 <div style="background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:16px; min-height:360px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
-                        <div style="font-weight:700; color:#0f172a;">จำนวนผู้กู้ยืมรายใหม่และรายเก่าในแต่ละปีการศึกษา</div>
-                        <div style="font-size:12px; color:#64748b;">นับรวมข้อมูลเฉพาะค่าครองชีพที่เจ้าหน้าที่บันทึกเพิ่ม</div>
+                        <div style="font-weight:700; color:#0f172a;">จำนวนผู้กู้ยืมรายใหม่และรายเก่าแยกตามคณะ</div>
+                        <div style="font-size:12px; color:#64748b;">แสดงทุกคณะในรูปแบบกราฟแท่งคู่ รายเก่า/รายใหม่ พร้อมตัวเลขบนแท่งกราฟ</div>
                     </div>
                     <div style="height: 290px; position: relative;">
                         <canvas id="gysYearCompareChart"></canvas>
@@ -9147,6 +9147,54 @@ function registerGysPieDepthPlugin_() {
     window._gysPieDepthPluginRegistered = true;
 }
 
+function registerGysBarValuePlugin_() {
+    if (window._gysBarValuePluginRegistered || typeof Chart === 'undefined') return;
+
+    Chart.register({
+        id: 'gysBarValueLabels',
+        afterDatasetsDraw(chart, args, pluginOptions) {
+            if (!pluginOptions || !pluginOptions.enabled) return;
+            if (chart.config.type !== 'bar') return;
+
+            const ctx = chart.ctx;
+            chart.data.datasets.forEach((dataset, datasetIndex) => {
+                const meta = chart.getDatasetMeta(datasetIndex);
+                if (!meta || meta.hidden || !Array.isArray(meta.data)) return;
+
+                meta.data.forEach((bar, index) => {
+                    const rawValue = Array.isArray(dataset.data) ? dataset.data[index] : null;
+                    const value = Number(rawValue || 0);
+                    if (!Number.isFinite(value) || value < 0) return;
+
+                    const props = bar.getProps(['x', 'y', 'base'], true);
+                    const barHeight = Math.abs((props.base || 0) - (props.y || 0));
+
+                    ctx.save();
+                    ctx.textAlign = 'center';
+
+                    // แสดงตัวเลขจำนวนบนหัวแท่งกราฟ
+                    ctx.fillStyle = pluginOptions.valueColor || '#0f172a';
+                    ctx.font = pluginOptions.valueFont || '700 12px Sarabun';
+                    ctx.textBaseline = 'bottom';
+                    ctx.fillText(value.toLocaleString(), props.x, props.y - 4);
+
+                    // แสดงชื่อประเภทบนแท่ง ถ้าแท่งมีความสูงเพียงพอ
+                    if (pluginOptions.showSeriesLabel !== false && barHeight >= 28) {
+                        ctx.fillStyle = pluginOptions.seriesColor || '#ffffff';
+                        ctx.font = pluginOptions.seriesFont || '600 10px Sarabun';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(String(dataset.label || ''), props.x, props.base - 12);
+                    }
+
+                    ctx.restore();
+                });
+            });
+        }
+    });
+
+    window._gysBarValuePluginRegistered = true;
+}
+
 function renderGysBorrowerComparisonCharts_(res, requestedFilters = {}) {
     if (typeof Chart === 'undefined') return;
 
@@ -9172,8 +9220,11 @@ function renderGysBorrowerComparisonCharts_(res, requestedFilters = {}) {
     const termLabel = requestedFilters.term && requestedFilters.term !== 'all'
         ? `ภาคเรียนที่ ${requestedFilters.term}`
         : 'ทุกภาคการศึกษา';
+    const yearLabel = requestedFilters.year && requestedFilters.year !== 'all'
+        ? `ปีการศึกษา ${requestedFilters.year}`
+        : 'ทุกปีการศึกษา';
     if (noteEl) {
-        noteEl.textContent = `กราฟเปรียบเทียบนี้สรุปข้อมูลตามตัวกรอง ${termLabel} และนับรวมทั้งรายใหม่/รายเก่าเพื่อใช้เปรียบเทียบสัดส่วนในแต่ละปีการศึกษา`;
+        noteEl.textContent = `กราฟแท่งนี้สรุปข้อมูลตามตัวกรอง ${yearLabel} · ${termLabel} โดยแสดงรายเก่าและรายใหม่แบบคู่กันแยกตามทุกคณะ พร้อมตัวเลขบนแท่งกราฟ`;
     }
 
     if (yearlyData.length === 0) {
@@ -9182,10 +9233,30 @@ function renderGysBorrowerComparisonCharts_(res, requestedFilters = {}) {
         return;
     }
 
-    const barLabels = yearlyData.map(item => `ปีการศึกษา ${item.year}`);
-    const oldCounts = yearlyData.map(item => Number(item.oldCount || 0));
-    const newCounts = yearlyData.map(item => Number(item.newCount || 0));
-    const totals = yearlyData.map(item => Number(item.totalCount || 0));
+    const facultyRows = Array.isArray(res && res.summaryData)
+        ? res.summaryData.filter(row => row && row.isSpecialLiving !== true)
+        : [];
+
+    const facultyMap = {};
+    facultyRows.forEach(row => {
+        const facultyName = String(row.faculty || 'ไม่ระบุคณะ').trim() || 'ไม่ระบุคณะ';
+        if (!facultyMap[facultyName]) {
+            facultyMap[facultyName] = { faculty: facultyName, oldCount: 0, newCount: 0, totalCount: 0 };
+        }
+
+        const count = Number(row.count || 0);
+        if (String(row.borrowerType) === 'รายเก่า') facultyMap[facultyName].oldCount += count;
+        if (String(row.borrowerType) === 'รายใหม่') facultyMap[facultyName].newCount += count;
+        facultyMap[facultyName].totalCount += count;
+    });
+
+    const facultyChartData = Object.values(facultyMap).sort((a, b) => b.totalCount - a.totalCount);
+    const barLabels = facultyChartData.map(item => String(item.faculty || '').replace(/^คณะ/, ''));
+    const oldCounts = facultyChartData.map(item => Number(item.oldCount || 0));
+    const newCounts = facultyChartData.map(item => Number(item.newCount || 0));
+    const totals = facultyChartData.map(item => Number(item.totalCount || 0));
+
+    registerGysBarValuePlugin_();
 
     window.gysYearCompareChartInstance = new Chart(barCanvas.getContext('2d'), {
         type: 'bar',
@@ -9223,14 +9294,35 @@ function renderGysBorrowerComparisonCharts_(res, requestedFilters = {}) {
                         footer: (items) => {
                             const idx = items && items.length ? items[0].dataIndex : -1;
                             if (idx < 0) return '';
-                            return `รวมทั้งปี: ${Number(totals[idx] || 0).toLocaleString()} คน`;
+                            return `รวมทั้งคณะ: ${Number(totals[idx] || 0).toLocaleString()} คน`;
                         }
                     }
+                },
+                gysBarValueLabels: {
+                    enabled: true,
+                    valueColor: '#0f172a',
+                    seriesColor: '#ffffff',
+                    valueFont: '700 12px Sarabun',
+                    seriesFont: '600 10px Sarabun',
+                    showSeriesLabel: true
                 }
             },
             scales: {
-                x: { grid: { display: false } },
-                y: { beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: 'จำนวนผู้กู้ยืม (คน)' } }
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        autoSkip: false,
+                        maxRotation: 35,
+                        minRotation: 35,
+                        font: { size: 11 }
+                    },
+                    title: { display: true, text: 'คณะ / สังกัด' }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: { precision: 0 },
+                    title: { display: true, text: 'จำนวนผู้กู้ยืม (คน)' }
+                }
             }
         }
     });
