@@ -192,8 +192,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const id = document.getElementById('loginStudentId').value.trim();
         const pass = document.getElementById('loginPassword').value;
         
-        const clientIp = await getClientIp(); 
-        const gpsLocation = await getClientLocation(); 
+        // ตรวจ IP และ GPS พร้อมกัน ลดเวลารอจากเดิมที่ต้องรอทีละรายการ
+        const [clientIp, gpsLocation] = await Promise.all([
+            getClientIp(),
+            getClientLocation()
+        ]);
         
         if (!gpsLocation || gpsLocation.includes("Unknown") || gpsLocation.includes("Not Supported")) {
             hideLoading();
@@ -453,7 +456,7 @@ async function getClientLocation() {
                 if (error.code === 3) errMsg = "Timeout";
                 resolve(`Unknown (${errMsg})`);
             },
-            { timeout: 7000, maximumAge: 0 }
+            { timeout: 4500, maximumAge: 60000, enableHighAccuracy: false }
         );
     });
 }
