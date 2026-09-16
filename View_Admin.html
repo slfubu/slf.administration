@@ -2016,36 +2016,23 @@
                     <div id="gysChartFilterNote" style="margin-top:6px; color:#64748b; font-size:13px;">ระบบกำลังประมวลผลข้อมูลกราฟ</div>
                 </div>
                 <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                    <div style="background:#fff7ed; color:#c2410c; border:1px solid #fdba74; border-radius:999px; padding:6px 12px; font-size:13px; font-weight:600;">กราฟแท่ง: เปรียบเทียบรายปี</div>
-                    <div style="background:#eff6ff; color:#1d4ed8; border:1px solid #93c5fd; border-radius:999px; padding:6px 12px; font-size:13px; font-weight:600;">กราฟวงกลม 3 มิติ: สัดส่วนปีที่เลือก</div>
+                    <div style="background:#fff7ed; color:#c2410c; border:1px solid #fdba74; border-radius:999px; padding:6px 12px; font-size:13px; font-weight:600;">กราฟแท่ง: แยกตามคณะ</div>
+                    <div style="background:#eff6ff; color:#1d4ed8; border:1px solid #93c5fd; border-radius:999px; padding:6px 12px; font-size:13px; font-weight:600;">แสดงจำนวน + สัดส่วนเปอร์เซ็นต์</div>
                 </div>
             </div>
 
-            <div style="display:grid; grid-template-columns: minmax(0, 1.65fr) minmax(320px, 1fr); gap: 20px; align-items: stretch;">
-                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:16px; min-height:360px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
+            <div style="background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:16px; min-height:390px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
+                    <div>
                         <div style="font-weight:700; color:#0f172a;">จำนวนผู้กู้ยืมรายใหม่และรายเก่าแยกตามคณะ</div>
-                        <div style="font-size:12px; color:#64748b;">แสดงทุกคณะในรูปแบบกราฟแท่งคู่ รายเก่า/รายใหม่ พร้อมตัวเลขบนแท่งกราฟ</div>
+                        <div style="font-size:12px; color:#64748b;">แสดงทุกคณะในรูปแบบกราฟแท่งคู่ รายเก่า/รายใหม่ พร้อมจำนวนและเปอร์เซ็นต์บนแท่งกราฟ</div>
                     </div>
-                    <div style="height: 290px; position: relative;">
-                        <canvas id="gysYearCompareChart"></canvas>
-                    </div>
+                    <button class="btn btn-info" onclick="downloadGysChartImage('gysYearCompareChart', 'gys_faculty_bar_chart')" style="padding: 6px 12px; height: 34px; background:#0ea5e9; color:#fff; border:none; border-radius:8px; font-size:13px; white-space:nowrap;">
+                        <i class="material-icons" style="font-size:16px; vertical-align:middle; margin-right:4px;">image</i> ดาวน์โหลดภาพกราฟ
+                    </button>
                 </div>
-
-                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:16px; min-height:360px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);">
-                    <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
-                        <div>
-                            <div style="font-weight:700; color:#0f172a;">กราฟวงกลม 3 มิติแสดงสัดส่วนผู้กู้ยืม</div>
-                            <div id="gysPieYearLabel" style="font-size:13px; color:#64748b; margin-top:3px;">ปีการศึกษา -</div>
-                        </div>
-                        <button class="btn btn-info" onclick="downloadGysChartImage('gysBorrowerPieChart', 'gys_borrower_pie_chart')" style="padding: 6px 12px; height: 34px; background:#0ea5e9; color:#fff; border:none; border-radius:8px; font-size:13px; white-space:nowrap;">
-                            <i class="material-icons" style="font-size:16px; vertical-align:middle; margin-right:4px;">image</i> ดาวน์โหลดภาพกราฟ
-                        </button>
-                    </div>
-                    <div style="height: 270px; position: relative;">
-                        <canvas id="gysBorrowerPieChart"></canvas>
-                    </div>
-                    <div id="gysPieSummary" style="display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:10px; margin-top:12px;"></div>
+                <div style="height: 320px; position: relative;">
+                    <canvas id="gysYearCompareChart"></canvas>
                 </div>
             </div>
         </div>
@@ -9157,6 +9144,7 @@ function registerGysBarValuePlugin_() {
             if (chart.config.type !== 'bar') return;
 
             const ctx = chart.ctx;
+            const datasets = Array.isArray(chart.data.datasets) ? chart.data.datasets : [];
             chart.data.datasets.forEach((dataset, datasetIndex) => {
                 const meta = chart.getDatasetMeta(datasetIndex);
                 if (!meta || meta.hidden || !Array.isArray(meta.data)) return;
@@ -9166,20 +9154,26 @@ function registerGysBarValuePlugin_() {
                     const value = Number(rawValue || 0);
                     if (!Number.isFinite(value) || value < 0) return;
 
+                    const facultyTotal = datasets.reduce((sum, ds) => {
+                        const val = Array.isArray(ds.data) ? Number(ds.data[index] || 0) : 0;
+                        return sum + (Number.isFinite(val) ? val : 0);
+                    }, 0);
+                    const percent = facultyTotal > 0 ? ((value / facultyTotal) * 100).toFixed(1) : '0.0';
+
                     const props = bar.getProps(['x', 'y', 'base'], true);
                     const barHeight = Math.abs((props.base || 0) - (props.y || 0));
 
                     ctx.save();
                     ctx.textAlign = 'center';
 
-                    // แสดงตัวเลขจำนวนบนหัวแท่งกราฟ
                     ctx.fillStyle = pluginOptions.valueColor || '#0f172a';
                     ctx.font = pluginOptions.valueFont || '700 12px Sarabun';
                     ctx.textBaseline = 'bottom';
-                    ctx.fillText(value.toLocaleString(), props.x, props.y - 4);
+                    ctx.fillText(`${value.toLocaleString()} คน`, props.x, props.y - 18);
+                    ctx.font = pluginOptions.percentFont || '600 11px Sarabun';
+                    ctx.fillText(`${percent}%`, props.x, props.y - 4);
 
-                    // แสดงชื่อประเภทบนแท่ง ถ้าแท่งมีความสูงเพียงพอ
-                    if (pluginOptions.showSeriesLabel !== false && barHeight >= 28) {
+                    if (pluginOptions.showSeriesLabel !== false && barHeight >= 34) {
                         ctx.fillStyle = pluginOptions.seriesColor || '#ffffff';
                         ctx.font = pluginOptions.seriesFont || '600 10px Sarabun';
                         ctx.textBaseline = 'middle';
@@ -9198,24 +9192,13 @@ function registerGysBarValuePlugin_() {
 function renderGysBorrowerComparisonCharts_(res, requestedFilters = {}) {
     if (typeof Chart === 'undefined') return;
 
-    const yearlyData = Array.isArray(res && res.yearlyComparison) ? res.yearlyComparison : [];
     const barCanvas = document.getElementById('gysYearCompareChart');
-    const pieCanvas = document.getElementById('gysBorrowerPieChart');
     const noteEl = document.getElementById('gysChartFilterNote');
-    const pieYearLabel = document.getElementById('gysPieYearLabel');
-    const pieSummaryEl = document.getElementById('gysPieSummary');
+    if (!barCanvas) return;
 
-    if (!barCanvas || !pieCanvas) return;
-
-    // ห้ามใช้ window.gysYearCompareChart เพราะ id ของ <canvas> ถูก browser ผูกเป็น global ชื่อเดียวกันได้
-    // ใช้ Chart.getChart(canvas) เพื่อทำลายเฉพาะ Chart instance จริง ป้องกัน destroy is not a function
     const oldBarChart = (typeof Chart.getChart === 'function') ? Chart.getChart(barCanvas) : window.gysYearCompareChartInstance;
     if (oldBarChart && typeof oldBarChart.destroy === 'function') oldBarChart.destroy();
     window.gysYearCompareChartInstance = null;
-
-    const oldPieChart = (typeof Chart.getChart === 'function') ? Chart.getChart(pieCanvas) : window.gysBorrowerPieChartInstance;
-    if (oldPieChart && typeof oldPieChart.destroy === 'function') oldPieChart.destroy();
-    window.gysBorrowerPieChartInstance = null;
 
     const termLabel = requestedFilters.term && requestedFilters.term !== 'all'
         ? `ภาคเรียนที่ ${requestedFilters.term}`
@@ -9224,13 +9207,7 @@ function renderGysBorrowerComparisonCharts_(res, requestedFilters = {}) {
         ? `ปีการศึกษา ${requestedFilters.year}`
         : 'ทุกปีการศึกษา';
     if (noteEl) {
-        noteEl.textContent = `กราฟแท่งนี้สรุปข้อมูลตามตัวกรอง ${yearLabel} · ${termLabel} โดยแสดงรายเก่าและรายใหม่แบบคู่กันแยกตามทุกคณะ พร้อมตัวเลขบนแท่งกราฟ`;
-    }
-
-    if (yearlyData.length === 0) {
-        if (pieYearLabel) pieYearLabel.textContent = 'ไม่พบข้อมูลสำหรับสร้างกราฟ';
-        if (pieSummaryEl) pieSummaryEl.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:16px; color:#94a3b8;">ไม่พบข้อมูลกราฟตามเงื่อนไขที่เลือก</div>';
-        return;
+        noteEl.textContent = `กราฟแท่งนี้สรุปข้อมูลตามตัวกรอง ${yearLabel} · ${termLabel} โดยแสดงรายเก่าและรายใหม่แบบคู่กันแยกตามทุกคณะ พร้อมจำนวนและสัดส่วนเปอร์เซ็นต์บนแท่งกราฟ`;
     }
 
     const facultyRows = Array.isArray(res && res.summaryData)
@@ -9251,6 +9228,21 @@ function renderGysBorrowerComparisonCharts_(res, requestedFilters = {}) {
     });
 
     const facultyChartData = Object.values(facultyMap).sort((a, b) => b.totalCount - a.totalCount);
+
+    if (facultyChartData.length === 0) {
+        const ctx = barCanvas.getContext('2d');
+        if (ctx) {
+            ctx.clearRect(0, 0, barCanvas.width, barCanvas.height);
+            ctx.save();
+            ctx.font = '14px Sarabun';
+            ctx.fillStyle = '#94a3b8';
+            ctx.textAlign = 'center';
+            ctx.fillText('ไม่พบข้อมูลกราฟตามเงื่อนไขที่เลือก', barCanvas.width / 2, barCanvas.height / 2);
+            ctx.restore();
+        }
+        return;
+    }
+
     const barLabels = facultyChartData.map(item => String(item.faculty || '').replace(/^คณะ/, ''));
     const oldCounts = facultyChartData.map(item => Number(item.oldCount || 0));
     const newCounts = facultyChartData.map(item => Number(item.newCount || 0));
@@ -9291,6 +9283,13 @@ function renderGysBorrowerComparisonCharts_(res, requestedFilters = {}) {
                 legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 10, padding: 18 } },
                 tooltip: {
                     callbacks: {
+                        label: (ctx) => {
+                            const idx = ctx.dataIndex;
+                            const value = Number(ctx.raw || 0);
+                            const total = Number(totals[idx] || 0);
+                            const pct = total > 0 ? ((value / total) * 100).toFixed(2) : '0.00';
+                            return `${ctx.dataset.label}: ${value.toLocaleString()} คน (${pct}%)`;
+                        },
                         footer: (items) => {
                             const idx = items && items.length ? items[0].dataIndex : -1;
                             if (idx < 0) return '';
@@ -9303,6 +9302,7 @@ function renderGysBorrowerComparisonCharts_(res, requestedFilters = {}) {
                     valueColor: '#0f172a',
                     seriesColor: '#ffffff',
                     valueFont: '700 12px Sarabun',
+                    percentFont: '600 11px Sarabun',
                     seriesFont: '600 10px Sarabun',
                     showSeriesLabel: true
                 }
@@ -9326,80 +9326,6 @@ function renderGysBorrowerComparisonCharts_(res, requestedFilters = {}) {
             }
         }
     });
-
-    const pieYear = String((res && res.selectedPieYear) || (yearlyData[yearlyData.length - 1] && yearlyData[yearlyData.length - 1].year) || '');
-    const pieData = (res && res.selectedPieData && String(res.selectedPieData.year || '') === pieYear)
-        ? res.selectedPieData
-        : (yearlyData.find(item => String(item.year) === pieYear) || { year: pieYear, oldCount: 0, newCount: 0, totalCount: 0, oldPercent: 0, newPercent: 0 });
-
-    if (pieYearLabel) {
-        pieYearLabel.textContent = pieYear ? `ปีการศึกษา ${pieYear} · ${termLabel}` : 'ไม่พบข้อมูลกราฟวงกลม';
-    }
-
-    registerGysPieDepthPlugin_();
-
-    const pieColors = ['#f59e0b', '#10b981'];
-    window.gysBorrowerPieChartInstance = new Chart(pieCanvas.getContext('2d'), {
-        type: 'pie',
-        data: {
-            labels: ['รายเก่า', 'รายใหม่'],
-            datasets: [{
-                data: [Number(pieData.oldCount || 0), Number(pieData.newCount || 0)],
-                backgroundColor: pieColors,
-                borderColor: '#ffffff',
-                borderWidth: 2,
-                hoverOffset: 10
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            layout: { padding: { top: 18, right: 82, bottom: 28, left: 82 } },
-            plugins: {
-                legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 10, padding: 18 } },
-                tooltip: {
-                    callbacks: {
-                        label: (ctx) => {
-                            const total = Number(pieData.totalCount || 0);
-                            const value = Number(ctx.raw || 0);
-                            const pct = total > 0 ? ((value / total) * 100).toFixed(2) : '0.00';
-                            return `${ctx.label}: ${value.toLocaleString()} คน (${pct}%)`;
-                        }
-                    }
-                },
-                gysPieDepth: { enabled: true, depth: 16, darken: 35 },
-                gysPieCalloutLabels: {
-                    enabled: true,
-                    datasetIndex: 0,
-                    lineColor: '#1e40af',
-                    textColor: '#0f172a',
-                    valueColor: '#475569',
-                    lineWidth: 2,
-                    armLength: 20,
-                    horizontalLength: 42,
-                    startOffset: 8
-                }
-            }
-        }
-    });
-
-    if (pieSummaryEl) {
-        const totalCount = Number(pieData.totalCount || 0);
-        const oldPct = totalCount > 0 ? ((Number(pieData.oldCount || 0) / totalCount) * 100).toFixed(2) : '0.00';
-        const newPct = totalCount > 0 ? ((Number(pieData.newCount || 0) / totalCount) * 100).toFixed(2) : '0.00';
-        pieSummaryEl.innerHTML = `
-            <div style="background:#fff7ed; border:1px solid #fdba74; border-radius:12px; padding:12px;">
-                <div style="font-size:13px; color:#9a3412; margin-bottom:4px;">ผู้กู้ยืมรายเก่า</div>
-                <div style="font-size:22px; font-weight:800; color:#c2410c;">${Number(pieData.oldCount || 0).toLocaleString()}</div>
-                <div style="font-size:13px; color:#7c2d12;">คิดเป็น ${oldPct}%</div>
-            </div>
-            <div style="background:#ecfdf5; border:1px solid #86efac; border-radius:12px; padding:12px;">
-                <div style="font-size:13px; color:#166534; margin-bottom:4px;">ผู้กู้ยืมรายใหม่</div>
-                <div style="font-size:22px; font-weight:800; color:#059669;">${Number(pieData.newCount || 0).toLocaleString()}</div>
-                <div style="font-size:13px; color:#166534;">คิดเป็น ${newPct}%</div>
-            </div>
-        `;
-    }
 }
 
 window.renderGysDashboardData = (res, requestedFilters = {}) => {
